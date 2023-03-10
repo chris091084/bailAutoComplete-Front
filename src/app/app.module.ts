@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BailDocComponent } from './bail-doc/bail-doc.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormDocComponent } from './form-doc/form-doc.component';
 
 @NgModule({
-  declarations: [AppComponent, BailDocComponent],
+  declarations: [AppComponent, BailDocComponent, FormDocComponent],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
   providers: [],
   bootstrap: [AppComponent],

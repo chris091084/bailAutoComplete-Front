@@ -1,0 +1,144 @@
+<div class="container">
+  <form [formGroup]="formDoc" (ngSubmit)="onSubmit()">
+    <h2>Appartements</h2>
+    <div
+      class="form-check form-check-inline"
+      *ngFor="let appartment of appartments; index as i"
+    >
+      <input
+        class="form-check-input"
+        type="radio"
+        name="appartement"
+        [id]="'appartement' + i"
+        [value]="appartment"
+      />
+      <label class="form-check-label" [for]="'appartement' + i">{{
+        appartment
+      }}</label>
+    </div>
+    <h2>Type de baille</h2>
+    <div
+      class="form-check form-check-inline"
+      *ngFor="let typeBail of typeBails; index as i"
+    >
+      <input
+        class="form-check-input"
+        type="radio"
+        name="appartement"
+        [id]="'appartement' + i"
+        [value]="typeBail"
+      />
+      <label class="form-check-label" [for]="'typeBail' + i">{{
+        typeBail
+      }}</label>
+    </div>
+
+    <h2>Le locataire</h2>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="name"> Nom </label>
+          <input
+            id="name"
+            class="form-control"
+            type="text"
+            formControlName="name"
+          />
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label for="firstname"> Prénom </label>
+          <input
+            id="firstname"
+            class="form-control"
+            type="firstname"
+            formControlName="firstname"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="adress"> Adresse complète </label>
+      <input
+        id="adress"
+        class="form-control"
+        type="text"
+        formControlName="adress"
+      />
+    </div>
+    <div class="form-group">
+      <label for="email"> email</label>
+      <input
+        id="email"
+        class="form-control"
+        type="text"
+        formControlName="email"
+      />
+    </div>
+    <div class="form-group">
+      <label for="telephone"> Téléphone </label>
+      <input
+        id="telephone"
+        class="form-control"
+        type="number"
+        formControlName="telephone"
+      />
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="from"> date de début</label>
+          <input
+            id="from"
+            class="form-control"
+            type="date"
+            formControlName="from"
+          />
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label for="to"> date de fin</label>
+          <input
+            id="to"
+            class="form-control"
+            type="date"
+            formControlName="to"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="motif"> Motif </label>
+      <input
+        id="motif"
+        class="form-control"
+        type="motif"
+        formControlName="motif"
+      />
+    </div>
+    <h2>Le loyer</h2>
+    <div class="form-group">
+      <label for="priceNoCharge"> Montant hors charges (€) </label>
+      <input
+        id="priceNoCharge"
+        class="form-control"
+        type="number"
+        formControlName="priceNoCharge"
+      />
+    </div>
+    <div class="form-group">
+      <label for="chargePrice"> Montant des charges (€) </label>
+      <input
+        id="chargePrice"
+        class="form-control"
+        type="number"
+        formControlName="chargePrice"
+      />
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+</div>
