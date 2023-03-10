@@ -118,6 +118,19 @@
         formControlName="motif"
       />
     </div>
+    <div
+      class="form-check form-check-inline"
+      *ngFor="let room of rooms; index as i"
+    >
+      <input
+        class="form-check-input"
+        type="radio"
+        name="room"
+        [id]="'room' + i"
+        [value]="room"
+      />
+      <label class="form-check-label" [for]="'room ' + i">{{ room }}</label>
+    </div>
     <h2>Le loyer</h2>
     <div class="form-group">
       <label for="priceNoCharge"> Montant hors charges (€) </label>

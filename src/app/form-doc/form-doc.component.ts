@@ -16,10 +16,15 @@ export class FormDocComponent {
     from: new FormControl('', Validators.required),
     to: new FormControl('', Validators.required),
     motif: new FormControl('', Validators.required),
+    room: new FormControl('', Validators.required),
+    appartment: new FormControl('', Validators.required),
+    priceNoCharge: new FormControl('', Validators.required),
+    chargePrice: new FormControl('', Validators.required),
   });
 
   appartments = ['fillature', 'chateau gaillard', 'rue rené'];
   typeBails = ['Mobilité', 'Etudiant'];
+  rooms = ['chambre1', 'chambre2', 'chambre3', 'chambre4'];
 
   constructor() {}
 
