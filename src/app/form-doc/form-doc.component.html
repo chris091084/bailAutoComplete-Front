@@ -1,7 +1,7 @@
 <div class="modal-body">
   <div class="container">
     <form [formGroup]="formDoc" (ngSubmit)="onSubmit()">
-      <h2>Appartements</h2>
+      <h2 class="mt-3">Appartements</h2>
       <div
         class="form-check form-check-inline"
         *ngFor="let appartment of appartments; index as i"
@@ -11,10 +11,11 @@
           type="radio"
           name="appartement"
           [id]="'appartement' + i"
-          [value]="appartment"
+          (change)="switchRooms(appartment.chambre, appartment.bailleur)"
+          [value]="appartment.name"
         />
         <label class="form-check-label" [for]="'appartement' + i">{{
-          appartment
+          appartment.name
         }}</label>
       </div>
       <h2 class="mt-3">Type de baille</h2>
@@ -28,6 +29,7 @@
           name="typeBail"
           [id]="'typeBail' + i"
           [value]="typeBail"
+          (change)="isMobilite(typeBail)"
         />
         <label class="form-check-label" [for]="'typeBail' + i">{{
           typeBail
@@ -102,6 +104,7 @@
           <div class="form-group">
             <label for="to"> date de fin</label>
             <input
+              [disabled]="true"
               id="to"
               class="form-control"
               type="date"
