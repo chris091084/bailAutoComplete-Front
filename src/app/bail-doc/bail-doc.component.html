@@ -4,9 +4,9 @@
   </p>
 
   <p class="MsoTitleCxSpLast">
-    <span lang="FR" style="font-size: 18pt">Bail Mobilité</span
+    <span lang="FR" style="font-size: 18pt">Bail {{ formData.bailType }}</span
     ><span lang="FR" style="font-size: 18pt">
-      - Bail Étudiant – Durée déterminée – Résidence secondaire</span
+      - Durée déterminée – Résidence secondaire</span
     >
   </p>
 
@@ -198,12 +198,12 @@
   <p class="MsoNormal" style="line-height: normal">
     <b>Adresse électronique</b> :
     <span lang="FR">
-      {{ formData?.bailleur?.email }}
+      {{ formData.bailleur?.email }}
     </span>
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
-    <b>Téléphone</b>: {{ formData?.bailleur?.telephone }}
+    <b>Téléphone</b>: {{ formData.bailleur?.telephone }}
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
@@ -243,7 +243,7 @@
   <p class="MsoNormal" style="line-height: normal">
     <b
       ><span lang="FR"
-        >Nom&nbsp;: <span style="background: yellow">BERNARD Nina</span></span
+        >Nom&nbsp;: {{ formData.name }} {{ formData.firstname }}</span
       ></b
     >
   </p>
@@ -252,24 +252,19 @@
     <b><span lang="FR">Adresse&nbsp;</span></b
     ><span lang="FR"
       >:
-      <span style="background: yellow"
-        >5 IMPASSE DU CHEVAL BLANC 44500 LA BAULE</span
-      ></span
+
+      {{ formData.adress }}</span
     >
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
-    <b><span lang="FR">Adresse électronique</span></b
-    ><span lang="FR"
-      >&nbsp;: <span style="background: yellow">bnina1905@gmail.com</span></span
-    >
+    <b><span lang="FR">Adresse électronique:</span></b>
+    {{ formData.name }}
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
     <b><span lang="FR">Téléphone</span></b
-    ><span lang="FR"
-      >&nbsp;: <span style="background: yellow">06 xx xx xx xx</span>
-    </span>
+    ><span lang="FR">&nbsp;: {{ formData.telephone }}</span>
   </p>
 
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
@@ -327,16 +322,10 @@
 
   <p class="MsoNormal">
     <a name="_Hlk99641507"
-      ><span lang="FR" style="background: lime">56 rue de la Filature</span></a
+      ><span lang="FR" style="background: lime">{{
+        formData.appartement?.adresse
+      }}</span></a
     >
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: blue">17 bis rue Château Gaillard</span>
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: aqua">1 rue René</span>
   </p>
 
   <p class="MsoNormal"><span lang="FR">69100 VILLEURBANNE</span></p>
@@ -358,9 +347,7 @@
   <p class="MsoNormal">
     <span lang="FR"
       >Période de construction&nbsp;:
-      <span style="background: lime">1968</span>
-      <span style="background: blue">1946-1970 </span
-      ><span style="background: aqua">1946-1970</span></span
+      {{ formData.appartement?.constructionPeriod }}</span
     >
   </p>
 
@@ -393,102 +380,20 @@
     <span lang="FR">Surface de la partie privative&nbsp;: </span>
   </p>
 
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <span lang="FR" style="font-family: Wingdings; background: lime">þ</span
-    ><span lang="FR" style="background: lime"> Chambre 1&nbsp;: 10.30 m²</span>
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: lime">¨</span
-      ><span lang="FR" style="background: lime">
-        Chambre 2&nbsp;: 9,14 m²</span
-      ></s
+  <p
+    *ngFor="let chambre of formData.appartement?.chambres"
+    class="MsoNormal"
+    style="margin-left: 63.8pt"
+  >
+    <input
+      type="checkbox"
+      [checked]="chambre === formData.room ? 'checked' : ''"
+      disabled
+    /><span
+      [style]="chambre === formData.room ? '' : 'text-decoration: line-through'"
     >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: lime">¨</span
-      ><span lang="FR" style="background: lime">
-        Chambre 3&nbsp;: 9,79 m²</span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: lime">¨</span
-      ><span lang="FR" style="background: lime">
-        Chambre 4&nbsp;: 11.19 m²</span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR"
-        ><span style="text-decoration: none">&nbsp;</span></span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <span lang="FR" style="font-family: Wingdings; background: blue">þ</span
-    ><span lang="FR" style="background: blue"> Chambre 1&nbsp;: 9.91 m²</span>
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: blue">¨</span
-      ><span lang="FR" style="background: blue">
-        Chambre 2&nbsp;: 8.20 m²</span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: blue">¨</span
-      ><span lang="FR" style="background: blue">
-        Chambre 3&nbsp;: 9.67 m²</span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <s
-      ><span lang="FR" style="font-family: Wingdings; background: blue">¨</span
-      ><span lang="FR" style="background: blue">
-        Chambre 4&nbsp;: 10.5 m²</span
-      ></s
-    >
-  </p>
-
-  <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <a name="_Hlk100151574"
-      ><span lang="FR" style="font-family: Wingdings; background: aqua">¨</span
-      ><span lang="FR" style="background: aqua">
-        Chambre 1&nbsp;: 10.13 m²</span
-      ></a
-    >
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <span lang="FR" style="font-family: Wingdings; background: aqua">¨</span
-    ><span lang="FR" style="background: aqua"> Chambre 2&nbsp;: 10,13 m²</span>
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <span lang="FR" style="font-family: Wingdings; background: aqua">¨</span
-    ><span lang="FR" style="background: aqua"> Chambre 3&nbsp;: 8,07 m²</span>
-  </p>
-
-  <p class="MsoNormal" style="margin-left: 63.8pt">
-    <span lang="FR" style="font-family: Wingdings; background: aqua">¨</span
-    ><span lang="FR" style="background: aqua"> Chambre 4&nbsp;: 11.03 m²</span>
+      {{ chambre }}
+    </span>
   </p>
 
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
@@ -503,7 +408,8 @@
   <p class="MsoNormal">
     <span lang="FR"
       >Autres parties du logement&nbsp;: parties communes du logement&nbsp;:
-      Cuisine, salon, salle de bains, WC, balcon<span style="background: lime"
+      Cuisine, salon, salle de bains, WC, balcon<span
+        *ngIf="formData.appartement?.name === 'fillature'"
         >, loggia</span
       >.</span
     >
@@ -517,16 +423,15 @@
   </p>
 
   <p class="MsoNormal">
-    <span lang="FR">Modalité de production de chauffage&nbsp;: Collectif.</span>
+    <span lang="FR"
+      >Modalité de production de chauffage&nbsp;:
+      {{ formData.appartement?.energieHeating }}.</span
+    >
   </p>
 
   <p class="MsoNormal">
-    <span lang="FR"
-      >Modalité de production d'eau chaude sanitaire&nbsp;: Individuel,
-      <span style="background: lime">chaudière à gaz</span>,
-      <span style="background: blue">cumulus électrique</span>,
-      <span style="background: aqua">chaudière à gaz.</span></span
-    >
+    Modalité de production d'eau chaude sanitaire: Individuel,
+    {{ formData.appartement?.energieWater }}.
   </p>
 
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
@@ -541,9 +446,8 @@
       d'une partie privative d'un logement par ailleurs occupé par d'autres
       locataires ou occupants. À titre d’information, la surface habitable
       totale de l’appartement est de
-      <span style="background: lime">81.18</span>
-      <span style="background: blue">73.78</span>
-      <span style="background: aqua">72,83</span> m².</span
+
+      {{ formData.appartement?.surface }} m².</span
     >
   </p>
 
@@ -571,132 +475,13 @@
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
 
   <ul style="margin-top: 0cm" type="disc">
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime"
-        >L'entrée du logement et son couloir (8.20m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime"
-        >La cuisine entièrement équipée (9,53m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime">Le salon (17.58m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime">Le WC (1.04m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime"
-        >La salle de bains (4.41m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime">Une loggia (1.99m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime">Un balcon (4,30m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: lime"
-        >Des placards accessibles depuis le couloir.</span
-      >
+    <li
+      *ngFor="let caracteristique of formData.appartement?.caracteristiques"
+      class="MsoNormal"
+    >
+      <span lang="FR">{{ caracteristique }},</span>
     </li>
   </ul>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: lime">&nbsp;</span>
-  </p>
-
-  <ul style="margin-top: 0cm" type="disc">
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue"
-        >L'entrée du logement (3.68m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue"
-        >La cuisine entièrement équipée (6.45m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue">Le salon (21 m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue">Le WC (0.90m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue"
-        >La salle de bains (3.22m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue">Un balcon (5,09m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: darkblue"
-        >Des placards accessibles depuis le salon.</span
-      >
-    </li>
-  </ul>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: lime">&nbsp;</span>
-  </p>
-
-  <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
-
-  <ul style="margin-top: 0cm" type="disc">
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua"
-        >L'entrée du logement (5,08m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua"
-        >La cuisine entièrement équipée (6,41m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua">Le salon (17,14m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua">Le WC (0,96m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua"
-        >La salle de bains (2,53m²),</span
-      >
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua">Un dégagement (1.35m²),</span>
-    </li>
-    <li class="MsoNormal">
-      <span lang="FR" style="background: aqua">Un balcon (3,52m²).</span>
-    </li>
-  </ul>
-</div>
-
-<span
-  lang="FR"
-  style="
-    font-size: 10pt;
-    line-height: 115%;
-    font-family: 'Calibri', sans-serif;
-    background: aqua;
-  "
-  ><br clear="all" style="page-break-before: auto" />
-</span>
-
-<div class="WordSection2">
-  <p class="MsoNormal">
-    <b><span lang="FR">&nbsp;</span></b>
-  </p>
-
-  <p class="MsoNormal">
-    <b><span lang="FR">&nbsp;</span></b>
-  </p>
 
   <div
     style="
@@ -971,8 +756,7 @@
 
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%"
-      >Date de prise d’effet du contrat&nbsp;:     
-      <span style="background: yellow">11/01/2023</span></span
+      >Date de prise d’effet du contrat&nbsp;:{{ formData.from }}</span
     >
   </p>
 
@@ -999,74 +783,42 @@
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%">&nbsp;</span>
   </p>
+  <div *ngIf="formData.bailType === 'Etudiant'">
+    <p class="MsoNormal">
+      Le contrat prendra effet le
+      {{ formData.from }}
+      pour se finir le
+      {{ formData.to }}(date initiale +9mois).
+    </p>
 
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: darkcyan"
-      >Le contrat prendra effet le </span
-    ><span lang="FR" style="line-height: 115%; background: yellow"
-      >11/01/2023 </span
-    ><span lang="FR" style="line-height: 115%; background: darkcyan"
-      >pour se finir le </span
-    ><span
-      lang="FR"
-      style="line-height: 115%; color: #538135; background: yellow"
-      >31/08/2023 (date initiale +9mois).</span
-    >
-  </p>
+    <p class="MsoNormal">
+      Bail étudiant d’une durée fixe (9 mois), non reconduit tacitement. À
+      l’issue de la période, il prendra fin sans formalités.
+    </p>
 
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: darkcyan"
-      >Bail étudiant d’une durée fixe (9 mois), non reconduit tacitement. À
-      l’issue de la période, il prendra fin sans formalités.</span
-    >
-  </p>
+    <p class="MsoNormal">
+      Motif justifiant l’utilisation d’un bail étudiant: poursuite des études
+      supérieures du locataire
+    </p>
+  </div>
 
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: darkcyan"
-      >Motif justifiant l’utilisation d’un bail étudiant&nbsp;: poursuite des
-      études supérieures du locataire</span
-    >
-  </p>
+  <div *ngIf="formData.bailType === 'Mobilité'">
+    <p class="MsoNormal">
+      Le contrat prendra effet le {{ formData.from }} pour se finir le
+      {{ formData.to }}
+    </p>
 
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="line-height: 115%; color: #538135; background: yellow"
-      >&nbsp;</span
-    >
-  </p>
+    <p class="MsoNormal">
+      Bail mobilité d’une durée fixe, non reconduit tacitement. À l’issue de la
+      période, il prendra fin sans formalités.
+    </p>
 
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: fuchsia"
-      >Le contrat prendra effet le </span
-    ><span lang="FR" style="line-height: 115%; background: yellow"
-      >11/01/2023 </span
-    ><span lang="FR" style="line-height: 115%; background: fuchsia"
-      >pour se finir le </span
-    ><span lang="FR" style="line-height: 115%; background: yellow"
-      >31/08/2023</span
-    ><span lang="FR" style="line-height: 115%; background: fuchsia">.</span>
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: fuchsia"
-      >Bail mobilité d’une durée fixe, non reconduit tacitement. À l’issue de la
-      période, il prendra fin sans formalités.</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: fuchsia"
-      >Motif justifiant l’utilisation d’un bail mobilité à durée
-      déterminée&nbsp;: </span
-    ><span lang="FR" style="line-height: 115%; background: yellow"
-      >poursuite des études supérieures du locataire</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="line-height: 115%; background: fuchsia">&nbsp;</span>
-  </p>
+    <p class="MsoNormal">
+      Motif justifiant l’utilisation d’un bail mobilité à durée déterminée:
+      poursuite des études supérieures du locataire.
+    </p>
+  </div>
+  <br />
 
   <p class="MsoNormal">
     <i
@@ -1114,7 +866,7 @@
     <i><span lang="FR">&nbsp;</span></i>
   </p>
 
-  <p class="MsoNormal">
+  <p *ngIf="formData.bailType === 'Etudiant'" class="MsoNormal">
     <i
       ><span lang="FR" style="background: darkcyan"
         >Le bail étudiant est d’une durée fixe de neuf mois, non reconductible.
@@ -1135,22 +887,20 @@
     >
   </p>
 
-  <p class="MsoNormal">
+  <p *ngIf="formData.bailType === 'Mobilité'" class="MsoNormal">
     <i
-      ><span lang="FR" style="background: fuchsia"
-        >Le bail mobilité est d’une durée fixe, pouvant aller jusqu’à dix mois,
-        non reconductible.
-        <b
-          >Au terme de la période initiale du bail, si le locataire souhaite
-          rester dans les lieux, il pourra lui être proposé de signer un avenant
-          au présent bail, pour prolonger la durée, jusqu’à un maximum de dix
-          mois. Au-delà, il pourra lui être proposé de signer un nouveau bail.
-          Dans ces cas de figure, le locataire devra signifier par écrit au
-          bailleur son souhait de rester dans le logement au plus tard 30 jours
-          avant la fin du bail en cours.</b
-        ></span
-      ></i
-    >
+      >Le bail mobilité est d’une durée fixe, pouvant aller jusqu’à dix mois,
+      non reconductible.
+      <b
+        >Au terme de la période initiale du bail, si le locataire souhaite
+        rester dans les lieux, il pourra lui être proposé de signer un avenant
+        au présent bail, pour prolonger la durée, jusqu’à un maximum de dix
+        mois. Au-delà, il pourra lui être proposé de signer un nouveau bail.
+        Dans ces cas de figure, le locataire devra signifier par écrit au
+        bailleur son souhait de rester dans le logement au plus tard 30 jours
+        avant la fin du bail en cours.</b
+      >
+    </i>
   </p>
 
   <p class="MsoNormal">
@@ -1224,7 +974,10 @@
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%"
       >a) Montant du loyer mensuel :
-      <span style="background: yellow">420</span> Euros</span
+      <span style="background: yellow">{{
+        formData.priceNoCharge + formData.chargePrice
+      }}</span>
+      Euros</span
     >
   </p>
 

@@ -1,31 +1,40 @@
 import { Bailleur } from './bailleur.model';
 
-export class Appartment {
+export class Appartement {
   name?: string;
   bailleur?: Bailleur;
   adresse?: string;
-  chambre?: string[];
-  caracteristique?: string[];
-  energie?: string;
+  chambres?: string[];
+  caracteristiques?: string[];
+  energieWater?: string;
+  energieHeating?: string;
   bankName?: string;
   pet?: string;
+  constructionPeriod?: string;
+  surface?: string;
   constructor(
     name: string,
     bailleur: Bailleur,
     adresse: string,
-    chambre: string[],
-    caracteristique: string[],
-    energie: string,
+    chambres: string[],
+    caracteristiques: string[],
+    energieWater: string,
+    energieHeating: string,
     bankName: string,
-    pet: string
+    pet: string,
+    constructionPeriod: string,
+    surface: string
   ) {
     this.name = name;
     this.bailleur = bailleur;
     this.adresse = adresse;
-    this.chambre = chambre;
-    this.caracteristique = caracteristique;
-    this.energie = energie;
+    this.chambres = chambres;
+    this.caracteristiques = caracteristiques;
+    this.energieWater = energieWater;
+    this.energieHeating = energieHeating;
     this.bankName = bankName;
     this.pet = pet;
+    this.constructionPeriod = constructionPeriod;
+    this.surface = surface;
   }
 }

@@ -4,18 +4,20 @@
       <h2 class="mt-3">Appartements</h2>
       <div
         class="form-check form-check-inline"
-        *ngFor="let appartment of appartments; index as i"
+        *ngFor="let appartement of appartments; index as i"
       >
         <input
           class="form-check-input"
           type="radio"
           name="appartement"
           [id]="'appartement' + i"
-          (change)="switchRooms(appartment.chambre, appartment.bailleur)"
-          [value]="appartment.name"
+          (change)="switchRooms(appartement.chambres, appartement.bailleur)"
+          [value]="appartement"
+          formControlName="appartement"
         />
+
         <label class="form-check-label" [for]="'appartement' + i">{{
-          appartment.name
+          appartement.name
         }}</label>
       </div>
       <h2 class="mt-3">Type de baille</h2>
@@ -30,6 +32,7 @@
           [id]="'typeBail' + i"
           [value]="typeBail"
           (change)="isMobilite(typeBail)"
+          formControlName="typeBail"
         />
         <label class="form-check-label" [for]="'typeBail' + i">{{
           typeBail
@@ -132,6 +135,7 @@
           name="room"
           [id]="'room' + i"
           [value]="room"
+          formControlName="room"
         />
         <label class="form-check-label" [for]="'room ' + i">{{ room }}</label>
       </div>

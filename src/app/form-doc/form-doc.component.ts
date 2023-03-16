@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Appartment } from '../model/appartement.model';
+import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ResultForm } from '../model/resultForm.model';
@@ -21,9 +21,10 @@ export class FormDocComponent {
     to: new FormControl(''),
     motif: new FormControl('', Validators.required),
     room: new FormControl('', Validators.required),
-    appartment: new FormControl('', Validators.required),
-    priceNoCharge: new FormControl('', Validators.required),
-    chargePrice: new FormControl('', Validators.required),
+    appartement: new FormControl(undefined, Validators.required),
+    priceNoCharge: new FormControl(0, Validators.required),
+    chargePrice: new FormControl(0, Validators.required),
+    typeBail: new FormControl(''),
   });
   //bailleurs
   bailleur1 = new Bailleur(
@@ -68,7 +69,7 @@ export class FormDocComponent {
     'Un balcon (3,52m²).',
   ];
   //APPARTEMENT
-  appartement1 = new Appartment(
+  appartement1 = new Appartement(
     'fillature',
     this.bailleur1,
     '56 rue de la Filature - 69100 VILLEURBANNE',
@@ -80,10 +81,13 @@ export class FormDocComponent {
     ],
     this.caracteristiques1,
     'chaudière à gaz',
+    'collectif',
     'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 286 Code BIC : CMBRFR2BXXX',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe."
+    "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe.",
+    '1968',
+    '81,18'
   );
-  appartement2 = new Appartment(
+  appartement2 = new Appartement(
     'chateau gaillard',
     this.bailleur2,
     '17 bis rue Château Gaillard',
@@ -95,10 +99,13 @@ export class FormDocComponent {
     ],
     this.caracteristiques2,
     'cumulus électrique',
+    'collectif',
     'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 383 Code BIC : CMBRFR2BXXX',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur."
+    "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
+    '1946-1970',
+    '73,78'
   );
-  appartement3 = new Appartment(
+  appartement3 = new Appartement(
     'rue rené',
     this.bailleur1,
     '1 rue René',
@@ -111,8 +118,11 @@ export class FormDocComponent {
     this.caracteristiques3,
 
     'chaudière à gaz',
+    'individuel',
     'Etablissement bancaire : Crédit Agricole Ille et Vilaine – Maen Roch IBAN : FR76 1360 6000 3346 3385 5675 616 Code BIC : AGRIFRPP83',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur."
+    "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
+    '1946-1970',
+    '72,83'
   );
 
   appartments = [this.appartement1, this.appartement2, this.appartement3];
@@ -124,20 +134,38 @@ export class FormDocComponent {
   constructor(private activeModal: NgbActiveModal) {}
 
   onSubmit() {
+    console.log(this.resultForm.chargePrice);
+
     this.resultForm.adress = this.formDoc.get('adress')?.value;
     this.resultForm.appartement = this.formDoc.get('appartement')?.value;
-    this.resultForm.chargePrice = this.formDoc.get('chargePrice')?.value;
+    const chargePriceValue = this.formDoc.get('chargePrice')?.value;
+    this.resultForm.chargePrice =
+      chargePriceValue !== null && chargePriceValue !== undefined
+        ? chargePriceValue
+        : 0;
+
+    // this.resultForm.chargePrice = this.formDoc.get('chargePrice')?.value;
+
     this.resultForm.email = this.formDoc.get('email')?.value;
     this.resultForm.firstname = this.formDoc.get('firstname')?.value;
     this.resultForm.from = this.formDoc.get('from')?.value;
+    this.resultForm.to = this.formDoc.get('to')?.value;
     this.resultForm.motif = this.formDoc.get('motif')?.value;
     this.resultForm.name = this.formDoc.get('name')?.value;
-    this.resultForm.priceNoCharge = this.formDoc.get('priceNoCharge')?.value;
+    const priceNoChargeValue = this.formDoc.get('priceNoCharge')?.value;
+    this.resultForm.priceNoCharge =
+      priceNoChargeValue !== null && priceNoChargeValue !== undefined
+        ? priceNoChargeValue
+        : 0;
+
     this.resultForm.room = this.formDoc.get('room')?.value;
     this.resultForm.telephone = this.formDoc.get('telephone')?.value;
     this.resultForm.bailleur = this.bailleurSelected;
+    console.log(this.formDoc.get('typeBail')?.value);
+    this.resultForm.bailType = this.formDoc.get('typeBail')?.value;
     console.log(this.resultForm);
     this.activeModal.close(this.resultForm);
+    console.log(this.resultForm);
   }
 
   switchRooms(rooms: any, bailleur: any) {

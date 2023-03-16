@@ -10,7 +10,7 @@ import { ResultForm } from '../model/resultForm.model';
 })
 export class BailDocComponent implements OnInit {
   doFilter = new EventEmitter<any>();
-  formData: any;
+  formData: ResultForm = new ResultForm();
   constructor(private modalService: NgbModal) {}
 
   ngOnInit(): void {
