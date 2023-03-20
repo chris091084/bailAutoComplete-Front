@@ -7,7 +7,7 @@ export class ResultForm {
   chargePrice: number = 0;
   email?: string | null;
   firstname?: string | null;
-  from?: string | null;
+  from: Date = new Date();
   to?: string | null;
   motif?: string | null;
   name?: string | null;

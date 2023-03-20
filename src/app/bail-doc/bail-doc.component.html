@@ -1036,7 +1036,7 @@
     </span>
   </p>
 
-  <p class="MsoNormal" style="margin-left: 36pt; text-indent: -18pt">
+  <!-- <p class="MsoNormal" style="margin-left: 36pt; text-indent: -18pt">
     <span lang="FR" style="line-height: 115%"
       >-<span style="font: 7pt 'Times New Roman'"
         >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1044,14 +1044,16 @@
     ><span lang="FR" style="line-height: 115%">Complément de loyer : </span
     ><span lang="FR"
       >Un complément de loyer de
-      <span style="color: white; background: black">201.51€</span
+      <span
+        style="color: white; background: black"
+        >{{form Data.priceNoCharge - formData.appartement.rentMaj}}</span
       ><span style="color: white"> </span>est appliqué par rapport au loyer
       mensuel de référence majoré. Ce complément de loyer est justifié par le
       fait que le découpage par zone fait apparaitre que le logement est situé à
       proximité immédiate de la zone 2 (250m environ) où l’indice de loyer est
       12% supérieur à celui appliqué.
     </span>
-  </p>
+  </p> -->
 
   <p class="MsoListParagraph">
     <span lang="FR"
@@ -1612,131 +1614,16 @@
   </p>
 
   <p class="MsoNormal">
-    <span [innerHTML]="formData.appartement?.bankName">
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: lime;
-      "
-      >{{ formData.appartement?.bankName }}</span
-    >
-  </p>
-
-  <p class="MsoNormal">
     <span
+      [innerHTML]="formData.appartement?.bankName"
       lang="FR"
       style="
         font-size: 10.5pt;
         line-height: 115%;
         font-family: 'T3Font_0', sans-serif;
         color: #071621;
-        background: lime;
       "
-      >IBAN&nbsp;: FR76 1558 9351 5600 3177 7744 286</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: lime;
-      "
-      >Code BIC&nbsp;: CMBRFR2BXXX</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: darkblue;
-      "
-      >Etablissement bancaire&nbsp;: Crédit Mutuel de Bretagne – Louvigné du
-      Désert</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: darkblue;
-      "
-      >IBAN&nbsp;: FR76 1558 9351 5600 3177 7744 383</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: darkblue;
-      "
-      >Code BIC&nbsp;: CMBRFR2BXXX</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: aqua;
-      "
-      >Etablissement bancaire&nbsp;: Crédit Agricole Ille et Vilaine – Maen
-      Roch</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: aqua;
-      "
-      >IBAN&nbsp;: FR76 1360 6000 3346 3385 5675 616</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span
-      lang="FR"
-      style="
-        font-size: 10.5pt;
-        line-height: 115%;
-        font-family: 'T3Font_0', sans-serif;
-        color: #071621;
-        background: aqua;
-      "
-      >Code BIC&nbsp;: AGRIFRPP836</span
-    >
+    ></span>
   </p>
 
   <p class="MsoNormal" style="margin-left: 36pt">
@@ -1758,7 +1645,15 @@
   <p class="MsoListParagraphCxSpFirst" style="margin-left: 70.9pt">
     <span lang="FR" style="line-height: 115%"
       >Loyer mensuel&nbsp;:<span style="color: white">
-        <span style="background: black">525 x 27/31 = 457 €</span></span
+        <span style="background: black"
+          >{{ formData.priceNoCharge + formData.chargePrice }} x
+          {{ formData.from | dateLeft }}/31 =
+          {{
+            formData.priceNoCharge +
+              (formData.chargePrice * (formData.from | dateLeft)) / 31
+          }}
+          €</span
+        ></span
       ></span
     >
   </p>
@@ -1774,6 +1669,7 @@
   <p class="MsoListParagraphCxSpLast" style="margin-left: 70.9pt">
     <span lang="FR" style="line-height: 115%"
       >Total&nbsp;: 625x 27/31 =
+      <!--remplacer 625 par le loyer ttc d'un appartement x le 27 est la valeur restant du moi de la signature du baille -->
       <a name="_Hlk129262699"
         ><span style="color: white; background: black">544€</span>
       </a></span
@@ -1836,7 +1732,9 @@
       >Montant du dépôt de garantie de l'exécution des obligations du locataire
       :
       <span style="color: white"
-        > <span style="background: black">840</span></span
+        ><!--loyer hors charge x2 --> <span style="background: black"
+          >840</span
+        ></span
       >€
     </span>
   </p>

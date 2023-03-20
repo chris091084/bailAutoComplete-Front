@@ -82,7 +82,7 @@ export class FormDocComponent {
     this.caracteristiques1,
     'chaudière à gaz',
     'collectif',
-    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 286 Code BIC : CMBRFR2BXXX',
+    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert</br>IBAN : FR76 1558 9351 5600 3177 7744 286</br>Code BIC : CMBRFR2BXXX',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe.",
     '1968',
     '81,18',
@@ -102,7 +102,7 @@ export class FormDocComponent {
     this.caracteristiques2,
     'cumulus électrique',
     'collectif',
-    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 383 Code BIC : CMBRFR2BXXX',
+    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert</br>IBAN : FR76 1558 9351 5600 3177 7744 383</br>Code BIC : CMBRFR2BXXX',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
     '73,78',
@@ -123,7 +123,7 @@ export class FormDocComponent {
 
     'chaudière à gaz',
     'individuel',
-    'Etablissement bancaire : Crédit Agricole Ille et Vilaine </br> – Maen Roch  IBAN : FR76 1360 6000 3346 3385 5675 616 Code BIC : AGRIFRPP83',
+    'Etablissement bancaire : Crédit Agricole Ille et Vilaine – Maen Roch</br>IBAN : FR76 1360 6000 3346 3385 5675 616</br>Code BIC : AGRIFRPP83',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
     '72,83',
@@ -140,6 +140,30 @@ export class FormDocComponent {
   constructor(private activeModal: NgbActiveModal) {}
 
   onSubmit() {
+    // if (
+    //   this.formDoc.get('from') !== null &&
+    //   this.formDoc.get('from') !== undefined
+    // ) {
+    //   // verify if this.formDoc.get('from') is not null
+
+    //   console.log(this.formDoc.value.from);
+
+    //   let dateFrom = new Date(this.formDoc.get('from')?.getRawValue());
+    //   console.log(dateFrom);
+
+    //   let date: Date | undefined | null =
+    //     dateFrom !== null && dateFrom !== undefined ? dateFrom : new Date();
+    //   if (date !== null && date !== undefined) {
+    //     const mois = date.getMonth();
+    //     const annee = date.getFullYear();
+    //     const dernierJour = new Date(annee, mois + 1, 0).getDate();
+
+    //     const joursRestants = dernierJour - date.getDate();
+
+    //     console.log(joursRestants);
+    //   }
+    // }
+
     console.log(this.resultForm.chargePrice);
 
     this.resultForm.adress = this.formDoc.get('adress')?.value;
@@ -154,7 +178,7 @@ export class FormDocComponent {
 
     this.resultForm.email = this.formDoc.get('email')?.value;
     this.resultForm.firstname = this.formDoc.get('firstname')?.value;
-    this.resultForm.from = this.formDoc.get('from')?.value;
+    this.resultForm.from = this.formDoc.get('from')?.getRawValue();
     this.resultForm.to = this.formDoc.get('to')?.value;
     this.resultForm.motif = this.formDoc.get('motif')?.value;
     this.resultForm.name = this.formDoc.get('name')?.value;
