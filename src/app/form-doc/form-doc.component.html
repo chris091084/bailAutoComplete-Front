@@ -33,6 +33,7 @@
           [value]="typeBail"
           (change)="isMobilite(typeBail)"
           formControlName="typeBail"
+          [checked]="this.formDoc.get('typeBail')?.value === typeBail"
         />
         <label class="form-check-label" [for]="'typeBail' + i">{{
           typeBail

@@ -974,9 +974,7 @@
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%"
       >a) Montant du loyer mensuel :
-      <span style="background: yellow">{{
-        formData.priceNoCharge + formData.chargePrice
-      }}</span>
+      {{ formData.priceNoCharge + formData.chargePrice }}
       Euros</span
     >
   </p>
@@ -1019,11 +1017,10 @@
         >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       </span></span
     ><span lang="FR" style="line-height: 115%"
-      >Montant du loyer de référence :<span style="background: lime"
-        >202.95</span
-      >
-      <span style="background: blue">184.45</span>
-      <span style="background: aqua">182.08</span>€ / mois.
+      >Montant du loyer de référence :
+      {{ formData.appartement?.rentRef }}
+
+      € / mois.
     </span>
   </p>
 
@@ -1033,11 +1030,9 @@
         >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       </span></span
     ><span lang="FR" style="line-height: 115%"
-      >Montant du loyer de référence majoré :  <span style="background: lime"
-        >234.54</span
-      >
-      <span style="background: blue">221.34</span> 
-      <span style="background: aqua">218.49</span>€ / mois.
+      >Montant du loyer de référence majoré :  
+      {{ formData.appartement?.rentMaj }}
+      € / mois.
     </span>
   </p>
 
@@ -1071,19 +1066,23 @@
     </span>
   </p>
 
-  <p class="MsoNormal" style="margin-left: 36pt">
-    <span lang="FR" style="background: lime"
-      >De plus, il convient de préciser que le logement qui est loué en meublé a
-      été entièrement refait à neuf en juillet 2022. Il comporte une cuisine
-      entièrement équipée et une salle de bains moderne.</span
-    >
+  <p
+    class="MsoNormal"
+    style="margin-left: 36pt"
+    *ngIf="formData.appartement?.name === 'fillature'"
+  >
+    >De plus, il convient de préciser que le logement qui est loué en meublé a
+    été entièrement refait à neuf en juillet 2022. Il comporte une cuisine
+    entièrement équipée et une salle de bains moderne.
   </p>
 
-  <p class="MsoNormal" style="margin-left: 36pt">
-    <span lang="FR" style="background: blue"
-      >De plus, il convient de préciser que le logement qui est loué en meublé a
-      été entièrement refait à neuf en juin 2023.
-    </span>
+  <p
+    class="MsoNormal"
+    style="margin-left: 36pt"
+    *ngIf="formData.appartement?.name === 'rue rené'"
+  >
+    >De plus, il convient de préciser que le logement qui est loué en meublé a
+    été entièrement refait à neuf en juin 2023.
   </p>
 
   <p class="MsoNormal" style="margin-left: 36pt">
@@ -1613,7 +1612,7 @@
   </p>
 
   <p class="MsoNormal">
-    <span
+    <span [innerHTML]="formData.appartement?.bankName">
       lang="FR"
       style="
         font-size: 10.5pt;
@@ -1622,8 +1621,7 @@
         color: #071621;
         background: lime;
       "
-      >Etablissement bancaire&nbsp;: Crédit Mutuel de Bretagne – Louvigné du
-      Désert</span
+      >{{ formData.appartement?.bankName }}</span
     >
   </p>
 

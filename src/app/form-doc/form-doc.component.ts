@@ -85,7 +85,9 @@ export class FormDocComponent {
     'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 286 Code BIC : CMBRFR2BXXX',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe.",
     '1968',
-    '81,18'
+    '81,18',
+    202.95,
+    234.54
   );
   appartement2 = new Appartement(
     'chateau gaillard',
@@ -103,7 +105,9 @@ export class FormDocComponent {
     'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert IBAN : FR76 1558 9351 5600 3177 7744 383 Code BIC : CMBRFR2BXXX',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
-    '73,78'
+    '73,78',
+    184.45,
+    221.34
   );
   appartement3 = new Appartement(
     'rue rené',
@@ -119,10 +123,12 @@ export class FormDocComponent {
 
     'chaudière à gaz',
     'individuel',
-    'Etablissement bancaire : Crédit Agricole Ille et Vilaine – Maen Roch IBAN : FR76 1360 6000 3346 3385 5675 616 Code BIC : AGRIFRPP83',
+    'Etablissement bancaire : Crédit Agricole Ille et Vilaine </br> – Maen Roch  IBAN : FR76 1360 6000 3346 3385 5675 616 Code BIC : AGRIFRPP83',
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
-    '72,83'
+    '72,83',
+    182.08,
+    218.49
   );
 
   appartments = [this.appartement1, this.appartement2, this.appartement3];

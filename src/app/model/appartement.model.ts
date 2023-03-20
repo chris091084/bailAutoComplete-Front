@@ -12,6 +12,8 @@ export class Appartement {
   pet?: string;
   constructionPeriod?: string;
   surface?: string;
+  rentRef?: number;
+  rentMaj?: number;
   constructor(
     name: string,
     bailleur: Bailleur,
@@ -23,7 +25,9 @@ export class Appartement {
     bankName: string,
     pet: string,
     constructionPeriod: string,
-    surface: string
+    surface: string,
+    rentRef?: number,
+    rentMaj?: number
   ) {
     this.name = name;
     this.bailleur = bailleur;
@@ -36,5 +40,7 @@ export class Appartement {
     this.pet = pet;
     this.constructionPeriod = constructionPeriod;
     this.surface = surface;
+    this.rentRef = rentRef;
+    this.rentMaj = rentMaj;
   }
 }
