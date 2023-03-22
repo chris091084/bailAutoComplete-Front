@@ -25,6 +25,7 @@ export class FormDocComponent {
     priceNoCharge: new FormControl(0, Validators.required),
     chargePrice: new FormControl(0, Validators.required),
     typeBail: new FormControl(''),
+    irl: new FormControl(''),
   });
   //bailleurs
   bailleur1 = new Bailleur(
@@ -193,6 +194,7 @@ export class FormDocComponent {
     this.resultForm.bailleur = this.bailleurSelected;
     console.log(this.formDoc.get('typeBail')?.value);
     this.resultForm.bailType = this.formDoc.get('typeBail')?.value;
+    this.resultForm.irl = this.formDoc.get('irl')?.value;
     console.log(this.resultForm);
     this.activeModal.close(this.resultForm);
     console.log(this.resultForm);
