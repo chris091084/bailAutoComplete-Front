@@ -25,7 +25,8 @@ export class FormDocComponent {
     priceNoCharge: new FormControl(0, Validators.required),
     chargePrice: new FormControl(0, Validators.required),
     typeBail: new FormControl(''),
-    irl: new FormControl(''),
+    tIrl: new FormControl(''),
+    valIrl: new FormControl(''),
   });
   //bailleurs
   bailleur1 = new Bailleur(
@@ -88,7 +89,8 @@ export class FormDocComponent {
     '1968',
     '81,18',
     202.95,
-    234.54
+    234.54,
+    '1000'
   );
   appartement2 = new Appartement(
     'chateau gaillard',
@@ -108,7 +110,8 @@ export class FormDocComponent {
     '1946-1970',
     '73,78',
     184.45,
-    221.34
+    221.34,
+    '3000'
   );
   appartement3 = new Appartement(
     'rue rené',
@@ -129,7 +132,8 @@ export class FormDocComponent {
     '1946-1970',
     '72,83',
     182.08,
-    218.49
+    218.49,
+    '1000'
   );
 
   appartments = [this.appartement1, this.appartement2, this.appartement3];
@@ -194,7 +198,8 @@ export class FormDocComponent {
     this.resultForm.bailleur = this.bailleurSelected;
     console.log(this.formDoc.get('typeBail')?.value);
     this.resultForm.bailType = this.formDoc.get('typeBail')?.value;
-    this.resultForm.irl = this.formDoc.get('irl')?.value;
+    this.resultForm.tIrl = this.formDoc.get('tIrl')?.value;
+    this.resultForm.valIrl = this.formDoc.get('valIrl')?.value;
     console.log(this.resultForm);
     this.activeModal.close(this.resultForm);
     console.log(this.resultForm);

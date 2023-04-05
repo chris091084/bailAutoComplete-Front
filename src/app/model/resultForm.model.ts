@@ -16,5 +16,6 @@ export class ResultForm {
   telephone?: string | null;
   bailleur?: Bailleur | null;
   bailType?: string | null;
-  irl?: string | null;
+  tIrl?: string | null;
+  valIrl?: string | null;
 }

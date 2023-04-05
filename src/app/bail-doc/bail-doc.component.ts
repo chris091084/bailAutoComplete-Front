@@ -11,6 +11,13 @@ import { ResultForm } from '../model/resultForm.model';
 export class BailDocComponent implements OnInit {
   doFilter = new EventEmitter<any>();
   formData: ResultForm = new ResultForm();
+  dateToday = new Date().toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   constructor(private modalService: NgbModal) {}
 
   ngOnInit(): void {

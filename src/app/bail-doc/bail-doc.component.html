@@ -188,11 +188,11 @@
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
 
   <p class="MsoNormal" style="line-height: normal">
-    <b>Nom:</b> {{ formData?.bailleur?.name }}
+    <b>Nom:</b> {{ formData.bailleur?.name }}
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
-    <b>Adresse</b>: {{ formData?.bailleur?.adresse }}
+    <b>Adresse</b>: {{ formData.bailleur?.adresse }}
   </p>
 
   <p class="MsoNormal" style="line-height: normal">
@@ -1117,8 +1117,8 @@
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%"
       >c) Informations relatives au loyer du dernier locataire : Le loyer
-      appliqué au dernier locataire était de
-      <span style="background: yellow">420</span>€ hors charges. 
+      appliqué au dernier locataire était de {{ formData.priceNoCharge }}€ hors
+      charges. 
     </span>
   </p>
 
@@ -1157,8 +1157,8 @@
 
   <p class="MsoNormal">
     <span lang="FR" style="line-height: 115%"
-      >-  Date ou trimestre de référence de l'IRL :
-      <span style="background: yellow">3T2022 valeur 136,27</span></span
+      >-  Date ou trimestre de référence de l'IRL : {{ formData.valIrl }}valeur
+      {{ formData.tIrl }}</span
     >
   </p>
 
@@ -1352,43 +1352,27 @@
       </span></span
     ><span lang="FR" style="line-height: 115%"
       >La consommation d’électricité est incluse, dans la limite de
-      <span style="background: lime">1000</span>
-      <span style="background: darkblue">3000</span>
-      <span style="background: aqua">1000</span> kWh/an. Au-delà, la
-      consommation fera l’objet d’une régularisation.</span
+      {{ formData.appartement?.maxConsoElec }}
+      kWh/an. Au-delà, la consommation fera l’objet d’une régularisation.</span
     >
   </p>
 
-  <p class="MsoListParagraphCxSpMiddle" style="text-indent: -18pt">
-    <span
-      lang="FR"
-      style="line-height: 115%; font-family: Symbol; background: lime"
-      >·<span style="font: 7pt 'Times New Roman'"
-        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      </span></span
-    ><span lang="FR" style="line-height: 115%; background: lime"
-      >La consommation de gaz est incluse, dans la limite de
-      1000m<sup>3</sup>/an. Au-delà, la consommation fera l’objet d’une
-      régularisation.</span
-    >
+  <p
+    *ngIf="formData.appartement?.name === 'fillature'"
+    class="MsoListParagraphCxSpMiddle"
+    style="text-indent: -18pt"
+  >
+    >La consommation de gaz est incluse, dans la limite de 1000KWH/an. Au-delà,
+    la consommation fera l’objet d’une régularisation.
   </p>
 
-  <p class="MsoListParagraphCxSpMiddle" style="text-indent: -18pt">
-    <span
-      lang="FR"
-      style="line-height: 115%; font-family: Symbol; background: aqua"
-      >·<span style="font: 7pt 'Times New Roman'"
-        >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      </span></span
-    ><span lang="FR" style="line-height: 115%; background: aqua"
-      >La consommation de gaz est incluse, dans la limite de
-      1000m<sup>3</sup>/an. Au-delà, la consommation fera l’objet d’une
-      régularisation.</span
-    >
-  </p>
-
-  <p class="MsoListParagraphCxSpLast">
-    <span lang="FR" style="line-height: 115%; background: lime">&nbsp;</span>
+  <p
+    *ngIf="formData.appartement?.name === 'rue rené'"
+    class="MsoListParagraphCxSpMiddle"
+    style="text-indent: -18pt"
+  >
+    >La consommation de gaz est incluse, dans la limite de 1000KWH/an. Au-delà,
+    la consommation fera l’objet d’une régularisation.
   </p>
 
   <p class="MsoNormal">
@@ -1428,7 +1412,8 @@
   <p class="MsoNormal">
     <span lang="FR"
       >Le montant des charges récupérables est fixé forfaitairement à
-      <span style="background: yellow">30</span>€/mois.</span
+      <span style="background: yellow">{{ formData.chargePrice }}</span
+      >€/mois.</span
     >
   </p>
 
@@ -1645,15 +1630,13 @@
   <p class="MsoListParagraphCxSpFirst" style="margin-left: 70.9pt">
     <span lang="FR" style="line-height: 115%"
       >Loyer mensuel&nbsp;:<span style="color: white">
-        <span style="background: black"
-          >{{ formData.priceNoCharge + formData.chargePrice }} x
-          {{ formData.from | dateLeft }}/31 =
-          {{
-            formData.priceNoCharge +
-              (formData.chargePrice * (formData.from | dateLeft)) / 31
-          }}
-          €</span
-        ></span
+        {{ formData.priceNoCharge + formData.chargePrice }} x
+        {{ formData.from | dateLeft }}/31 =
+        {{
+          formData.priceNoCharge +
+            (formData.chargePrice * (formData.from | dateLeft)) / 31
+        }}
+        €</span
       ></span
     >
   </p>
@@ -2179,30 +2162,10 @@
 
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
 
-  <p class="MsoNormal">
-    <span lang="FR" style="background: aqua">&nbsp;</span>
-  </p>
+  <p class="MsoNormal"></p>
 
   <p class="MsoNormal">
-    <span lang="FR" style="background: lime"
-      >La détention d'animaux domestiques n'est pas autorisée par le bailleur.
-      Cette interdiction résulte du règlement de copropriété de la résidence. Ce
-      règlement est joint en annexe.</span
-    >
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: blue"
-      >La détention d'animaux domestiques n'est pas autorisée par le
-      bailleur.</span
-    ><span lang="FR"> </span>
-  </p>
-
-  <p class="MsoNormal">
-    <span lang="FR" style="background: aqua"
-      >La détention d'animaux domestiques n'est pas autorisée par le
-      bailleur.</span
-    ><span lang="FR"> </span>
+    {{ formData.appartement?.pet }}
   </p>
 
   <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
@@ -2509,8 +2472,9 @@
     <a name="_Hlk100152317"
       ><span lang="FR"
         >Fait à Villeurbanne&nbsp;; le
-        <span style="background: yellow">11/01/2023</span> en 2 exemplaires
-        originaux dont un remis à chacune des parties qui le reconnait.</span
+        {{ dateToday }}
+        en 2 exemplaires originaux dont un remis à chacune des parties qui le
+        reconnait.</span
       ></a
     >
   </p>
