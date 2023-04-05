@@ -213,7 +213,7 @@ export class FormDocComponent {
 
   isMobilite(typBail: string) {
     console.log(typBail);
-    typBail == 'Mobilité'
+    typBail == 'Etudiant'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
   }
