@@ -8,9 +8,16 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormDocComponent } from './form-doc/form-doc.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DateLeft } from './pipe/dateLeft.pipe';
+import { NumberOfDays } from './pipe/numberOfDays.pipe';
 
 @NgModule({
-  declarations: [AppComponent, BailDocComponent, FormDocComponent, DateLeft],
+  declarations: [
+    AppComponent,
+    BailDocComponent,
+    FormDocComponent,
+    DateLeft,
+    NumberOfDays,
+  ],
   imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, NgbModule],
   providers: [],
   bootstrap: [AppComponent],

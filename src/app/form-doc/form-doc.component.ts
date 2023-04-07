@@ -183,8 +183,8 @@ export class FormDocComponent {
 
     this.resultForm.email = this.formDoc.get('email')?.value;
     this.resultForm.firstname = this.formDoc.get('firstname')?.value;
-    this.resultForm.from = this.formDoc.get('from')?.getRawValue();
-    this.resultForm.to = this.formDoc.get('to')?.value;
+    this.resultForm.from = new Date(this.formDoc.get('from')?.getRawValue());
+    this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
     this.resultForm.motif = this.formDoc.get('motif')?.value;
     this.resultForm.name = this.formDoc.get('name')?.value;
     const priceNoChargeValue = this.formDoc.get('priceNoCharge')?.value;
@@ -203,6 +203,7 @@ export class FormDocComponent {
     console.log(this.resultForm);
     this.activeModal.close(this.resultForm);
     console.log(this.resultForm);
+    console.log(new Date());
   }
 
   switchRooms(rooms: any, bailleur: any) {

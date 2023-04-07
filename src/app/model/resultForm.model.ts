@@ -8,7 +8,7 @@ export class ResultForm {
   email?: string | null;
   firstname?: string | null;
   from: Date = new Date();
-  to?: string | null;
+  to: Date = new Date();
   motif?: string | null;
   name?: string | null;
   priceNoCharge: number = 0;
