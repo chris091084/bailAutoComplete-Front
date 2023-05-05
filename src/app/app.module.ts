@@ -9,6 +9,7 @@ import { FormDocComponent } from './form-doc/form-doc.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DateLeft } from './pipe/dateLeft.pipe';
 import { NumberOfDays } from './pipe/numberOfDays.pipe';
+import { NgxPrintModule } from 'ngx-print';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,13 @@ import { NumberOfDays } from './pipe/numberOfDays.pipe';
     DateLeft,
     NumberOfDays,
   ],
-  imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule, NgbModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    NgbModule,
+    NgxPrintModule,
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
