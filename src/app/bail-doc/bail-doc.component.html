@@ -364,7 +364,7 @@
                 </p>
 
                 <p class="MsoNormal">
-                  <a name="_Hlk99641507">{{ formData.appartement?.adresse }}</a>
+                  <a name="_Hlk99641507">{{ formData.appartement.adresse }}</a>
                 </p>
 
                 <p class="MsoNormal">
@@ -392,7 +392,7 @@
                 <p class="MsoNormal">
                   <span lang="FR"
                     >Période de construction&nbsp;:
-                    {{ formData.appartement?.constructionPeriod }}</span
+                    {{ formData.appartement.constructionPeriod }}</span
                   >
                 </p>
 
@@ -428,7 +428,7 @@
                 </p>
 
                 <p
-                  *ngFor="let chambre of formData.appartement?.chambres"
+                  *ngFor="let chambre of formData.appartement.chambres"
                   class="MsoNormal"
                   style="margin-left: 63.8pt"
                 >
@@ -461,7 +461,7 @@
                     >Autres parties du logement&nbsp;: parties communes du
                     logement&nbsp;: Cuisine, salon, salle de bains, WC,
                     balcon<span
-                      *ngIf="formData.appartement?.name === 'fillature'"
+                      *ngIf="formData.appartement.name === 'fillature'"
                       >, loggia</span
                     >.</span
                   >
@@ -477,13 +477,13 @@
                 <p class="MsoNormal">
                   <span lang="FR"
                     >Modalité de production de chauffage&nbsp;:
-                    {{ formData.appartement?.energieHeating }}.</span
+                    {{ formData.appartement.energieHeating }}.</span
                   >
                 </p>
 
                 <p class="MsoNormal">
                   Modalité de production d'eau chaude sanitaire: Individuel,
-                  {{ formData.appartement?.energieWater }}.
+                  {{ formData.appartement.energieWater }}.
                 </p>
 
                 <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
@@ -504,7 +504,7 @@
                     d’information, la surface habitable totale de l’appartement
                     est de
 
-                    {{ formData.appartement?.surface }} m².</span
+                    {{ formData.appartement.surface }} m².</span
                   >
                 </p>
 
@@ -535,7 +535,7 @@
                   <li
                     *ngFor="
                       let caracteristique of formData.appartement
-                        ?.caracteristiques
+                        .caracteristiques
                     "
                     class="MsoNormal"
                   >
@@ -772,7 +772,7 @@
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%"
                   >Date de prise d’effet du contrat&nbsp;:{{
-                    formData.from
+                    formData.from | date : "d/MM/yy"
                   }}</span
                 >
               </p>
@@ -803,7 +803,7 @@
               <div *ngIf="formData.bailType === 'Etudiant'">
                 <p class="MsoNormal">
                   Le contrat prendra effet le
-                  {{ formData.from }}
+                  {{ formData.from | date : "d/MM/yy" }}
                   pour se finir le
                   {{ formData.to }}(date initiale +9mois).
                 </p>
@@ -822,8 +822,8 @@
 
               <div *ngIf="formData.bailType === 'Mobilité'">
                 <p class="MsoNormal">
-                  Le contrat prendra effet le {{ formData.from }} pour se finir
-                  le
+                  Le contrat prendra effet le
+                  {{ formData.from | date : "d/MM/yy" }} pour se finir le
                   {{ formData.to }}
                 </p>
 
@@ -1026,8 +1026,8 @@
                 ><span lang="FR" style="line-height: 115%"
                   >Le loyer du logement objet du présent contrat est soumis au
                   décret fixant annuellement le montant maximum d'évolution des
-                  loyers à la relocation : OUI, sauf si la durée de location de
-                  la résidence secondaire est inférieure à 8 mois. 
+                  loyers à la relocation : OUI, sauf si l'appartement constitue
+                  une résidence secondaire du locataire. 
                 </span>
               </p>
 
@@ -1042,8 +1042,8 @@
                 ><span lang="FR" style="line-height: 115%"
                   >Le loyer du logement objet du présent contrat est soumis au
                   loyer de référence majoré fixé par arrêté préfectoral OUI,
-                  sauf si la durée de location de la résidence secondaire est
-                  inférieure à 8 mois.</span
+                  sauf si l'appartement constitue une résidence secondaire du
+                  locataire.</span
                 >
               </p>
 
@@ -1057,7 +1057,7 @@
                   </span></span
                 ><span lang="FR" style="line-height: 115%"
                   >Montant du loyer de référence :
-                  {{ formData.appartement?.rentRef }}
+                  {{ formData.appartement.rentRef }}
 
                   € / mois.
                 </span>
@@ -1073,29 +1073,34 @@
                   </span></span
                 ><span lang="FR" style="line-height: 115%"
                   >Montant du loyer de référence majoré :  
-                  {{ formData.appartement?.rentMaj }}
+                  {{ formData.appartement.rentMaj }}
                   € / mois.
                 </span>
               </p>
 
-              <!-- <p class="MsoNormal" style="margin-left: 36pt; text-indent: -18pt">
-          <span lang="FR" style="line-height: 115%"
-            >-<span style="font: 7pt 'Times New Roman'"
-              >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            </span></span
-          ><span lang="FR" style="line-height: 115%">Complément de loyer : </span
-          ><span lang="FR"
-            >Un complément de loyer de
-            <span
-              style="color: white; background: black"
-              >{{form Data.priceNoCharge - formData.appartement.rentMaj}}</span
-            ><span style="color: white"> </span>est appliqué par rapport au loyer
-            mensuel de référence majoré. Ce complément de loyer est justifié par le
-            fait que le découpage par zone fait apparaitre que le logement est situé à
-            proximité immédiate de la zone 2 (250m environ) où l’indice de loyer est
-            12% supérieur à celui appliqué.
-          </span>
-        </p> -->
+              <p
+                class="MsoNormal"
+                style="margin-left: 36pt; text-indent: -18pt"
+              >
+                <span lang="FR" style="line-height: 115%"
+                  >-<span style="font: 7pt 'Times New Roman'"
+                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  </span></span
+                ><span lang="FR" style="line-height: 115%"
+                  >Complément de loyer : </span
+                ><span lang="FR"
+                  >Un complément de loyer de
+                  <span style="color: white; background: black">{{
+                    formData.priceNoCharge - formData.appartement.rentMaj
+                  }}</span
+                  ><span style="color: white"> </span>est appliqué par rapport
+                  au loyer mensuel de référence majoré. Ce complément de loyer
+                  est justifié par le fait que le découpage par zone fait
+                  apparaitre que le logement est situé à proximité immédiate de
+                  la zone 2 (250m environ) où l’indice de loyer est 12%
+                  supérieur à celui appliqué.
+                </span>
+              </p>
 
               <p class="MsoListParagraph">
                 <span lang="FR"
@@ -1114,7 +1119,7 @@
               <p
                 class="MsoNormal"
                 style="margin-left: 36pt"
-                *ngIf="formData.appartement?.name === 'fillature'"
+                *ngIf="formData.appartement.name === 'fillature'"
               >
                 >De plus, il convient de préciser que le logement qui est loué
                 en meublé a été entièrement refait à neuf en juillet 2022. Il
@@ -1125,7 +1130,7 @@
               <p
                 class="MsoNormal"
                 style="margin-left: 36pt"
-                *ngIf="formData.appartement?.name === 'rue rené'"
+                *ngIf="formData.appartement.name === 'rue rené'"
               >
                 >De plus, il convient de préciser que le logement qui est loué
                 en meublé a été entièrement refait à neuf en juin 2023.
@@ -1448,14 +1453,14 @@
                   </span></span
                 ><span lang="FR" style="line-height: 115%"
                   >La consommation d’électricité est incluse, dans la limite de
-                  {{ formData.appartement?.maxConsoElec }}
+                  {{ formData.appartement.maxConsoElec }}
                   kWh/an. Au-delà, la consommation fera l’objet d’une
                   régularisation.</span
                 >
               </p>
 
               <p
-                *ngIf="formData.appartement?.name === 'fillature'"
+                *ngIf="formData.appartement.name === 'fillature'"
                 class="MsoListParagraphCxSpMiddle"
                 style="text-indent: -18pt"
               >
@@ -1465,7 +1470,7 @@
               </p>
 
               <p
-                *ngIf="formData.appartement?.name === 'rue rené'"
+                *ngIf="formData.appartement.name === 'rue rené'"
                 class="MsoListParagraphCxSpMiddle"
                 style="text-indent: -18pt"
               >
@@ -1726,7 +1731,7 @@
 
               <p class="MsoNormal">
                 <span
-                  [innerHTML]="formData.appartement?.bankName"
+                  [innerHTML]="formData.appartement.bankName"
                   lang="FR"
                   style="
                     font-size: 10.5pt;
@@ -2242,8 +2247,7 @@
               <ul style="margin-top: 0cm" type="disc">
                 <li
                   *ngFor="
-                    let caracteristique of formData.appartement
-                      ?.caracteristiques
+                    let caracteristique of formData.appartement.caracteristiques
                   "
                   class="MsoNormal"
                 >
@@ -2361,7 +2365,7 @@
               <p class="MsoNormal"></p>
 
               <p class="MsoNormal">
-                {{ formData.appartement?.pet }}
+                {{ formData.appartement.pet }}
               </p>
 
               <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
