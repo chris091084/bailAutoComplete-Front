@@ -164,7 +164,6 @@
                 <h1
                   align="left"
                   style="
-                    margin-left: 61.1pt;
                     text-align: left;
                     text-indent: -61.1pt;
                     background: black;
@@ -266,12 +265,8 @@
                 <p class="MsoNormal"></p>
 
                 <p class="MsoNormal" style="line-height: normal">
-                  <b
-                    ><span lang="FR"
-                      >Nom&nbsp;: {{ formData.name }}
-                      {{ formData.firstname }}</span
-                    ></b
-                  >
+                  <b>Nom:</b> {{ formData.name }}
+                  {{ formData.firstname }}
                 </p>
 
                 <p class="MsoNormal" style="line-height: normal">
@@ -305,9 +300,7 @@
                 <br clear="all" style="page-break-before: always" />
                 <br clear="all" style="page-break-before: always" />
                 <h1
-                  align="left"
                   style="
-                    margin-left: 61.1pt;
                     text-align: left;
                     text-indent: -61.1pt;
                     background: black;
@@ -533,7 +526,7 @@
                     "
                     class="MsoNormal"
                   >
-                    <span lang="FR">{{ caracteristique }},</span>
+                    <span lang="FR">{{ caracteristique }}</span>
                   </li>
                 </ul>
 
@@ -719,9 +712,7 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
@@ -766,7 +757,7 @@
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%"
                   >Date de prise d’effet du contrat&nbsp;:{{
-                    formData.from | date : "d/MM/yy"
+                    formData.from | date : "dd/MM/yy"
                   }}</span
                 >
               </p>
@@ -797,9 +788,9 @@
               <div *ngIf="formData.bailType === 'Etudiant'">
                 <p class="MsoNormal">
                   Le contrat prendra effet le
-                  {{ formData.from | date : "d/MM/yy" }}
+                  {{ formData.from | date : "dd/MM/yy" }}
                   pour se finir le
-                  {{ formData.to }}(date initiale +9mois).
+                  {{ formData.to | date : "dd/MM/yy" }}(date initiale +9mois).
                 </p>
 
                 <p class="MsoNormal">
@@ -817,8 +808,8 @@
               <div *ngIf="formData.bailType === 'Mobilité'">
                 <p class="MsoNormal">
                   Le contrat prendra effet le
-                  {{ formData.from | date : "d/MM/yy" }} pour se finir le
-                  {{ formData.to }}
+                  {{ formData.from | date : "dd/MM/yy" }} pour se finir le
+                  {{ formData.to | date : "dd/MM/yy" }}
                 </p>
 
                 <p class="MsoNormal">
@@ -884,7 +875,7 @@
 
               <p *ngIf="formData.bailType === 'Etudiant'" class="MsoNormal">
                 <i
-                  ><span lang="FR" style="background: darkcyan"
+                  ><span lang="FR"
                     >Le bail étudiant est d’une durée fixe de neuf mois, non
                     reconductible.
                     <b
@@ -940,9 +931,7 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
@@ -953,7 +942,7 @@
                     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
                 ><span lang="FR" style="color: white"
-                  > Conditions financières</span
+                  > IV. Conditions financières</span
                 >
               </h1>
 
@@ -997,7 +986,7 @@
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%"
                   >a) Montant du loyer mensuel :
-                  {{ formData.priceNoCharge + formData.chargePrice }}
+                  {{ formData.priceNoCharge }}
                   Euros</span
                 >
               </p>
@@ -1084,10 +1073,12 @@
                   >Complément de loyer : </span
                 ><span lang="FR"
                   >Un complément de loyer de
-                  <span style="color: white; background: black">{{
-                    formData.priceNoCharge - formData.appartement.rentMaj
-                  }}</span
-                  ><span style="color: white"> </span>est appliqué par rapport
+                  {{
+                    (
+                      formData.priceNoCharge - formData.appartement.rentMaj
+                    ).toFixed(2)
+                  }}
+                  € ><span style="color: white"> </span>est appliqué par rapport
                   au loyer mensuel de référence majoré. Ce complément de loyer
                   est justifié par le fait que le découpage par zone fait
                   apparaitre que le logement est situé à proximité immédiate de
@@ -1115,8 +1106,8 @@
                 style="margin-left: 36pt"
                 *ngIf="formData.appartement.name === 'fillature'"
               >
-                >De plus, il convient de préciser que le logement qui est loué
-                en meublé a été entièrement refait à neuf en juillet 2022. Il
+                De plus, il convient de préciser que le logement qui est loué en
+                meublé a été entièrement refait à neuf en juillet 2022. Il
                 comporte une cuisine entièrement équipée et une salle de bains
                 moderne.
               </p>
@@ -1163,7 +1154,7 @@
                 <span lang="FR" style="line-height: 115%"
                   >c) Informations relatives au loyer du dernier locataire : Le
                   loyer appliqué au dernier locataire était de
-                  {{ formData.priceNoCharge }}€ hors charges. 
+                  {{ formData.lastPriceWithoutCharge }}€ hors charges. 
                 </span>
               </p>
 
@@ -1256,243 +1247,249 @@
                   forfait de charges.</span
                 >
               </p>
+              <div *ngIf="formData.chargeList === true">
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >Les charges locatives récupérables sont des charges
+                    diverses payées par un propriétaire et dont il peut demander
+                    le remboursement à son locataire.
+                  </span>
+                </p>
 
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >Les charges locatives récupérables sont des charges diverses
-                  payées par un propriétaire et dont il peut demander le
-                  remboursement à son locataire.
-                </span>
-              </p>
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >Les charges locatives récupérables de plein droit
+                    sont&nbsp;:</span
+                  >
+                </p>
 
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >Les charges locatives récupérables de plein droit
-                  sont&nbsp;:</span
+                <p
+                  class="MsoListParagraphCxSpFirst"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">L’eau froide,</span>
+                </p>
 
-              <p
-                class="MsoListParagraphCxSpFirst"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">L’eau froide,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpMiddle"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">L’eau chaude,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpMiddle"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">Le chauffage,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpMiddle"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">L’entretien annuel du chauffe-eau,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpMiddle"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >L’entretien des parties communes de la copropriété,</span
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">L’eau chaude,</span>
+                </p>
 
-              <p
-                class="MsoListParagraphCxSpLast"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >La taxe d’enlèvement des ordures ménagères.</span
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">Le chauffage,</span>
+                </p>
 
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >Afin de faciliter la gestion de la colocation, le bailleur a
-                  souscrit, pour le compte des locataires, les abonnements
-                  suivants&nbsp;:</span
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">L’entretien annuel du chauffe-eau,</span>
+                </p>
 
-              <p
-                class="MsoListParagraphCxSpFirst"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">Électricité,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpMiddle"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">Gaz,</span>
-              </p>
-
-              <p
-                class="MsoListParagraphCxSpLast"
-                style="
-                  margin-bottom: 8pt;
-                  text-indent: -18pt;
-                  line-height: 107%;
-                "
-              >
-                <span lang="FR" style="font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">Internet.</span>
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >Des lors, les abonnements d’électricité, de gaz et d’internet
-                  sont inclus dans le forfait charges. Les consommations d’eau,
-                  d’électricité et de gaz sont également inclus, dans la limite
-                  d’une consommation issue d’un usage normal&nbsp;:</span
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR"
+                    >L’entretien des parties communes de la copropriété,</span
+                  >
+                </p>
 
-              <p class="MsoListParagraphCxSpFirst" style="text-indent: -18pt">
-                <span lang="FR" style="line-height: 115%; font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >La consommation d’eau est incluse, dans la limite de
-                  150m<sup>3</sup>/an. Au-delà, la consommation fera l’objet
-                  d’une régularisation.</span
+                <p
+                  class="MsoListParagraphCxSpLast"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR"
+                    >La taxe d’enlèvement des ordures ménagères.</span
+                  >
+                </p>
 
-              <p class="MsoListParagraphCxSpMiddle" style="text-indent: -18pt">
-                <span lang="FR" style="line-height: 115%; font-family: Symbol"
-                  >·<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >La consommation d’électricité est incluse, dans la limite de
-                  {{ formData.appartement.maxConsoElec }}
-                  kWh/an. Au-delà, la consommation fera l’objet d’une
-                  régularisation.</span
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >Afin de faciliter la gestion de la colocation, le bailleur
+                    a souscrit, pour le compte des locataires, les abonnements
+                    suivants&nbsp;:</span
+                  >
+                </p>
+
+                <p
+                  class="MsoListParagraphCxSpFirst"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">Électricité,</span>
+                </p>
 
-              <p
-                *ngIf="formData.appartement.name === 'fillature'"
-                class="MsoListParagraphCxSpMiddle"
-                style="text-indent: -18pt"
-              >
-                >La consommation de gaz est incluse, dans la limite de
-                1000KWH/an. Au-delà, la consommation fera l’objet d’une
-                régularisation.
-              </p>
-
-              <p
-                *ngIf="formData.appartement.name === 'rue rené'"
-                class="MsoListParagraphCxSpMiddle"
-                style="text-indent: -18pt"
-              >
-                >La consommation de gaz est incluse, dans la limite de
-                1000KWH/an. Au-delà, la consommation fera l’objet d’une
-                régularisation.
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >En outre, seul l’accès à internet est inclus dans le forfait
-                  charges. Toutes consommation hors forfait réalisée par le
-                  locataire, et facturée au bailleur (communications
-                  téléphoniques payantes, souscription à des services de vidéos
-                  à la demande, abonnements, options, …) fera l’objet d’une
-                  régularisation.</span
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">Gaz,</span>
+                </p>
 
-              <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
-
-              <p class="MsoNormal">
-                <span lang="FR"
-                  >Le forfait charges tel que décrit dans le bail est constitué
-                  de l’ensemble des éléments décrits ci-dessus, à l’exclusion de
-                  toute autre charge.</span
+                <p
+                  class="MsoListParagraphCxSpLast"
+                  style="
+                    margin-bottom: 8pt;
+                    text-indent: -18pt;
+                    line-height: 107%;
+                  "
                 >
-              </p>
+                  <span lang="FR" style="font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR">Internet.</span>
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >Des lors, les abonnements d’électricité, de gaz et
+                    d’internet sont inclus dans le forfait charges. Les
+                    consommations d’eau, d’électricité et de gaz sont également
+                    inclus, dans la limite d’une consommation issue d’un usage
+                    normal&nbsp;:</span
+                  >
+                </p>
+
+                <p class="MsoListParagraphCxSpFirst" style="text-indent: -18pt">
+                  <span lang="FR" style="line-height: 115%; font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR" style="line-height: 115%"
+                    >La consommation d’eau est incluse, dans la limite de
+                    150m<sup>3</sup>/an. Au-delà, la consommation fera l’objet
+                    d’une régularisation.</span
+                  >
+                </p>
+
+                <p
+                  class="MsoListParagraphCxSpMiddle"
+                  style="text-indent: -18pt"
+                >
+                  <span lang="FR" style="line-height: 115%; font-family: Symbol"
+                    >·<span style="font: 7pt 'Times New Roman'"
+                      >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </span></span
+                  ><span lang="FR" style="line-height: 115%"
+                    >La consommation d’électricité est incluse, dans la limite
+                    de
+                    {{ formData.appartement.maxConsoElec }}
+                    kWh/an. Au-delà, la consommation fera l’objet d’une
+                    régularisation.</span
+                  >
+                </p>
+
+                <p
+                  *ngIf="formData.appartement.name === 'fillature'"
+                  class="MsoListParagraphCxSpMiddle"
+                  style="text-indent: -18pt"
+                >
+                  La consommation de gaz est incluse, dans la limite de
+                  1000KWH/an. Au-delà, la consommation fera l’objet d’une
+                  régularisation.
+                </p>
+
+                <p
+                  *ngIf="formData.appartement.name === 'rue rené'"
+                  class="MsoListParagraphCxSpMiddle"
+                  style="text-indent: -18pt"
+                >
+                  >La consommation de gaz est incluse, dans la limite de
+                  1000KWH/an. Au-delà, la consommation fera l’objet d’une
+                  régularisation.
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >En outre, seul l’accès à internet est inclus dans le
+                    forfait charges. Toutes consommation hors forfait réalisée
+                    par le locataire, et facturée au bailleur (communications
+                    téléphoniques payantes, souscription à des services de
+                    vidéos à la demande, abonnements, options, …) fera l’objet
+                    d’une régularisation.</span
+                  >
+                </p>
+
+                <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
+
+                <p class="MsoNormal">
+                  <span lang="FR"
+                    >Le forfait charges tel que décrit dans le bail est
+                    constitué de l’ensemble des éléments décrits ci-dessus, à
+                    l’exclusion de toute autre charge.</span
+                  >
+                </p>
+              </div>
 
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%">&nbsp;</span>
@@ -1582,48 +1579,51 @@
                   background: white;
                 "
               >
-                <h2 style="background: white">
-                  <span lang="FR" style="color: black"
-                    >D. Souscription par le bailleur des abonnements
-                    privatifs</span
+                <div *ngIf="formData.chargeList === true">
+                  <h2 style="background: white">
+                    <span lang="FR" style="color: black"
+                      >D. Souscription par le bailleur des abonnements
+                      privatifs</span
+                    >
+                  </h2>
+                </div>
+
+                <p class="MsoNormal">
+                  <span lang="FR" style="line-height: 115%">&nbsp;</span>
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR" style="line-height: 115%"
+                    >Le bailleur souscrira et refacturera au locataire les
+                    abonnements et consommations variables des dépenses
+                    privatives listées en annexe.</span
                   >
-                </h2>
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR" style="line-height: 115%"
+                    >Ces abonnements seront conservés au nom du bailleur pendant
+                    la durée du bail. La refacturation se fera dans les
+                    conditions suivantes&nbsp;:
+                  </span>
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR" style="line-height: 115%"
+                    >Refacturation incluse dans le forfait de charges&nbsp;:
+                    OUI, dans la limite des consommations fixées en
+                    IV.B.1°</span
+                  >
+                </p>
+
+                <p class="MsoNormal">
+                  <span lang="FR" style="line-height: 115%"
+                    >Régularisation en fonction des consommations réelles
+                    au-delà des seuils fixés en IV.B.1°, sur présentation des
+                    justificatifs&nbsp;: annuelle.</span
+                  >
+                </p>
               </div>
-
-              <p class="MsoNormal">
-                <span lang="FR" style="line-height: 115%">&nbsp;</span>
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR" style="line-height: 115%"
-                  >Le bailleur souscrira et refacturera au locataire les
-                  abonnements et consommations variables des dépenses privatives
-                  listées en annexe.</span
-                >
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR" style="line-height: 115%"
-                  >Ces abonnements seront conservés au nom du bailleur pendant
-                  la durée du bail. La refacturation se fera dans les conditions
-                  suivantes&nbsp;:
-                </span>
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR" style="line-height: 115%"
-                  >Refacturation incluse dans le forfait de charges&nbsp;: OUI,
-                  dans la limite des consommations fixées en IV.B.1°</span
-                >
-              </p>
-
-              <p class="MsoNormal">
-                <span lang="FR" style="line-height: 115%"
-                  >Régularisation en fonction des consommations réelles au-delà
-                  des seuils fixés en IV.B.1°, sur présentation des
-                  justificatifs&nbsp;: annuelle.</span
-                >
-              </p>
 
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%">&nbsp;</span>
@@ -1638,7 +1638,9 @@
               >
                 <h2 style="background: white">
                   <span lang="FR" style="color: black"
-                    >E. Modalités de paiement</span
+                    ><span *ngIf="formData.chargeList === false">C</span
+                    ><span *ngIf="formData.chargeList === true">D</span>.
+                    Modalités de paiement</span
                   >
                 </h2>
               </div>
@@ -1723,7 +1725,7 @@
                 >
               </p>
 
-              <p class="MsoNormal">
+              <p class="MsoNormal" style="border: solid; width: 500px">
                 <span
                   [innerHTML]="formData.appartement.bankName"
                   lang="FR"
@@ -1732,6 +1734,8 @@
                     line-height: 115%;
                     font-family: 'T3Font_0', sans-serif;
                     color: #071621;
+
+                    border-color: black;
                   "
                 ></span>
               </p>
@@ -1759,7 +1763,7 @@
                 <span lang="FR" style="line-height: 115%"
                   >Loyer mensuel&nbsp;:<span>
                     {{ formData.priceNoCharge + formData.chargePrice }} x
-                    {{ formData.from | dateLeft }}/dd
+                    {{ formData.from | dateLeft }}/
 
                     {{
                       formData.from.getMonth() + 1
@@ -1797,7 +1801,7 @@
               <p class="MsoListParagraphCxSpLast" style="margin-left: 70.9pt">
                 <span lang="FR" style="line-height: 115%"
                   >Total&nbsp;:
-                  {{ formData.priceNoCharge + formData.chargePrice }}x
+                  {{ formData.priceNoCharge + formData.chargePrice }} x
                   {{ formData.from | dateLeft }}/{{
                     formData.from.getMonth() + 1
                       | numberOfDays : formData.from.getFullYear()
@@ -1856,9 +1860,7 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
@@ -1868,7 +1870,7 @@
                   >V.<span style="font: 7pt 'Times New Roman'"
                     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
-                ><span lang="FR" style="color: white">Garanties</span>
+                ><span lang="FR" style="color: white">V. Garanties</span>
               </h1>
 
               <p class="MsoNormal">
@@ -1908,7 +1910,7 @@
 
               <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
 
-              <p class="MsoNormal">
+              <p class="MsoNormal" *ngIf="formData.clauseLess6Month === true">
                 <span lang="FR"
                   >Les deux parties conviennent qu’en cas de location d’une
                   durée inférieure ou égale à 6 mois, le bailleur conservera 30%
@@ -1930,16 +1932,16 @@
               >
                 <span lang="FR">&nbsp;</span>
               </p>
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
-              <br />
+              <div *ngIf="formData.chargeList === false">
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+              </div>
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
@@ -1949,7 +1951,7 @@
                   >VI.<span style="font: 7pt 'Times New Roman'"
                     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
-                ><span lang="FR" style="color: white"> Travaux</span>
+                ><span lang="FR" style="color: white">VI. Travaux</span>
               </h1>
 
               <div
@@ -2047,7 +2049,7 @@
                   >Les éventuels travaux entrepris par le locataire devront
                   faire l’objet d’un accord écrit du bailleur avant leur
                   réalisation (ils devront faire l’objet d’une description
-                  précise). Sauf accord écrit bu bailleur, ils restent à la
+                  précise). Sauf accord écrit du bailleur, ils restent à la
                   charge du locataire. En cas de non-respect de ces formalités,
                   les frais de remise en conformité du logement vis-à-vis de
                   l’état des lieux initial seront à la charge du locataire.
@@ -2063,9 +2065,7 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
@@ -2076,7 +2076,7 @@
                     >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
                 ><span lang="FR" style="color: white"
-                  >Clause de solidarité</span
+                  >VII. Clause de solidarité</span
                 >
               </h1>
 
@@ -2092,19 +2092,19 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
                 "
               >
                 <span lang="FR" style="color: white"
-                  >VIII.<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  >VII.<span style="font: 7pt 'Times New Roman'"
+                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
-                ><span lang="FR" style="color: white"> Clause résolutoire</span>
+                ><span lang="FR" style="color: white"
+                  >VIII. Clause résolutoire</span
+                >
               </h1>
 
               <p class="MsoNormal">
@@ -2171,20 +2171,18 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
                 "
               >
                 <span lang="FR" style="color: white"
-                  >IX.<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  >VII.<span style="font: 7pt 'Times New Roman'"
+                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
                 ><span lang="FR" style="color: white"
-                  >Autres conditions particulières</span
+                  >IX. Autres conditions particulières</span
                 >
               </h1>
 
@@ -2567,82 +2565,40 @@
               </p>
 
               <h1
-                align="left"
                 style="
-                  margin-left: 61.1pt;
                   text-align: left;
                   text-indent: -61.1pt;
                   background: black;
                 "
               >
                 <span lang="FR" style="color: white"
-                  >X.<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  >VII.<span style="font: 7pt 'Times New Roman'"
+                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   </span></span
-                ><span lang="FR" style="color: white">Annexes</span>
+                ><span lang="FR" style="color: white">X. Annexes</span>
               </h1>
-
               <p class="MsoNormal">
                 <span lang="FR"
                   >Sont annexées et jointes au contrat de location les pièces
                   suivantes :</span
                 >
               </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >Annexe 1&nbsp;: L’état des lieux d’entrée et l’inventaire
-                  détaillé des meubles et équipements,</span
-                >
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR">Annexe 2&nbsp;: L’acte de cautionnement.</span>
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >Annexe 3&nbsp;: Règlement concernant la destination de
-                  l'immeuble, la jouissance et l'usage des parties privatives et
-                  communes, et précisant la quote-part afférente au lot loué
-                  dans chacune des catégories de charges,</span
-                >
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >Annexe 4&nbsp;: Un dossier de diagnostic technique
-                  comprenant</span
-                >
-              </p>
+              <ul>
+                <li class="MsoNormal">
+                  Annexe 1: L’état des lieux d’entrée et l’inventaire détaillé
+                  des meubles et équipements,
+                </li>
+                <li class="MsoNormal">Annexe 2: L’acte de cautionnement.</li>
+                <li class="MsoNormal">
+                  Annexe 3: Règlement concernant la destination de l'immeuble,
+                  la jouissance et l'usage des parties privatives et communes,
+                  et précisant la quote-part afférente au lot loué dans chacune
+                  des catégories de charges,
+                </li>
+                <li class="MsoNormal">
+                  Annexe 4: Un dossier de diagnostic technique comprenant
+                </li>
+              </ul>
 
               <p
                 class="MsoNormal"
@@ -2703,22 +2659,14 @@
                   contenant de l’amiante.</span
                 >
               </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR"
-                  >Annexe 5&nbsp;: Une notice d'information relative aux droits
-                  et obligations des locataires et des bailleurs. La version
+              <ul>
+                <li class="MsoNormal">
+                  Annexe 5: Une notice d'information relative aux droits et
+                  obligations des locataires et des bailleurs. La version
                   consolidée est disponible à l’adresse&nbsp;:
-                  https://www.legifrance.gouv.fr/loda/id/JORFTEXT000030649902/</span
-                >
-              </p>
+                  https://www.legifrance.gouv.fr/loda/id/JORFTEXT000030649902/
+                </li>
+              </ul>
 
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%">&nbsp;</span>

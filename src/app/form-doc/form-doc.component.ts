@@ -18,7 +18,7 @@ export class FormDocComponent {
     email: new FormControl('', Validators.required),
     telephone: new FormControl(''),
     from: new FormControl('', Validators.required),
-    to: new FormControl(''),
+    to: new FormControl({ value: '', disabled: true }),
     motif: new FormControl('', Validators.required),
     room: new FormControl('', Validators.required),
     appartement: new FormControl(
@@ -45,6 +45,9 @@ export class FormDocComponent {
     typeBail: new FormControl(''),
     tIrl: new FormControl(''),
     valIrl: new FormControl(''),
+    lastPriceWithoutCharge: new FormControl(''),
+    chargeList: new FormControl(false),
+    clauseLess6Month: new FormControl(false),
   });
   //bailleurs
   bailleur1 = new Bailleur(
@@ -63,7 +66,7 @@ export class FormDocComponent {
   caracteristiques1 = [
     "L'entrée du logement et son couloir (8.20m²),",
     'La cuisine entièrement équipée (9,53m²),',
-    'Le salon (17.58m²)',
+    'Le salon (17.58m²),',
     'Le WC (1.04m²),',
     'La salle de bains (4.41m²),',
     'Une loggia (1.99m²),',
@@ -186,49 +189,52 @@ export class FormDocComponent {
     //     console.log(joursRestants);
     //   }
     // }
-    if (this.formDoc.valid) {
-      console.log(this.resultForm.chargePrice);
+    // if (this.formDoc.valid) {
+    console.log(this.resultForm.chargePrice);
 
-      this.resultForm.adress = this.formDoc.get('adress')?.value;
+    this.resultForm.adress = this.formDoc.get('adress')?.value;
 
-      const appartement = this.formDoc.get('appartement')?.value;
-      if (appartement != null) {
-        this.resultForm.appartement = appartement;
-      }
-
-      const chargePriceValue = this.formDoc.get('chargePrice')?.value;
-      this.resultForm.chargePrice =
-        chargePriceValue !== null && chargePriceValue !== undefined
-          ? chargePriceValue
-          : 0;
-
-      // this.resultForm.chargePrice = this.formDoc.get('chargePrice')?.value;
-
-      this.resultForm.email = this.formDoc.get('email')?.value;
-      this.resultForm.firstname = this.formDoc.get('firstname')?.value;
-      this.resultForm.from = new Date(this.formDoc.get('from')?.getRawValue());
-      this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
-      this.resultForm.motif = this.formDoc.get('motif')?.value;
-      this.resultForm.name = this.formDoc.get('name')?.value;
-      const priceNoChargeValue = this.formDoc.get('priceNoCharge')?.value;
-      this.resultForm.priceNoCharge =
-        priceNoChargeValue !== null && priceNoChargeValue !== undefined
-          ? priceNoChargeValue
-          : 0;
-
-      this.resultForm.room = this.formDoc.get('room')?.value;
-      this.resultForm.telephone = this.formDoc.get('telephone')?.value;
-      this.resultForm.bailleur = this.bailleurSelected;
-      console.log(this.formDoc.get('typeBail')?.value);
-      this.resultForm.bailType = this.formDoc.get('typeBail')?.value;
-      this.resultForm.tIrl = this.formDoc.get('tIrl')?.value;
-      this.resultForm.valIrl = this.formDoc.get('valIrl')?.value;
-      console.log(this.resultForm);
-      this.activeModal.close(this.resultForm);
-      console.log(this.resultForm);
-
-      console.log(new Date());
+    const appartement = this.formDoc.get('appartement')?.value;
+    if (appartement != null) {
+      this.resultForm.appartement = appartement;
     }
+
+    const chargePriceValue = this.formDoc.get('chargePrice')?.value;
+    this.resultForm.chargePrice =
+      chargePriceValue !== null && chargePriceValue !== undefined
+        ? chargePriceValue
+        : 0;
+
+    // this.resultForm.chargePrice = this.formDoc.get('chargePrice')?.value;
+
+    this.resultForm.email = this.formDoc.get('email')?.value;
+    this.resultForm.firstname = this.formDoc.get('firstname')?.value;
+    this.resultForm.from = new Date(this.formDoc.get('from')?.getRawValue());
+    this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
+    this.resultForm.motif = this.formDoc.get('motif')?.value;
+    this.resultForm.name = this.formDoc.get('name')?.value;
+    const priceNoChargeValue = this.formDoc.get('priceNoCharge')?.value;
+    this.resultForm.priceNoCharge =
+      priceNoChargeValue !== null && priceNoChargeValue !== undefined
+        ? priceNoChargeValue
+        : 0;
+
+    this.resultForm.room = this.formDoc.get('room')?.value;
+    this.resultForm.telephone = this.formDoc.get('telephone')?.value;
+    this.resultForm.bailleur = this.bailleurSelected;
+    console.log(this.formDoc.get('typeBail')?.value);
+    this.resultForm.bailType = this.formDoc.get('typeBail')?.value;
+    this.resultForm.tIrl = this.formDoc.get('tIrl')?.value;
+    this.resultForm.valIrl = this.formDoc.get('valIrl')?.value;
+    this.resultForm.chargeList = this.formDoc.get('chargeList')?.value;
+    this.resultForm.clauseLess6Month =
+      this.formDoc.get('clauseLess6Month')?.value;
+
+    this.activeModal.close(this.resultForm);
+    console.log(this.resultForm);
+
+    console.log(new Date());
+    // }
   }
 
   switchRooms(rooms: any, bailleur: any) {

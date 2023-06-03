@@ -33,4 +33,7 @@ export class ResultForm {
   bailType?: string | null;
   tIrl?: string | null;
   valIrl?: string | null;
+  lastPriceWithoutCharge?: number = 0;
+  chargeList?: boolean | null = false;
+  clauseLess6Month?: boolean | null = false;
 }
