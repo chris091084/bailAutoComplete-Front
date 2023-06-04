@@ -406,8 +406,7 @@
                   <span lang="FR"
                     >Autres parties du logement&nbsp;: parties communes du
                     logement&nbsp;: Cuisine, salon, salle de bains, WC,
-                    balcon<span
-                      *ngIf="formData.appartement.name === 'fillature'"
+                    balcon<span *ngIf="formData.appartement.name === 'Filature'"
                       >, loggia</span
                     >.</span
                   >
@@ -576,12 +575,24 @@
                     >
                   </li>
                   <li class="MsoNormal">
-                    <span lang="FR" style="line-height: 115%"
+                    <span
+                      *ngIf="
+                        formData.appartement.name === 'Chateau Gaillard' ||
+                        formData.appartement.name === 'Filature'
+                      "
+                      lang="FR"
+                      style="line-height: 115%"
                       >Garage à vélo de l’immeuble,</span
                     >
                   </li>
                   <li class="MsoNormal">
-                    <span lang="FR" style="line-height: 115%"
+                    <span
+                      *ngIf="
+                        formData.appartement.name === 'Chateau Gaillard' ||
+                        formData.appartement.name === 'Filature'
+                      "
+                      lang="FR"
+                      style="line-height: 115%"
                       >Local poubelle de l’immeuble.</span
                     >
                   </li>
@@ -692,7 +703,8 @@
                   Le contrat prendra effet le
                   {{ formData.from | date : "dd/MM/yy" }}
                   pour se finir le
-                  {{ formData.to | date : "dd/MM/yy" }}(date initiale +9mois).
+                  {{ formData.to | date : "dd/MM/yy" }} à 23h59 (date initiale
+                  +9mois).
                 </p>
 
                 <p class="MsoNormal">

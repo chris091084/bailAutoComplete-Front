@@ -210,7 +210,7 @@ export class FormDocComponent {
       this.resultForm.email = this.formDoc.get('email')?.value;
       this.resultForm.firstname = this.formDoc.get('firstname')?.value;
       this.resultForm.from = new Date(this.formDoc.get('from')?.getRawValue());
-      this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
+
       this.resultForm.motif = this.formDoc.get('motif')?.value;
       this.resultForm.name = this.formDoc.get('name')?.value;
       const priceNoChargeValue = this.formDoc.get('priceNoCharge')?.value;
@@ -237,6 +237,20 @@ export class FormDocComponent {
       console.log(this.resultForm);
 
       console.log(new Date());
+      // cas particulier pour les bails étudiants
+      if (this.formDoc.get('typeBail')?.value == 'Etudiant') {
+        let dateFrom = new Date(this.formDoc.get('from')?.getRawValue());
+        let futureDate = new Date(dateFrom);
+
+        futureDate.setMonth(dateFrom.getMonth() + 9);
+
+        this.resultForm.to = new Date(
+          futureDate.setDate(dateFrom.getDate() - 1)
+        );
+        console.log(this.resultForm.to);
+      } else {
+        this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
+      }
     }
   }
 
