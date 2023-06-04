@@ -109,8 +109,8 @@ export class FormDocComponent {
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe.",
     '1968',
     '81,18',
-    202.95,
-    234.54,
+    209.04,
+    251.66,
     '1000'
   );
   appartement2 = new Appartement(
@@ -130,8 +130,8 @@ export class FormDocComponent {
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
     '73,78',
-    184.45,
-    221.34,
+    189.98,
+    228.72,
     '3000'
   );
   appartement3 = new Appartement(
@@ -152,8 +152,8 @@ export class FormDocComponent {
     "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
     '1946-1970',
     '72,83',
-    182.08,
-    218.49,
+    187.54,
+    225.77,
     '1000'
   );
 
