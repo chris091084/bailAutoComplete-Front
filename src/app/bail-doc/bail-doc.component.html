@@ -245,7 +245,7 @@
 
                 <p class="MsoNormal" style="line-height: normal">
                   <b><span lang="FR">Adresse électronique:</span></b>
-                  {{ formData.name }}
+                  {{ formData.email }}
                 </p>
 
                 <p class="MsoNormal" style="line-height: normal">
@@ -659,9 +659,8 @@
 
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%"
-                  >Date de prise d’effet du contrat&nbsp;:{{
-                    formData.from | date : "dd/MM/yy"
-                  }}</span
+                  >Date de prise d’effet du contrat&nbsp;:
+                  {{ formData.from | date : "dd/MM/yy" }}</span
                 >
               </p>
 
@@ -725,7 +724,7 @@
                   déterminée: poursuite des études supérieures du locataire.
                 </p>
               </div>
-
+              <p class="MsoNormal"><span lang="FR">&nbsp;</span></p>
               <p class="MsoNormal">
                 <i
                   ><span lang="FR" style="line-height: 115%"
@@ -877,152 +876,94 @@
                   applicables dans certaines zones tendues :</span
                 >
               </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR" style="line-height: 115%"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >Le loyer du logement objet du présent contrat est soumis au
+              <ul>
+                <li class="MsoNormal">
+                  Le loyer du logement objet du présent contrat est soumis au
                   décret fixant annuellement le montant maximum d'évolution des
                   loyers à la relocation : OUI, sauf si l'appartement constitue
-                  une résidence secondaire du locataire. 
-                </span>
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR" style="line-height: 115%"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >Le loyer du logement objet du présent contrat est soumis au
+                  une résidence secondaire du locataire.
+                </li>
+                <li class="MsoNormal">
+                  Le loyer du logement objet du présent contrat est soumis au
                   loyer de référence majoré fixé par arrêté préfectoral OUI,
                   sauf si l'appartement constitue une résidence secondaire du
-                  locataire.</span
-                >
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR" style="line-height: 115%"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >Montant du loyer de référence :
+                  locataire.
+                </li>
+                <li class="MsoNormal">
+                  Montant du loyer de référence :
                   {{ formData.appartement.rentRef }}
 
                   € / mois.
-                </span>
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR" style="line-height: 115%"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >Montant du loyer de référence majoré :  
+                </li>
+                <li class="MsoNormal">
+                  Montant du loyer de référence majoré :  
                   {{ formData.appartement.rentMaj }}
                   € / mois.
-                </span>
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt; text-indent: -18pt"
-              >
-                <span lang="FR" style="line-height: 115%"
-                  >-<span style="font: 7pt 'Times New Roman'"
-                    >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  </span></span
-                ><span lang="FR" style="line-height: 115%"
-                  >Complément de loyer : </span
-                ><span lang="FR"
-                  >Un complément de loyer de
+                </li>
+                <li class="MsoNormal">
+                  Complément de loyer : Un complément de loyer de
                   {{
                     (
                       formData.priceNoCharge - formData.appartement.rentMaj
                     ).toFixed(2)
                   }}
-                  € ><span style="color: white"> </span>est appliqué par rapport
-                  au loyer mensuel de référence majoré. Ce complément de loyer
-                  est justifié par le fait que le découpage par zone fait
-                  apparaitre que le logement est situé à proximité immédiate de
-                  la zone 2 (250m environ) où l’indice de loyer est 12%
-                  supérieur à celui appliqué.
-                </span>
-              </p>
-
-              <p class="MsoListParagraph">
-                <span lang="FR"
-                  >Par ailleurs, il existe une liste officielle qui précise les
-                  équipements minimums pour qu’un logement puisse être considéré
-                  comme meublé. Il est ici tenu compte du fait que l’équipement
-                  du logement faisant l’objet du présent bail va bien au-delà de
-                  ce minimum requis. À titre d’exemple, le logement est équipé
+                  € est appliqué par rapport au loyer mensuel de référence
+                  majoré. Ce complément de loyer est justifié par le fait que le
+                  découpage par zone fait apparaitre que le logement est situé à
+                  proximité immédiate de la zone 2 (250m environ) où l’indice de
+                  loyer est 12% supérieur à celui appliqué. >Par ailleurs, il
+                  existe une liste officielle qui précise les équipements
+                  minimums pour qu’un logement puisse être considéré comme
+                  meublé. Il est ici tenu compte du fait que l’équipement du
+                  logement faisant l’objet du présent bail va bien au-delà de ce
+                  minimum requis. À titre d’exemple, le logement est équipé
                   d’une grande télévision écran plat, de nombreux meubles de
                   salon, d’un lave-linge, ainsi que de multiples meubles et
                   appareils de petit électroménager. La liste des équipements
                   est donnée en annexe. 
-                </span>
-              </p>
 
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt"
-                *ngIf="formData.appartement.name === 'fillature'"
-              >
-                De plus, il convient de préciser que le logement qui est loué en
-                meublé a été entièrement refait à neuf en juillet 2022. Il
-                comporte une cuisine entièrement équipée et une salle de bains
-                moderne.
-              </p>
-
-              <p
-                class="MsoNormal"
-                style="margin-left: 36pt"
-                *ngIf="formData.appartement.name === 'rue rené'"
-              >
-                >De plus, il convient de préciser que le logement qui est loué
-                en meublé a été entièrement refait à neuf en juin 2023.
-              </p>
-
-              <p class="MsoNormal" style="margin-left: 36pt">
-                <span lang="FR"
-                  >En complément, la résidence possède un parking à l’usage
-                  exclusifs de ses résidents à l’accès sécurisé. Cet équipement
-                  permettra au locataire de ne pas payer de stationnement en
-                  complément.
-                </span>
-              </p>
-
-              <p class="MsoNormal" style="margin-left: 36pt">
-                <span lang="FR"
-                  >Enfin, la localisation de l’immeuble dans l’agglomération
-                  (5min à pied du Campus de la DOUA) et la situation de
-                  l’appartement au sein de l’immeuble (quatrième étage, avec vue
-                  dégagée
-                  <span
-                    *ngIf="formData.appartement.name === 'Chateau Gaillard'"
+                  <p
+                    class="MsoNormal"
+                    *ngIf="formData.appartement.name === 'fillature'"
                   >
-                    sur le parc Alice et André Vansteenberghe</span
-                  >, sans vis-à-vis) constituent de véritables atouts.</span
-                >
-              </p>
+                    De plus, il convient de préciser que le logement qui est
+                    loué en meublé a été entièrement refait à neuf en juillet
+                    2022. Il comporte une cuisine entièrement équipée et une
+                    salle de bains moderne.
+                  </p>
+
+                  <p
+                    class="MsoNormal"
+                    *ngIf="formData.appartement.name === 'rue rené'"
+                  >
+                    >De plus, il convient de préciser que le logement qui est
+                    loué en meublé a été entièrement refait à neuf en juin 2023.
+                  </p>
+
+                  <p class="MsoNormal">
+                    <span lang="FR"
+                      >En complément, la résidence possède un parking à l’usage
+                      exclusifs de ses résidents à l’accès sécurisé. Cet
+                      équipement permettra au locataire de ne pas payer de
+                      stationnement en complément.
+                    </span>
+                  </p>
+
+                  <p class="MsoNormal">
+                    <span lang="FR"
+                      >Enfin, la localisation de l’immeuble dans l’agglomération
+                      (5min à pied du Campus de la DOUA) et la situation de
+                      l’appartement au sein de l’immeuble (quatrième étage, avec
+                      vue dégagée
+                      <span
+                        *ngIf="formData.appartement.name === 'Chateau Gaillard'"
+                      >
+                        sur le parc Alice et André Vansteenberghe</span
+                      >, sans vis-à-vis) constituent de véritables atouts.</span
+                    >
+                  </p>
+                </li>
+              </ul>
 
               <p class="MsoNormal">
                 <span lang="FR" style="line-height: 115%"
@@ -1382,7 +1323,8 @@
                   >Le montant des charges récupérables est fixé forfaitairement
                   à
                   {{ formData.chargePrice }}
-                  €/mois.</span
+                  €/mois. Ce montant ne fera pas l'objet d'une
+                  régularisation.</span
                 >
               </p>
 
@@ -1597,7 +1539,10 @@
                 >
               </p>
 
-              <p class="MsoNormal" style="border: solid; width: 500px">
+              <p
+                class="MsoNormal"
+                style="border: solid; width: 500px; margin-left: 17%"
+              >
                 <span
                   [innerHTML]="formData.appartement.bankName"
                   lang="FR"

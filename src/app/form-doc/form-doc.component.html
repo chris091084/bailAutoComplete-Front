@@ -88,7 +88,7 @@
         <input
           id="telephone"
           class="form-control"
-          type="number"
+          type="text"
           formControlName="telephone"
         />
       </div>
@@ -220,7 +220,13 @@
         />
       </div>
       <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Envoyer</button>
+        <button
+          type="submit"
+          [disabled]="formDoc.valid === false"
+          class="btn btn-primary"
+        >
+          Envoyer
+        </button>
       </div>
     </form>
   </div>
