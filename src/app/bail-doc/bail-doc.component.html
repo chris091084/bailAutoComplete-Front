@@ -295,10 +295,8 @@
                     >Désigné ci-après «&nbsp;<b>LE LOCATAIRE</b>&nbsp;»</span
                   >
                 </p>
-                <br clear="all" style="page-break-before: always" />
-                <br clear="all" style="page-break-before: always" />
-                <br clear="all" style="page-break-before: always" />
-                <br clear="all" style="page-break-before: always" />
+                <div class="pagebreak"></div>
+
                 <h1
                   style="
                     text-align: left;
@@ -1247,15 +1245,15 @@
                   forfait de charges.</span
                 >
               </p>
-              <div *ngIf="formData.chargeList === true">
-                <p class="MsoNormal">
-                  <span lang="FR"
-                    >Les charges locatives récupérables sont des charges
-                    diverses payées par un propriétaire et dont il peut demander
-                    le remboursement à son locataire.
-                  </span>
-                </p>
 
+              <p class="MsoNormal">
+                <span lang="FR"
+                  >Les charges locatives récupérables sont des charges diverses
+                  payées par un propriétaire et dont il peut demander le
+                  remboursement à son locataire.
+                </span>
+              </p>
+              <div *ngIf="formData.chargeList === true">
                 <p class="MsoNormal">
                   <span lang="FR"
                     >Les charges locatives récupérables de plein droit
@@ -1572,14 +1570,14 @@
                 <span lang="FR" style="line-height: 115%">&nbsp;</span>
               </p>
 
-              <div
-                style="
-                  border: solid #7f7f7f 1pt;
-                  padding: 1pt 4pt 1pt 4pt;
-                  background: white;
-                "
-              >
-                <div *ngIf="formData.chargeList === true">
+              <div *ngIf="formData.chargeList === true">
+                <div
+                  style="
+                    border: solid #7f7f7f 1pt;
+                    padding: 1pt 4pt 1pt 4pt;
+                    background: white;
+                  "
+                >
                   <h2 style="background: white">
                     <span lang="FR" style="color: black"
                       >D. Souscription par le bailleur des abonnements
@@ -1638,8 +1636,8 @@
               >
                 <h2 style="background: white">
                   <span lang="FR" style="color: black"
-                    ><span *ngIf="formData.chargeList === false">C</span
-                    ><span *ngIf="formData.chargeList === true">D</span>.
+                    ><span *ngIf="formData.chargeList === false">D</span
+                    ><span *ngIf="formData.chargeList === true">E</span>.
                     Modalités de paiement</span
                   >
                 </h2>

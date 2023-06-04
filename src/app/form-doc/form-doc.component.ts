@@ -45,7 +45,7 @@ export class FormDocComponent {
     typeBail: new FormControl(''),
     tIrl: new FormControl(''),
     valIrl: new FormControl(''),
-    lastPriceWithoutCharge: new FormControl(''),
+    lastPriceWithoutCharge: new FormControl(0),
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
   });
@@ -93,7 +93,7 @@ export class FormDocComponent {
   ];
   //APPARTEMENT
   appartement1 = new Appartement(
-    'fillature',
+    'Filature',
     this.bailleur1,
     '56 rue de la Filature - 69100 VILLEURBANNE',
     [
@@ -114,7 +114,7 @@ export class FormDocComponent {
     '1000'
   );
   appartement2 = new Appartement(
-    'chateau gaillard',
+    'Chateau Gaillard',
     this.bailleur2,
     '17 bis rue Château Gaillard',
     [
@@ -135,7 +135,7 @@ export class FormDocComponent {
     '3000'
   );
   appartement3 = new Appartement(
-    'rue rené',
+    'Rue René',
     this.bailleur1,
     '1 rue René',
     [
@@ -227,6 +227,9 @@ export class FormDocComponent {
     this.resultForm.tIrl = this.formDoc.get('tIrl')?.value;
     this.resultForm.valIrl = this.formDoc.get('valIrl')?.value;
     this.resultForm.chargeList = this.formDoc.get('chargeList')?.value;
+    this.resultForm.lastPriceWithoutCharge = this.formDoc.get(
+      'lastPriceWithoutCharge'
+    )?.value;
     this.resultForm.clauseLess6Month =
       this.formDoc.get('clauseLess6Month')?.value;
 
