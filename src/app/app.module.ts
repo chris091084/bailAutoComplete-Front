@@ -10,6 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DateLeft } from './pipe/dateLeft.pipe';
 import { NumberOfDays } from './pipe/numberOfDays.pipe';
 import { NgxPrintModule } from 'ngx-print';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { NgxPrintModule } from 'ngx-print';
     ReactiveFormsModule,
     NgbModule,
     NgxPrintModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

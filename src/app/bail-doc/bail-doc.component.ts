@@ -3,7 +3,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormDocComponent } from '../form-doc/form-doc.component';
 import { ResultForm } from '../model/resultForm.model';
 import { Appartement } from '../model/appartement.model';
-import { Bailleur } from '../model/bailleur.model';
+import * as PizZip from 'pizzip';
+import * as Docxtemplater from 'docxtemplater';
+import * as saveAs from 'file-saver';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-bail-doc',
@@ -21,7 +24,7 @@ export class BailDocComponent implements OnInit {
     day: 'numeric',
   });
 
-  constructor(private modalService: NgbModal) {
+  constructor(private modalService: NgbModal, private http: HttpClient) {
     const modalRef = this.modalService.open(FormDocComponent, { size: 'lg' });
     modalRef.closed.subscribe((resultForm: ResultForm) => {
       if (resultForm != null) {
@@ -53,5 +56,32 @@ export class BailDocComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.formData);
+  }
+
+  generate() {
+    this.http
+      .get('assets/docx/test.docx', { responseType: 'arraybuffer' })
+      .subscribe((data) => {
+        const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        });
+        doc.render({
+          first_name: 'John',
+          last_name: 'Doe',
+          phone: '0652455478',
+          description: 'New Website',
+          test: 'hello',
+          bailType: this.formData.bailType,
+        });
+        const out = doc.getZip().generate({
+          type: 'blob',
+          mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+        saveAs(out, 'output.docx');
+      });
   }
 }
