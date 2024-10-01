@@ -55,12 +55,13 @@ export class BailDocComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.formData);
+    console.log(this.formData.appartement.caracteristiques);
   }
 
   generate() {
+    console.log(this.formData.appartement.caracteristiques);
     this.http
-      .get('assets/docx/test.docx', { responseType: 'arraybuffer' })
+      .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .subscribe((data) => {
         const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
         const zip = new PizZip(content);
@@ -69,12 +70,24 @@ export class BailDocComponent implements OnInit {
           linebreaks: true,
         });
         doc.render({
-          first_name: 'John',
-          last_name: 'Doe',
-          phone: '0652455478',
-          description: 'New Website',
-          test: 'hello',
           bailType: this.formData.bailType,
+          bailleurName: this.formData.bailleur?.name,
+          bailleurAdress: this.formData.bailleur?.adresse,
+          bailleurEmail: this.formData.bailleur?.email,
+          bailleurTelephone: this.formData.bailleur?.telephone,
+          locataireName: this.formData.name,
+          locataireAdress: this.formData.adress,
+          locataireEmail: this.formData.email,
+          locataireTelephone: this.formData.telephone,
+          adressLogement: this.formData.appartement.adresse,
+          constructionPeriod: this.formData.appartement.constructionPeriod,
+          isLogiaFillature:
+            this.formData.appartement.name === 'Filature' ? ',logia' : '',
+          appartementEnergieHeating: this.formData.appartement.energieHeating,
+          appartementEnergieWater: this.formData.appartement.energieWater,
+          appartementSuface: this.formData.appartement.surface,
+          caracteristiquesAppartement:
+            this.formData.appartement.caracteristiques,
         });
         const out = doc.getZip().generate({
           type: 'blob',
