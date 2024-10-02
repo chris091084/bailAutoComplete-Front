@@ -36,4 +36,26 @@ export class ResultForm {
   lastPriceWithoutCharge?: number | null = 0;
   chargeList?: boolean | null = false;
   clauseLess6Month?: boolean | null = false;
+
+  formatDate(date: Date): string {
+    const day = this.addLeadingZero(date.getDate());
+    const month = this.addLeadingZero(date.getMonth() + 1); // Les mois commencent à 0
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }
+
+  // Méthode auxiliaire pour ajouter un zéro devant les jours ou mois inférieurs à 10
+  private addLeadingZero(value: number): string {
+    return value < 10 ? `0${value}` : value.toString();
+  }
+
+  // Méthode pour obtenir les dates formatées
+  getFormattedFromDate(): string {
+    return this.formatDate(this.from);
+  }
+
+  getFormattedToDate(): string {
+    return this.formatDate(this.to);
+  }
 }

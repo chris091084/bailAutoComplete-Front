@@ -7,6 +7,8 @@ import * as PizZip from 'pizzip';
 import * as Docxtemplater from 'docxtemplater';
 import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
+import { DateLeft } from '../pipe/dateLeft.pipe';
+import { emitDistinctChangesOnlyDefaultValue } from '@angular/compiler';
 
 @Component({
   selector: 'app-bail-doc',
@@ -55,11 +57,11 @@ export class BailDocComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.formData.appartement.caracteristiques);
+    console.log(this.formData.appartement.name);
   }
 
   generate() {
-    console.log(this.formData.appartement.caracteristiques);
+    console.log(this.formData.getFormattedFromDate());
     this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .subscribe((data) => {
@@ -88,13 +90,86 @@ export class BailDocComponent implements OnInit {
           appartementSuface: this.formData.appartement.surface,
           caracteristiquesAppartement:
             this.formData.appartement.caracteristiques,
+          hasAccessToGarageAndPoubelle:
+            this.formData.appartement?.name === 'Filature' ||
+            this.formData.appartement?.name === 'Chateau Gaillard',
+          dateFrom: this.formData?.getFormattedFromDate(),
+          isMobilite: this.formData?.bailType === 'Mobilité',
+          isEtudiant: this.formData?.bailType === 'Etudiant',
+          isIndetermine: this.formData?.bailType === 'Indéterminé',
+          priceNocharge: this.formData.priceNoCharge,
+          appartementRentRef: this.formData.appartement.rentRef,
+          appartementRentMaj: this.formData.appartement.rentMaj,
+          rentRef: (
+            this.formData.priceNoCharge - this.formData.appartement.rentMaj
+          ).toFixed(2),
+          rentComp: (
+            this.formData.priceNoCharge - this.formData.appartement.rentMaj
+          ).toFixed(2),
+          isFilature: this.formData.appartement?.name === 'Filature',
+          isChateauGaillard:
+            this.formData.appartement?.name === 'Chateau Gaillard',
+          isRueRene: this.formData.appartement?.name === 'rue René',
+          rentWithoutCharge: this.formData.lastPriceWithoutCharge,
+          tIrl: this.formData.tIrl,
+          valIrl: this.formData.valIrl,
+          chargePrice: this.formData.chargePrice,
+          rentPrice: (
+            (this.formData.priceNoCharge * this.dateLeft(this.formData.from)) /
+            this.numberOfDays(
+              this.formData.from.getMonth() + 1,
+              this.formData.from.getFullYear()
+            )
+          ).toFixed(2),
+          howDayOfMonth: this.numberOfDays(
+            this.formData.from.getMonth() + 1,
+            this.formData.from.getFullYear()
+          ),
+          dayLeft: this.dateLeft(this.formData.from),
+          chargePriceLeft: (
+            (this.formData.chargePrice * this.dateLeft(this.formData.from)) /
+            this.numberOfDays(
+              this.formData.from.getMonth() + 1,
+              this.formData.from.getFullYear()
+            )
+          ).toFixed(2),
+          totalRentProMonth:
+            this.formData.priceNoCharge + this.formData.chargePrice,
+          totalMontNotCompletRent: (
+            ((this.formData.priceNoCharge + this.formData.chargePrice) *
+              this.dateLeft(this.formData.from)) /
+            this.numberOfDays(
+              this.formData.from.getMonth() + 1,
+              this.formData.from.getFullYear()
+            )
+          ).toFixed(2),
+          totalMontCompletRent:
+            this.formData.priceNoCharge + this.formData.chargePrice,
+          garantiePrice: this.formData.priceNoCharge * 2,
+          isClauseLess6Month: this.formData.clauseLess6Month === true,
+          petRules: this.formData.appartement.pet,
+          dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
         });
         const out = doc.getZip().generate({
           type: 'blob',
           mimeType:
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         });
+
         saveAs(out, 'output.docx');
       });
+  }
+  private dateLeft(dateInput: Date) {
+    const date: Date = new Date(dateInput);
+    const mois: number = date.getMonth();
+    const annee: number = date.getFullYear();
+
+    const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
+
+    return dernierJour - date.getDate();
+  }
+
+  private numberOfDays(mois: number, year: number): number {
+    return new Date(year, mois, 0).getDate();
   }
 }
