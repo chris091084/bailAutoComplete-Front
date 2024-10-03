@@ -97,6 +97,9 @@ export class BailDocComponent implements OnInit {
           isMobilite: this.formData?.bailType === 'Mobilité',
           isEtudiant: this.formData?.bailType === 'Etudiant',
           isIndetermine: this.formData?.bailType === 'Indéterminé',
+          hasMobiliteAndEtudiant:
+            this.formData?.bailType === 'Mobilité' ||
+            this.formData?.bailType === 'Etudiant',
           priceNocharge: this.formData.priceNoCharge,
           appartementRentRef: this.formData.appartement.rentRef,
           appartementRentMaj: this.formData.appartement.rentMaj,
@@ -149,6 +152,7 @@ export class BailDocComponent implements OnInit {
           isClauseLess6Month: this.formData.clauseLess6Month === true,
           petRules: this.formData.appartement.pet,
           dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
+          typeResidence: this.formData.typeResidence,
         });
         const out = doc.getZip().generate({
           type: 'blob',

@@ -20,6 +20,24 @@
           appartement.name
         }}</label>
       </div>
+      <h2 class="mt-3">Type de résidence</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let typeResidence of typeResidences; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="typeResidence"
+          [id]="'typeResidence' + i"
+          [value]="typeResidence"
+          formControlName="typeResidence"
+        />
+
+        <label class="form-check-label" [for]="'typeResidence' + i">{{
+          typeResidence
+        }}</label>
+      </div>
       <h2 class="mt-3">Type de bail</h2>
       <div
         class="form-check form-check-inline"

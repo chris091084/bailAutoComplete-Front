@@ -36,6 +36,7 @@ export class ResultForm {
   lastPriceWithoutCharge?: number | null = 0;
   chargeList?: boolean | null = false;
   clauseLess6Month?: boolean | null = false;
+  typeResidence?: string | null;
 
   formatDate(date: Date): string {
     const day = this.addLeadingZero(date.getDate());

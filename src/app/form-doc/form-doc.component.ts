@@ -48,6 +48,7 @@ export class FormDocComponent {
     lastPriceWithoutCharge: new FormControl(null, Validators.required),
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
+    typeResidence: new FormControl('', Validators.required),
   });
   //bailleurs
   bailleur1 = new Bailleur(
@@ -158,9 +159,10 @@ export class FormDocComponent {
   );
 
   appartments = [this.appartement1, this.appartement2, this.appartement3];
-  typeBails = ['Mobilité', 'Etudiant'];
+  typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
   rooms: string[] = [];
   bailleurSelected: any;
+  typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
 
   constructor(private activeModal: NgbActiveModal) {}
@@ -251,6 +253,7 @@ export class FormDocComponent {
       } else {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
+      this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
     }
   }
 
