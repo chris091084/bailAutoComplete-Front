@@ -153,6 +153,8 @@ export class BailDocComponent implements OnInit {
           petRules: this.formData.appartement.pet,
           dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
           typeResidence: this.formData.typeResidence,
+          isResidencePrincipal: this.formData.typeResidence === 'Principale',
+          isResidenceSecondaire: this.formData.typeResidence === 'Secondaire',
         });
         const out = doc.getZip().generate({
           type: 'blob',
