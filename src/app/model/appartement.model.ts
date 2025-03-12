@@ -1,10 +1,11 @@
 import { Bailleur } from './bailleur.model';
+import { Chambre } from './Chambre.model';
 
 export class Appartement {
   name: string = '';
   bailleur: Bailleur;
-  adresse: string = '';
-  chambres: string[] = [];
+  adress: string = '';
+  chambres: Chambre[] = [];
   caracteristiques: string[] = [];
   energieWater: string = '';
   energieHeating: string = '';
@@ -19,7 +20,7 @@ export class Appartement {
     name: string,
     bailleur: Bailleur,
     adresse: string,
-    chambres: string[],
+    chambres: Chambre[],
     caracteristiques: string[],
     energieWater: string,
     energieHeating: string,
@@ -33,7 +34,7 @@ export class Appartement {
   ) {
     this.name = name;
     this.bailleur = bailleur;
-    this.adresse = adresse;
+    this.adress = adresse;
     this.chambres = chambres;
     this.caracteristiques = caracteristiques;
     this.energieWater = energieWater;

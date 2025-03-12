@@ -4,6 +4,8 @@ import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ResultForm } from '../model/resultForm.model';
+import { RequestService } from '../service/requestService';
+import { Chambre } from '../model/Chambre.model';
 
 @Component({
   selector: 'app-form-doc',
@@ -93,79 +95,22 @@ export class FormDocComponent {
     'Un balcon (3,52m²).',
   ];
   //APPARTEMENT
-  appartement1 = new Appartement(
-    'Filature',
-    this.bailleur1,
-    '56 rue de la Filature - 69100 VILLEURBANNE',
-    [
-      'Chambre 1 : 10.30 m²',
-      'Chambre 2 : 9,14 m²',
-      'Chambre 3 : 9,79 m²',
-      'Chambre 4 : 11.19 m²',
-    ],
-    this.caracteristiques1,
-    'chaudière à gaz',
-    'collectif',
-    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert</br>IBAN : FR76 1558 9351 5600 3177 7744 286</br>Code BIC : CMBRFR2BXXX',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur. Cette interdiction résulte du règlement de copropriété de la résidence. Ce règlement est joint en annexe.",
-    '1968',
-    '81,18',
-    209.04,
-    251.66,
-    '1000'
-  );
-  appartement2 = new Appartement(
-    'Chateau Gaillard',
-    this.bailleur2,
-    '17 bis rue Château Gaillard',
-    [
-      'Chambre 1 : 9.91 m²',
-      'Chambre 2 : 8.20 m²',
-      'Chambre 3 : 9.67 m²',
-      'Chambre 4 : 10.5 m²',
-    ],
-    this.caracteristiques2,
-    'cumulus électrique',
-    'collectif',
-    'Etablissement bancaire : Crédit Mutuel de Bretagne – Louvigné du Désert</br>IBAN : FR76 1558 9351 5600 3177 7744 383</br>Code BIC : CMBRFR2BXXX',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
-    '1946-1970',
-    '73,78',
-    189.98,
-    228.72,
-    '3000'
-  );
-  appartement3 = new Appartement(
-    'Rue René',
-    this.bailleur1,
-    '1 rue René',
-    [
-      'Chambre 1 : 10.13 m²',
-      'Chambre 2 : 10,13 m²',
-      'Chambre 3 : 8,07 m²',
-      'Chambre 4 : 11.03 m²',
-    ],
-    this.caracteristiques3,
 
-    'chaudière à gaz',
-    'individuel',
-    'Etablissement bancaire : Crédit Agricole Ille et Vilaine – Maen Roch</br>IBAN : FR76 1360 6000 3346 3385 5675 616</br>Code BIC : AGRIFRPP83',
-    "La détention d'animaux domestiques n'est pas autorisée par le bailleur.",
-    '1946-1970',
-    '72,83',
-    187.54,
-    225.77,
-    '1000'
-  );
-
-  appartments = [this.appartement1, this.appartement2, this.appartement3];
+  appartments: Appartement[] = [];
+  request = this.requestService.getAppartements().subscribe((data) => {
+    this.appartments = data;
+    console.log(data);
+  });
   typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
-  rooms: string[] = [];
+  pieces: string[] = [];
   bailleurSelected: any;
   typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
 
-  constructor(private activeModal: NgbActiveModal) {}
+  constructor(
+    private activeModal: NgbActiveModal,
+    private requestService: RequestService
+  ) {}
 
   onSubmit() {
     // if (
@@ -257,9 +202,8 @@ export class FormDocComponent {
     }
   }
 
-  switchRooms(rooms: any, bailleur: any) {
-    console.log(rooms);
-    this.rooms = rooms;
+  switchRooms(rooms: Chambre[], bailleur: any) {
+    this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
   }
 
