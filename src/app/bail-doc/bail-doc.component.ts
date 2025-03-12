@@ -36,7 +36,7 @@ export class BailDocComponent implements OnInit {
             this.formData.appartement = new Appartement(
               resultForm.appartement.name,
               resultForm.appartement.bailleur,
-              resultForm.appartement.adresse,
+              resultForm.appartement.adress,
               resultForm.appartement.chambres,
               resultForm.appartement.caracteristiques,
               resultForm.appartement.energieWater,
@@ -81,7 +81,7 @@ export class BailDocComponent implements OnInit {
           locataireAdress: this.formData.adress,
           locataireEmail: this.formData.email,
           locataireTelephone: this.formData.telephone,
-          adressLogement: this.formData.appartement.adresse,
+          adressLogement: this.formData.appartement.adress,
           constructionPeriod: this.formData.appartement.constructionPeriod,
           isLogiaFillature:
             this.formData.appartement.name === 'Filature' ? ',logia' : '',
