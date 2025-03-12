@@ -1,0 +1,251 @@
+<div class="modal-body">
+  <div class="container">
+    <form [formGroup]="formDoc" (ngSubmit)="onSubmit()">
+      <h2 class="mt-3">Appartement</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let appartement of appartments; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="appartement"
+          [id]="'appartement' + i"
+          (change)="switchRooms(appartement.chambres, appartement.bailleur)"
+          [value]="appartement"
+          formControlName="appartement"
+        />
+
+        <label class="form-check-label" [for]="'appartement' + i">{{
+          appartement.name
+        }}</label>
+      </div>
+      <h2 class="mt-3">Type de résidence</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let typeResidence of typeResidences; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="typeResidence"
+          [id]="'typeResidence' + i"
+          [value]="typeResidence"
+          formControlName="typeResidence"
+        />
+
+        <label class="form-check-label" [for]="'typeResidence' + i">{{
+          typeResidence
+        }}</label>
+      </div>
+      <h2 class="mt-3">Type de bail</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let typeBail of typeBails; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="typeBail"
+          [id]="'typeBail' + i"
+          [value]="typeBail"
+          (change)="isMobilite(typeBail)"
+          formControlName="typeBail"
+          [checked]="this.formDoc.get('typeBail')?.value === typeBail"
+        />
+        <label class="form-check-label" [for]="'typeBail' + i">{{
+          typeBail
+        }}</label>
+      </div>
+
+      <h2 class="mt-3">Le locataire</h2>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label for="name"> Nom </label>
+            <input
+              id="name"
+              class="form-control"
+              type="text"
+              formControlName="name"
+            />
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="firstname"> Prénom </label>
+            <input
+              id="firstname"
+              class="form-control"
+              type="firstname"
+              formControlName="firstname"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="adress"> Adresse complète </label>
+        <input
+          id="adress"
+          class="form-control"
+          type="text"
+          formControlName="adress"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email"> email</label>
+        <input
+          id="email"
+          class="form-control"
+          type="text"
+          formControlName="email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="telephone"> Téléphone </label>
+        <input
+          id="telephone"
+          class="form-control"
+          type="text"
+          formControlName="telephone"
+        />
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label for="from"> date de début</label>
+            <input
+              id="from"
+              class="form-control"
+              type="date"
+              formControlName="from"
+            />
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="to"> date de fin</label>
+            <input
+              id="to"
+              class="form-control"
+              type="date"
+              formControlName="to"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label for="tIrl"> Trimestre de l'IRL </label>
+            <input
+              placeholder="1T2023"
+              id="tIrl"
+              class="form-control"
+              type="tIrl"
+              formControlName="tIrl"
+            />
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="valIrl"> Valeur de l'IRL </label>
+            <input
+              placeholder="123.45"
+              id="valIrl"
+              class="form-control"
+              type="valIrl"
+              formControlName="valIrl"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="motif"> Motif </label>
+              <input
+                id="motif"
+                class="form-control"
+                type="motif"
+                formControlName="motif"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let room of pieces; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="room"
+          [id]="'room' + i"
+          [value]="room"
+          formControlName="room"
+        />
+        <label class="form-check-label" [for]="'room ' + i">{{ room }}</label>
+      </div>
+      <h2 class="mt-3">Le loyer</h2>
+      <div class="form-group">
+        <label for="priceNoCharge"> Montant hors charges (€) </label>
+        <input
+          id="priceNoCharge"
+          class="form-control"
+          type="number"
+          formControlName="priceNoCharge"
+        />
+      </div>
+      <div class="form-group">
+        <label for="chargePrice"> Montant des charges (€) </label>
+        <input
+          id="chargePrice"
+          class="form-control"
+          type="number"
+          formControlName="chargePrice"
+        />
+      </div>
+      <div class="form-group">
+        <label for="lastPriceWithoutCharge">
+          Loyer hors charges du dernier locataire
+        </label>
+        <input
+          id="lastPriceWithoutCharge"
+          class="form-control"
+          type="number"
+          formControlName="lastPriceWithoutCharge"
+        />
+      </div>
+      <div class="form-check">
+        <label for="chargeList"> Listes des charges </label>
+
+        <input
+          id="chargeList"
+          class="form-check-input"
+          type="checkbox"
+          formControlName="chargeList"
+        />
+      </div>
+      <div class="form-check">
+        <label for="clauseLess6Month"> Clause durée inférieur à 6 mois </label>
+
+        <input
+          id="clauseLess6Month"
+          class="form-check-input"
+          type="checkbox"
+          formControlName="clauseLess6Month"
+        />
+      </div>
+      <div class="mt-4">
+        <button
+          type="submit"
+          [disabled]="formDoc.valid === false"
+          class="btn btn-primary"
+        >
+          Envoyer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
