@@ -11,7 +11,9 @@
           type="radio"
           name="appartement"
           [id]="'appartement' + i"
-          (change)="switchRooms(appartement.chambres, appartement.bailleur)"
+          (change)="
+            switchRooms(appartement.chambres, appartement.bailleur, appartement)
+          "
           [value]="appartement"
           formControlName="appartement"
         />
@@ -243,7 +245,7 @@
           [disabled]="formDoc.valid === false"
           class="btn btn-primary"
         >
-          Envoyer
+          Générer le fichier Word
         </button>
       </div>
     </form>
