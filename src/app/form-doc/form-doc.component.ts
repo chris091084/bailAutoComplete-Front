@@ -199,6 +199,7 @@ export class FormDocComponent {
             this.resultForm.appartement?.name === 'Filature' ||
             this.resultForm.appartement?.name === 'Chateau Gaillard',
           dateFrom: this.resultForm?.getFormattedFromDate(),
+          dateTo: this.resultForm?.getFormattedToDate(),
           isMobilite: this.resultForm?.bailType === 'Mobilité',
           isEtudiant: this.resultForm?.bailType === 'Etudiant',
           isIndetermine: this.resultForm?.bailType === 'Indéterminé',
