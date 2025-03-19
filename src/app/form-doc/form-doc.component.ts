@@ -6,6 +6,10 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ResultForm } from '../model/resultForm.model';
 import { RequestService } from '../service/requestService';
 import { Chambre } from '../model/Chambre.model';
+import * as PizZip from 'pizzip';
+import * as Docxtemplater from 'docxtemplater';
+import * as saveAs from 'file-saver';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-form-doc',
@@ -52,90 +56,34 @@ export class FormDocComponent {
     clauseLess6Month: new FormControl(false),
     typeResidence: new FormControl('', Validators.required),
   });
-  //bailleurs
-  bailleur1 = new Bailleur(
-    'M. BODIN Sylvain',
-    '118 chemin du Bassard  -  38121 CHONAS l’AMBALLAN',
-    'sylvain.bodin@gmail.com',
-    '06 13 88 31 01'
-  );
-  bailleur2 = new Bailleur(
-    'M. BODIN Sylvain et M. COLEY Christian',
-    '118 chemin du Bassard  -  38121 CHONAS l’AMBALLAN',
-    'sylvain.bodin@gmail.com / christian.coley@hotmail.fr',
-    '06 13 88 31 01 / 06 50 27 92 53'
-  );
-  //caracteristiques
-  caracteristiques1 = [
-    "L'entrée du logement et son couloir (8.20m²),",
-    'La cuisine entièrement équipée (9,53m²),',
-    'Le salon (17.58m²),',
-    'Le WC (1.04m²),',
-    'La salle de bains (4.41m²),',
-    'Une loggia (1.99m²),',
-    'Un balcon (4,30m²),',
-    'Des placards accessibles depuis le couloir.',
-  ];
-  caracteristiques2 = [
-    "L'entrée du logement (3.68m²)",
-    'La cuisine entièrement équipée (6.45m²)',
-    'Le salon (21 m²)',
-    'Le WC (0.90m²)',
-    'La salle de bains (3.22m²)',
-    'Un balcon (5,09m²)',
-    'Des placards accessibles depuis le salon.',
-  ];
-  caracteristiques3 = [
-    "L'entrée du logement (5,08m²)",
-    'La cuisine entièrement équipée (6,41m²)',
-    'Le salon (17,14m²)',
-    'Le WC (0,96m²)',
-    'La salle de bains (2,53m²)',
-    'Un dégagement (1.35m²)',
-    'Un balcon (3,52m²).',
-  ];
+
   //APPARTEMENT
 
   appartments: Appartement[] = [];
-  request = this.requestService.getAppartements().subscribe((data) => {
-    this.appartments = data;
-    console.log(data);
-  });
+
   typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
   pieces: string[] = [];
   bailleurSelected: any;
+  appartementName: string | undefined;
   typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
+  appartementSelected?: Appartement;
 
   constructor(
-    private activeModal: NgbActiveModal,
-    private requestService: RequestService
-  ) {}
+    private requestService: RequestService,
+    private http: HttpClient
+  ) {
+    this.requestService.getAppartements().subscribe((data) => {
+      if (data && Array.isArray(data)) {
+        this.appartments = data;
+        console.log('hello');
+      } else {
+        console.error('Données invalides reçues', data);
+      }
+    });
+  }
 
   onSubmit() {
-    // if (
-    //   this.formDoc.get('from') !== null &&
-    //   this.formDoc.get('from') !== undefined
-    // ) {
-    //   // verify if this.formDoc.get('from') is not null
-
-    //   console.log(this.formDoc.value.from);
-
-    //   let dateFrom = new Date(this.formDoc.get('from')?.getRawValue());
-    //   console.log(dateFrom);
-
-    //   let date: Date | undefined | null =
-    //     dateFrom !== null && dateFrom !== undefined ? dateFrom : new Date();
-    //   if (date !== null && date !== undefined) {
-    //     const mois = date.getMonth();
-    //     const annee = date.getFullYear();
-    //     const dernierJour = new Date(annee, mois + 1, 0).getDate();
-
-    //     const joursRestants = dernierJour - date.getDate();
-
-    //     console.log(joursRestants);
-    //   }
-    // }
     if (this.formDoc.valid) {
       console.log(this.resultForm.chargePrice);
 
@@ -180,7 +128,6 @@ export class FormDocComponent {
       this.resultForm.clauseLess6Month =
         this.formDoc.get('clauseLess6Month')?.value;
 
-      this.activeModal.close(this.resultForm);
       console.log(this.resultForm);
 
       console.log(new Date());
@@ -199,12 +146,16 @@ export class FormDocComponent {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
+
+      this.generate();
     }
   }
 
-  switchRooms(rooms: Chambre[], bailleur: any) {
+  switchRooms(rooms: Chambre[], bailleur: any, appartement: Appartement) {
     this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
+    console.log(bailleur);
+    this.appartementSelected = appartement;
   }
 
   isMobilite(typBail: string) {
@@ -212,5 +163,126 @@ export class FormDocComponent {
     typBail == 'Etudiant'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
+  }
+
+  private generate() {
+    console.log(this.resultForm.getFormattedFromDate());
+    this.http
+      .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
+      .subscribe((data) => {
+        const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        });
+        doc.render({
+          bailType: this.resultForm.bailType,
+          bailleurName: this.resultForm.bailleur?.name,
+          bailleurAdress: this.resultForm.bailleur?.adresse,
+          bailleurEmail: this.resultForm.bailleur?.email,
+          bailleurTelephone: this.resultForm.bailleur?.telephone,
+          locataireName: this.resultForm.name,
+          locataireAdress: this.resultForm.adress,
+          locataireEmail: this.resultForm.email,
+          locataireTelephone: this.resultForm.telephone,
+          adressLogement: this.resultForm.appartement.adress,
+          constructionPeriod: this.appartementSelected?.constructionPeriod,
+          isLogiaFillature:
+            this.resultForm.appartement.name === 'Filature' ? ',logia' : '',
+          appartementEnergieHeating: this.resultForm.appartement.energieHeating,
+          appartementEnergieWater: this.resultForm.appartement.energieWater,
+          appartementSuface: this.resultForm.appartement.surface,
+          caracteristiquesAppartement:
+            this.appartementSelected?.caracteristiques,
+          hasAccessToGarageAndPoubelle:
+            this.resultForm.appartement?.name === 'Filature' ||
+            this.resultForm.appartement?.name === 'Chateau Gaillard',
+          dateFrom: this.resultForm?.getFormattedFromDate(),
+          isMobilite: this.resultForm?.bailType === 'Mobilité',
+          isEtudiant: this.resultForm?.bailType === 'Etudiant',
+          isIndetermine: this.resultForm?.bailType === 'Indéterminé',
+          hasMobiliteAndEtudiant:
+            this.resultForm?.bailType === 'Mobilité' ||
+            this.resultForm?.bailType === 'Etudiant',
+          priceNocharge: this.resultForm.priceNoCharge,
+          appartementRentRef: this.resultForm.appartement.rentRef,
+          appartementRentMaj: this.resultForm.appartement.rentMaj,
+          rentRef: (
+            this.resultForm.priceNoCharge - this.resultForm.appartement.rentMaj
+          ).toFixed(2),
+          rentComp: (
+            this.resultForm.priceNoCharge - this.resultForm.appartement.rentMaj
+          ).toFixed(2),
+          isFilature: this.resultForm.appartement?.name === 'Filature',
+          isChateauGaillard:
+            this.resultForm.appartement?.name === 'Chateau Gaillard',
+          isRueRene: this.resultForm.appartement?.name === 'rue René',
+          rentWithoutCharge: this.resultForm.lastPriceWithoutCharge,
+          tIrl: this.resultForm.tIrl,
+          valIrl: this.resultForm.valIrl,
+          chargePrice: this.resultForm.chargePrice,
+          rentPrice: (
+            (this.resultForm.priceNoCharge *
+              this.dateLeft(this.resultForm.from)) /
+            this.numberOfDays(
+              this.resultForm.from.getMonth() + 1,
+              this.resultForm.from.getFullYear()
+            )
+          ).toFixed(2),
+          howDayOfMonth: this.numberOfDays(
+            this.resultForm.from.getMonth() + 1,
+            this.resultForm.from.getFullYear()
+          ),
+          dayLeft: this.dateLeft(this.resultForm.from),
+          chargePriceLeft: (
+            (this.resultForm.chargePrice *
+              this.dateLeft(this.resultForm.from)) /
+            this.numberOfDays(
+              this.resultForm.from.getMonth() + 1,
+              this.resultForm.from.getFullYear()
+            )
+          ).toFixed(2),
+          totalRentProMonth:
+            this.resultForm.priceNoCharge + this.resultForm.chargePrice,
+          totalMontNotCompletRent: (
+            ((this.resultForm.priceNoCharge + this.resultForm.chargePrice) *
+              this.dateLeft(this.resultForm.from)) /
+            this.numberOfDays(
+              this.resultForm.from.getMonth() + 1,
+              this.resultForm.from.getFullYear()
+            )
+          ).toFixed(2),
+          totalMontCompletRent:
+            this.resultForm.priceNoCharge + this.resultForm.chargePrice,
+          garantiePrice: this.resultForm.priceNoCharge * 2,
+          isClauseLess6Month: this.resultForm.clauseLess6Month === true,
+          petRules: this.resultForm.appartement.pet,
+          dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
+          typeResidence: this.resultForm.typeResidence,
+          isResidencePrincipal: this.resultForm.typeResidence === 'Principale',
+          isResidenceSecondaire: this.resultForm.typeResidence === 'Secondaire',
+        });
+        const out = doc.getZip().generate({
+          type: 'blob',
+          mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        saveAs(out, 'output.docx');
+      });
+  }
+  private dateLeft(dateInput: Date) {
+    const date: Date = new Date(dateInput);
+    const mois: number = date.getMonth();
+    const annee: number = date.getFullYear();
+
+    const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
+
+    return dernierJour - date.getDate();
+  }
+
+  private numberOfDays(mois: number, year: number): number {
+    return new Date(year, mois, 0).getDate();
   }
 }
