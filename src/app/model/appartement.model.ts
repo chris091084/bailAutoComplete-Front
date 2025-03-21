@@ -14,7 +14,7 @@ export class Appartement {
   constructionPeriod: string = '';
   surface: string = '';
   rentRef: number = 0;
-  rentMaj: number = 0;
+  rentRefMaj: number = 0;
   maxConsoElec: string = '';
   constructor(
     name: string,
@@ -44,7 +44,7 @@ export class Appartement {
     this.constructionPeriod = constructionPeriod;
     this.surface = surface;
     this.rentRef = rentRef;
-    this.rentMaj = rentMaj;
+    this.rentRefMaj = rentMaj;
     this.maxConsoElec = maxConsoElec;
   }
 }
