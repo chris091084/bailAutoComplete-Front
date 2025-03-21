@@ -37,6 +37,8 @@ export class ResultForm {
   chargeList?: boolean | null = false;
   clauseLess6Month?: boolean | null = false;
   typeResidence?: string | null;
+  rentRef?: number | null;
+  rentRefMaj?: number | null;
 
   formatDate(date: Date): string {
     const day = this.addLeadingZero(date.getDate());

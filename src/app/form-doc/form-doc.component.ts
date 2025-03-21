@@ -55,6 +55,8 @@ export class FormDocComponent {
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
     typeResidence: new FormControl('', Validators.required),
+    rentRef: new FormControl(0, Validators.required),
+    rentRefMaj: new FormControl(0, Validators.required),
   });
 
   //APPARTEMENT
@@ -156,6 +158,10 @@ export class FormDocComponent {
     this.bailleurSelected = bailleur;
     console.log(bailleur);
     this.appartementSelected = appartement;
+    this.formDoc.patchValue({
+      rentRef: appartement.rentRef,
+      rentRefMaj: appartement.rentRefMaj,
+    });
   }
 
   isMobilite(typBail: string) {
@@ -208,12 +214,14 @@ export class FormDocComponent {
             this.resultForm?.bailType === 'Etudiant',
           priceNocharge: this.resultForm.priceNoCharge,
           appartementRentRef: this.resultForm.appartement.rentRef,
-          appartementRentMaj: this.resultForm.appartement.rentMaj,
+          appartementRentRefMaj: this.resultForm.appartement.rentRefMaj,
           rentRef: (
-            this.resultForm.priceNoCharge - this.resultForm.appartement.rentMaj
+            this.resultForm.priceNoCharge -
+            this.resultForm.appartement.rentRefMaj
           ).toFixed(2),
-          rentComp: (
-            this.resultForm.priceNoCharge - this.resultForm.appartement.rentMaj
+          rentRefMaj: (
+            this.resultForm.priceNoCharge -
+            this.resultForm.appartement.rentRefMaj
           ).toFixed(2),
           isFilature: this.resultForm.appartement?.name === 'Filature',
           isChateauGaillard:
