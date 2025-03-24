@@ -2,6 +2,7 @@ import { Bailleur } from './bailleur.model';
 import { Chambre } from './Chambre.model';
 
 export class Appartement {
+  id: string = '';
   name: string = '';
   bailleur: Bailleur;
   adress: string = '';
@@ -17,6 +18,7 @@ export class Appartement {
   rentRefMaj: number = 0;
   maxConsoElec: string = '';
   constructor(
+    id: string,
     name: string,
     bailleur: Bailleur,
     adresse: string,
@@ -32,6 +34,7 @@ export class Appartement {
     rentMaj: number,
     maxConsoElec: string
   ) {
+    this.id = id;
     this.name = name;
     this.bailleur = bailleur;
     this.adress = adresse;

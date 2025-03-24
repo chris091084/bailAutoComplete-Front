@@ -219,25 +219,55 @@
           formControlName="lastPriceWithoutCharge"
         />
       </div>
-      <div class="form-group">
-        <label for="rentRefMaj"> tarif au M2 du loyer de référence </label>
-        <input
-          id="rentRef"
-          class="form-control"
-          type="number"
-          formControlName="rentRef"
-        />
-      </div>
-      <div class="form-group">
-        <label for="rentRefMaj">
-          tarif au M2 du loyer de référence majoré
-        </label>
-        <input
-          id="rentRefMaj"
-          class="form-control"
-          type="number"
-          formControlName="rentRefMaj"
-        />
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label for="rentRefMaj"> tarif au M2 du loyer de référence </label>
+            <div class="input-group mb-3">
+              <input
+                id="rentRef"
+                class="form-control"
+                type="number"
+                formControlName="rentRef"
+                [disabled]="modifyRentRef == false"
+              />
+              <button
+                (click)="sentRentRef(formDoc.get('rentRef')?.value, 'rentRef')"
+                class="btn btn-primary"
+                type="button"
+                id="button-modifyRentRef"
+              >
+                <i class="bi bi-pen-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="rentRefMaj">
+              tarif au M2 du loyer de référence majoré
+            </label>
+            <div class="input-group mb-3">
+              <input
+                id="rentRefMaj"
+                class="form-control"
+                type="number"
+                formControlName="rentRefMaj"
+                [disabled]="modifyRentRefMaj == false"
+              />
+              <button
+                (click)="
+                  sentRentRefMaj(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
+                "
+                class="btn btn-primary"
+                type="button"
+                id="button-modifyRentRefMaj"
+              >
+                <i class="bi bi-pen-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="form-check">
         <label for="chargeList"> Listes des charges </label>

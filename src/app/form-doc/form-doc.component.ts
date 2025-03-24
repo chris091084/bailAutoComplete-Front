@@ -30,6 +30,7 @@ export class FormDocComponent {
     appartement: new FormControl(
       new Appartement(
         '',
+        '',
         new Bailleur('', '', '', ''),
         '',
         [],
@@ -55,8 +56,11 @@ export class FormDocComponent {
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
     typeResidence: new FormControl('', Validators.required),
-    rentRef: new FormControl(0, Validators.required),
-    rentRefMaj: new FormControl(0, Validators.required),
+    rentRef: new FormControl({ value: 0, disabled: true }, Validators.required),
+    rentRefMaj: new FormControl(
+      { value: 0, disabled: true },
+      Validators.required
+    ),
   });
 
   //APPARTEMENT
@@ -70,6 +74,8 @@ export class FormDocComponent {
   typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
   appartementSelected?: Appartement;
+  modifyRentRefMaj: boolean = false;
+  modifyRentRef: boolean = false;
 
   constructor(
     private requestService: RequestService,
@@ -281,6 +287,33 @@ export class FormDocComponent {
         saveAs(out, 'output.docx');
       });
   }
+
+  sentRentRef(value: any, fieldName: string) {
+    console.log(value, fieldName, this.appartementSelected?.id);
+    if (this.formDoc.get('rentRef')?.enabled === false) {
+      this.formDoc.get('rentRef')?.enable();
+      return;
+    }
+    if (this.formDoc.get('rentRef')?.enabled === true) {
+      this.requestService.setRentRef(this.appartementSelected?.id, value);
+
+      this.formDoc.get('rentRef')?.disable();
+    }
+  }
+
+  sentRentRefMaj(value: any, fieldName: string) {
+    console.log(value, fieldName, this.appartementSelected?.id);
+    if (this.formDoc.get('rentRefMaj')?.enabled === false) {
+      this.formDoc.get('rentRefMaj')?.enable();
+      return;
+    }
+    if (this.formDoc.get('rentRefMaj')?.enabled === true) {
+      this.requestService.setRentRef(this.appartementSelected?.id, value);
+
+      this.formDoc.get('rentRefMaj')?.disable();
+    }
+  }
+
   private dateLeft(dateInput: Date) {
     const date: Date = new Date(dateInput);
     const mois: number = date.getMonth();
