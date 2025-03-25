@@ -291,26 +291,38 @@ export class FormDocComponent {
   sentRentRef(value: any, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRef')?.enabled === false) {
+      this.formDoc.disable();
       this.formDoc.get('rentRef')?.enable();
+
       return;
     }
     if (this.formDoc.get('rentRef')?.enabled === true) {
-      this.requestService.setRentRef(this.appartementSelected?.id, value);
+      this.requestService
+        .setRentRef(this.appartementSelected?.id, value, undefined)
+        .subscribe((data) => {});
+      this.formDoc.enable();
 
       this.formDoc.get('rentRef')?.disable();
+      this.formDoc.get('rentRefMaj')?.disable();
     }
   }
 
   sentRentRefMaj(value: any, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRefMaj')?.enabled === false) {
+      this.formDoc.disable();
       this.formDoc.get('rentRefMaj')?.enable();
+
       return;
     }
     if (this.formDoc.get('rentRefMaj')?.enabled === true) {
-      this.requestService.setRentRef(this.appartementSelected?.id, value);
+      this.requestService
+        .setRentRef(this.appartementSelected?.id, undefined, value)
+        .subscribe((data) => {});
+      this.formDoc.enable();
 
       this.formDoc.get('rentRefMaj')?.disable();
+      this.formDoc.get('rentRef')?.disable();
     }
   }
 
