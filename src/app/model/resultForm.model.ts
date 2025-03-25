@@ -5,6 +5,7 @@ export class ResultForm {
   adress?: string | null;
   appartement: Appartement = new Appartement(
     '',
+    '',
     new Bailleur('', '', '', ''),
     '',
     [],
