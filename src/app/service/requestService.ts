@@ -2,23 +2,23 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Appartement } from '../model/appartement.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { AppartementDto } from '../model/AppartementDto.model';
 
 @Injectable({
-  providedIn: 'root', // Fournit ce service à toute l'application
+  providedIn: 'root',
 })
 export class RequestService {
-  private apiUrl = 'http://localhost:8080/'; // URL de ton backend Spring Boot
-
+  private apiUrl = 'http://localhost:8080/';
   constructor(private http: HttpClient) {}
 
-  getAppartements(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}appartement`);
+  getAppartements(): Observable<AppartementDto> {
+    return this.http.get<AppartementDto>(`${this.apiUrl}appartement`);
   }
 
   setRentRef(
     idAppartement?: string,
-    rentRef?: number,
-    rentRefMaj?: number
+    rentRef?: number | null,
+    rentRefMaj?: number | null
   ): Observable<any> {
     const body = {
       idAppartement,
