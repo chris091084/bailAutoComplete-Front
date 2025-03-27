@@ -11,7 +11,7 @@ export class Appartement {
   energieWater: string = '';
   energieHeating: string = '';
   bankName: string = '';
-  pet: string = '';
+  petRule: string = '';
   constructionPeriod: string = '';
   surface: string = '';
   rentRef: number = 0;
@@ -43,7 +43,7 @@ export class Appartement {
     this.energieWater = energieWater;
     this.energieHeating = energieHeating;
     this.bankName = bankName;
-    this.pet = pet;
+    this.petRule = pet;
     this.constructionPeriod = constructionPeriod;
     this.surface = surface;
     this.rentRef = rentRef;

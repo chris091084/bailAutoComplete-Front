@@ -178,6 +178,8 @@ export class FormDocComponent {
   }
 
   private generate() {
+    console.log(this.resultForm);
+    console.log(this.appartementSelected);
     console.log(this.resultForm.getFormattedFromDate());
     this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
@@ -191,7 +193,7 @@ export class FormDocComponent {
         doc.render({
           bailType: this.resultForm.bailType,
           bailleurName: this.resultForm.bailleur?.name,
-          bailleurAdress: this.resultForm.bailleur?.adresse,
+          bailleurAdress: this.resultForm.bailleur?.adress,
           bailleurEmail: this.resultForm.bailleur?.email,
           bailleurTelephone: this.resultForm.bailleur?.telephone,
           locataireName: this.resultForm.name,
@@ -202,9 +204,9 @@ export class FormDocComponent {
           constructionPeriod: this.appartementSelected?.constructionPeriod,
           isLogiaFillature:
             this.resultForm.appartement.name === 'Filature' ? ',logia' : '',
-          appartementEnergieHeating: this.resultForm.appartement.energieHeating,
-          appartementEnergieWater: this.resultForm.appartement.energieWater,
-          appartementSuface: this.resultForm.appartement.surface,
+          appartementEnergieHeating: this.appartementSelected?.energieHeating,
+          appartementEnergieWater: this.appartementSelected?.energieWater,
+          appartementSuface: this.appartementSelected?.surface,
           caracteristiquesAppartement:
             this.appartementSelected?.caracteristiques,
           hasAccessToGarageAndPoubelle:
@@ -218,7 +220,7 @@ export class FormDocComponent {
           hasMobiliteAndEtudiant:
             this.resultForm?.bailType === 'Mobilité' ||
             this.resultForm?.bailType === 'Etudiant',
-          priceNocharge: this.resultForm.priceNoCharge,
+          priceNoCharge: this.resultForm.priceNoCharge,
           appartementRentRef: this.resultForm.appartement.rentRef,
           appartementRentRefMaj: this.resultForm.appartement.rentRefMaj,
           rentRef: (
@@ -272,7 +274,7 @@ export class FormDocComponent {
             this.resultForm.priceNoCharge + this.resultForm.chargePrice,
           garantiePrice: this.resultForm.priceNoCharge * 2,
           isClauseLess6Month: this.resultForm.clauseLess6Month === true,
-          petRules: this.resultForm.appartement.pet,
+          petRule: this.resultForm.appartement.petRule,
           dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
           typeResidence: this.resultForm.typeResidence,
           isResidencePrincipal: this.resultForm.typeResidence === 'Principale',
