@@ -286,9 +286,43 @@ export class FormDocComponent {
 
         saveAs(out, 'output.docx');
       });
+
+    const appartementName = this.appartementSelected?.name.replace(' ', '_');
+    const chambreNumber = this.resultForm.room?.split(' ')[1];
+
+    this.http
+      .get(
+        'assets/docx/doc-annexe/' + appartementName + chambreNumber + '.docx',
+        {
+          responseType: 'arraybuffer',
+        }
+      )
+      .subscribe((data) => {
+        const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
+        const zip = new PizZip(content);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        });
+        doc.render({
+          locataireName: this.resultForm.name,
+          locataireAdress: this.resultForm.adress,
+          locataireEmail: this.resultForm.email,
+          locataireTelephone: this.resultForm.telephone,
+          adressLogement: this.resultForm.appartement.adress,
+          dateFrom: this.resultForm?.getFormattedFromDate(),
+        });
+        const out = doc.getZip().generate({
+          type: 'blob',
+          mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+
+        saveAs(out, 'Annexes.docx');
+      });
   }
 
-  sentRentRef(value: any, fieldName: string) {
+  sentRentRef(value: number | null | undefined, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRef')?.enabled === false) {
       this.formDoc.disable();
@@ -307,7 +341,7 @@ export class FormDocComponent {
     }
   }
 
-  sentRentRefMaj(value: any, fieldName: string) {
+  sentRentRefMaj(value: number | null | undefined, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRefMaj')?.enabled === false) {
       this.formDoc.disable();
