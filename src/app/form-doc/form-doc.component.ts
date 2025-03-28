@@ -279,6 +279,9 @@ export class FormDocComponent {
           typeResidence: this.resultForm.typeResidence,
           isResidencePrincipal: this.resultForm.typeResidence === 'Principale',
           isResidenceSecondaire: this.resultForm.typeResidence === 'Secondaire',
+          rentComp:
+            (this.resultForm.priceNoCharge ?? 0) -
+            (this.resultForm.rentRefMaj ?? 0),
         });
         const out = doc.getZip().generate({
           type: 'blob',
