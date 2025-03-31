@@ -92,6 +92,7 @@ export class FormDocComponent {
   }
 
   onSubmit() {
+    console.log({ type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value);
     if (this.formDoc.valid) {
       console.log(this.resultForm.chargePrice);
 
@@ -172,7 +173,7 @@ export class FormDocComponent {
 
   isMobilite(typBail: string) {
     console.log(typBail);
-    typBail == 'Etudiant'
+    typBail == 'Indéterminé'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
   }
@@ -239,7 +240,8 @@ export class FormDocComponent {
           tIrl: this.resultForm.tIrl,
           valIrl: this.resultForm.valIrl,
           chargePrice: this.resultForm.chargePrice,
-          rentPrice: (
+          rentPrice: this.resultForm.priceNoCharge,
+          proportionalRent: (
             (this.resultForm.priceNoCharge *
               this.dateLeft(this.resultForm.from)) /
             this.numberOfDays(
