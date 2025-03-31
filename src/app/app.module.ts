@@ -9,6 +9,7 @@ import { DateLeft } from './pipe/dateLeft.pipe';
 import { NumberOfDays } from './pipe/numberOfDays.pipe';
 import { NgxPrintModule } from 'ngx-print';
 import { HttpClientModule } from '@angular/common/http';
+import { ErrorMessagesComponent } from './error-messages/error-messages.component';
 
 @NgModule({
   declarations: [AppComponent, FormDocComponent, DateLeft, NumberOfDays],
