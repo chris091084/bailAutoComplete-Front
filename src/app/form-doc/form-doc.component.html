@@ -242,11 +242,18 @@
               />
               <button
                 (click)="sentRentRef(formDoc.get('rentRef')?.value, 'rentRef')"
-                class="btn btn-primary"
                 type="button"
                 id="button-modifyRentRef"
+                [className]="
+                  modifyRentRef === false
+                    ? 'btn btn-primary'
+                    : 'btn btn-success'
+                "
               >
-                <i class="bi bi-pen-fill"></i>
+                <i *ngIf="modifyRentRef === false" class="bi bi-pen-fill"></i>
+                <i *ngIf="modifyRentRef === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
               </button>
             </div>
           </div>
@@ -267,11 +274,21 @@
                 (click)="
                   sentRentRefMaj(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
                 "
-                class="btn btn-primary"
+                [className]="
+                  modifyRentRefMaj === false
+                    ? 'btn btn-primary'
+                    : 'btn btn-success'
+                "
                 type="button"
                 id="button-modifyRentRefMaj"
               >
-                <i class="bi bi-pen-fill"></i>
+                <i
+                  *ngIf="modifyRentRefMaj === false"
+                  class="bi bi-pen-fill"
+                ></i>
+                <i *ngIf="modifyRentRefMaj === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
               </button>
             </div>
           </div>
