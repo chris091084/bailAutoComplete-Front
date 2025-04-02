@@ -76,6 +76,7 @@ export class FormDocComponent {
   appartementSelected?: Appartement;
   modifyRentRefMaj: boolean = false;
   modifyRentRef: boolean = false;
+  dateNow = new Date();
 
   constructor(
     private requestService: RequestService,
@@ -85,6 +86,13 @@ export class FormDocComponent {
       if (data && Array.isArray(data)) {
         this.appartments = data;
         console.log('hello');
+        console.log(
+          this.dateNow.getDate() +
+            '/' +
+            this.dateNow.getMonth() +
+            '/' +
+            this.dateNow.getFullYear()
+        );
       } else {
         console.error('Données invalides reçues', data);
       }
@@ -92,6 +100,9 @@ export class FormDocComponent {
   }
 
   onSubmit() {
+    console.log(
+      { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate()
+    );
     if (this.formDoc.valid) {
       console.log(this.resultForm.chargePrice);
 
@@ -135,6 +146,8 @@ export class FormDocComponent {
       )?.value;
       this.resultForm.clauseLess6Month =
         this.formDoc.get('clauseLess6Month')?.value;
+      this.resultForm.rentRef = this.formDoc.get('rentRef')?.value;
+      this.resultForm.rentRefMaj = this.formDoc.get('rentRefMaj')?.value;
 
       console.log(this.resultForm);
 
@@ -172,7 +185,7 @@ export class FormDocComponent {
 
   isMobilite(typBail: string) {
     console.log(typBail);
-    typBail == 'Etudiant'
+    typBail == 'Indéterminé'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
   }
@@ -221,8 +234,8 @@ export class FormDocComponent {
             this.resultForm?.bailType === 'Mobilité' ||
             this.resultForm?.bailType === 'Etudiant',
           priceNoCharge: this.resultForm.priceNoCharge,
-          appartementRentRef: this.resultForm.appartement.rentRef,
-          appartementRentRefMaj: this.resultForm.appartement.rentRefMaj,
+          appartementRentRef: this.resultForm.rentRef,
+          appartementRentRefMaj: this.resultForm.rentRefMaj,
           rentRef: (
             this.resultForm.priceNoCharge -
             this.resultForm.appartement.rentRefMaj
@@ -239,7 +252,8 @@ export class FormDocComponent {
           tIrl: this.resultForm.tIrl,
           valIrl: this.resultForm.valIrl,
           chargePrice: this.resultForm.chargePrice,
-          rentPrice: (
+          rentPrice: this.resultForm.priceNoCharge,
+          proportionalRent: (
             (this.resultForm.priceNoCharge *
               this.dateLeft(this.resultForm.from)) /
             this.numberOfDays(
@@ -275,10 +289,16 @@ export class FormDocComponent {
           garantiePrice: this.resultForm.priceNoCharge * 2,
           isClauseLess6Month: this.resultForm.clauseLess6Month === true,
           petRule: this.resultForm.appartement.petRule,
-          dateNow: { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' },
+          dateNow:
+            this.dateNow.getDate() +
+            '/' +
+            this.dateNow.getMonth() +
+            '/' +
+            this.dateNow.getFullYear(),
           typeResidence: this.resultForm.typeResidence,
           isResidencePrincipal: this.resultForm.typeResidence === 'Principale',
           isResidenceSecondaire: this.resultForm.typeResidence === 'Secondaire',
+          room: this.resultForm.room,
           rentComp:
             (this.resultForm.priceNoCharge ?? 0) -
             (this.resultForm.rentRefMaj ?? 0),
@@ -289,7 +309,7 @@ export class FormDocComponent {
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         });
 
-        saveAs(out, 'output.docx');
+        saveAs(out, 'Projet_bail_' + this.resultForm.name + '.docx');
       });
 
     const appartementName = this.appartementSelected?.name.replace(' ', '_');
@@ -323,19 +343,24 @@ export class FormDocComponent {
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         });
 
-        saveAs(out, 'Annexes.docx');
+        saveAs(
+          out,
+          'Annexe_1_Etat_des_lieux_' + this.resultForm.name + '.docx'
+        );
       });
   }
 
   sentRentRef(value: number | null | undefined, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRef')?.enabled === false) {
+      this.modifyRentRef = true;
       this.formDoc.disable();
       this.formDoc.get('rentRef')?.enable();
 
       return;
     }
     if (this.formDoc.get('rentRef')?.enabled === true) {
+      this.modifyRentRef = false;
       this.requestService
         .setRentRef(this.appartementSelected?.id, value, undefined)
         .subscribe((data) => {});
@@ -349,12 +374,14 @@ export class FormDocComponent {
   sentRentRefMaj(value: number | null | undefined, fieldName: string) {
     console.log(value, fieldName, this.appartementSelected?.id);
     if (this.formDoc.get('rentRefMaj')?.enabled === false) {
+      this.modifyRentRefMaj = true;
       this.formDoc.disable();
       this.formDoc.get('rentRefMaj')?.enable();
 
       return;
     }
     if (this.formDoc.get('rentRefMaj')?.enabled === true) {
+      this.modifyRentRefMaj = false;
       this.requestService
         .setRentRef(this.appartementSelected?.id, undefined, value)
         .subscribe((data) => {});
