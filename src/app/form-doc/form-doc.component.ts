@@ -352,48 +352,6 @@ export class FormDocComponent {
       });
   }
 
-  sentRentRef(value: number | null | undefined, fieldName: string) {
-    console.log(value, fieldName, this.appartementSelected?.id);
-    if (this.formDoc.get('rentRef')?.enabled === false) {
-      this.modifyRentRef = true;
-      this.formDoc.disable();
-      this.formDoc.get('rentRef')?.enable();
-
-      return;
-    }
-    if (this.formDoc.get('rentRef')?.enabled === true) {
-      this.modifyRentRef = false;
-      this.requestService
-        .setRentRef(this.appartementSelected?.id, value, undefined)
-        .subscribe((data) => {});
-      this.formDoc.enable();
-
-      this.formDoc.get('rentRef')?.disable();
-      this.formDoc.get('rentRefMaj')?.disable();
-    }
-  }
-
-  sentRentRefMaj(value: number | null | undefined, fieldName: string) {
-    console.log(value, fieldName, this.appartementSelected?.id);
-    if (this.formDoc.get('rentRefMaj')?.enabled === false) {
-      this.modifyRentRefMaj = true;
-      this.formDoc.disable();
-      this.formDoc.get('rentRefMaj')?.enable();
-
-      return;
-    }
-    if (this.formDoc.get('rentRefMaj')?.enabled === true) {
-      this.modifyRentRefMaj = false;
-      this.requestService
-        .setRentRef(this.appartementSelected?.id, undefined, value)
-        .subscribe((data) => {});
-      this.formDoc.enable();
-
-      this.formDoc.get('rentRefMaj')?.disable();
-      this.formDoc.get('rentRef')?.disable();
-    }
-  }
-
   sentValIrlTirl(
     value: string | null | undefined,
     fieldName: 'valIrl' | 'tIrl'
@@ -422,6 +380,42 @@ export class FormDocComponent {
       }
       this.requestService
         .setValIrlTirl(this.appartementSelected?.id, fieldName, value)
+        .subscribe((data) => {});
+      this.formDoc.enable();
+
+      this.formDoc.get(fieldName)?.disable();
+      this.formDoc.get(otherField)?.disable();
+    }
+  }
+
+  setRentRef(
+    value: number | null | undefined,
+    fieldName: 'rentRef' | 'rentRefMaj'
+  ) {
+    console.log(value, fieldName, this.appartementSelected?.id);
+
+    const otherField: 'rentRef' | 'rentRefMaj' =
+      fieldName === 'rentRef' ? 'rentRefMaj' : 'rentRef';
+    if (this.formDoc.get(fieldName)?.enabled === false) {
+      if (fieldName == 'rentRef') {
+        this.modifyRentRef = true;
+      } else {
+        this.modifyRentRefMaj = true;
+      }
+      this.formDoc.disable();
+      this.formDoc.get(fieldName)?.enable();
+
+      return;
+    }
+    if (this.formDoc.get(fieldName)?.enabled === true) {
+      console.log('helloSave', fieldName);
+      if (fieldName == 'rentRef') {
+        this.modifyRentRef = false;
+      } else {
+        this.modifyRentRefMaj = false;
+      }
+      this.requestService
+        .setRentRef(this.appartementSelected?.id, fieldName, value)
         .subscribe((data) => {});
       this.formDoc.enable();
 

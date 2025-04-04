@@ -277,7 +277,7 @@
                 formControlName="rentRef"
               />
               <button
-                (click)="sentRentRef(formDoc.get('rentRef')?.value, 'rentRef')"
+                (click)="setRentRef(formDoc.get('rentRef')?.value, 'rentRef')"
                 type="button"
                 id="button-modifyRentRef"
                 [className]="
@@ -308,7 +308,7 @@
               />
               <button
                 (click)="
-                  sentRentRef(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
+                  setRentRef(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
                 "
                 type="button"
                 id="button-modifyRentRefMaj"
