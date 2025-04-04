@@ -50,8 +50,8 @@ export class FormDocComponent {
     priceNoCharge: new FormControl(null, Validators.required),
     chargePrice: new FormControl(null, Validators.required),
     typeBail: new FormControl('', Validators.required),
-    tIrl: new FormControl('', Validators.required),
-    valIrl: new FormControl('', Validators.required),
+    tIrl: new FormControl({ value: '', disabled: true }, Validators.required),
+    valIrl: new FormControl({ value: '', disabled: true }, Validators.required),
     lastPriceWithoutCharge: new FormControl(null, Validators.required),
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
@@ -77,6 +77,8 @@ export class FormDocComponent {
   modifyRentRefMaj: boolean = false;
   modifyRentRef: boolean = false;
   dateNow = new Date();
+  modifyValIrl?: boolean = false;
+  modifyTirl?: boolean = false;
 
   constructor(
     private requestService: RequestService,
@@ -389,6 +391,42 @@ export class FormDocComponent {
 
       this.formDoc.get('rentRefMaj')?.disable();
       this.formDoc.get('rentRef')?.disable();
+    }
+  }
+
+  sentValIrlTirl(
+    value: string | null | undefined,
+    fieldName: 'valIrl' | 'tIrl'
+  ) {
+    console.log(value, fieldName, this.appartementSelected?.id);
+
+    const otherField: 'valIrl' | 'tIrl' =
+      fieldName === 'valIrl' ? 'tIrl' : 'valIrl';
+    if (this.formDoc.get(fieldName)?.enabled === false) {
+      if (fieldName == 'valIrl') {
+        this.modifyValIrl = true;
+      } else {
+        this.modifyTirl = true;
+      }
+      this.formDoc.disable();
+      this.formDoc.get(fieldName)?.enable();
+
+      return;
+    }
+    if (this.formDoc.get(fieldName)?.enabled === true) {
+      console.log('helloSave', fieldName);
+      if (fieldName == 'valIrl') {
+        this.modifyValIrl = false;
+      } else {
+        this.modifyTirl = false;
+      }
+      this.requestService
+        .setValIrlTirl(this.appartementSelected?.id, fieldName, value)
+        .subscribe((data) => {});
+      this.formDoc.enable();
+
+      this.formDoc.get(fieldName)?.disable();
+      this.formDoc.get(otherField)?.disable();
     }
   }
 

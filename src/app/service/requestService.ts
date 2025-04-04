@@ -27,4 +27,20 @@ export class RequestService {
     };
     return this.http.post<any>(`${this.apiUrl}appartement/updateRent`, body);
   }
+
+  setValIrlTirl(
+    idAppartement?: string,
+    fieldName?: string | null,
+    value?: string | null
+  ): Observable<any> {
+    const body = {
+      idAppartement,
+      fieldName,
+      value,
+    };
+    return this.http.post<any>(
+      `${this.apiUrl}appartement/updateValIrlTirl`,
+      body
+    );
+  }
 }

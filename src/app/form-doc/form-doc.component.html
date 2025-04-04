@@ -139,25 +139,61 @@
         <div class="col">
           <div class="form-group">
             <label for="tIrl"> Trimestre de l'IRL </label>
-            <input
-              placeholder="1T2023"
-              id="tIrl"
-              class="form-control"
-              type="tIrl"
-              formControlName="tIrl"
-            />
+            <div class="input-group mb-3">
+              <input
+                placeholder="1T2023"
+                id="tIrl"
+                class="form-control"
+                type="tIrl"
+                formControlName="tIrl"
+                [ngClass]="
+                  modifyTirl === false ? '' : 'bg-warning-subtle border-warning'
+                "
+              />
+              <button
+                (click)="sentValIrlTirl(formDoc.get('tIrl')?.value, 'tIrl')"
+                type="button"
+                id="button-modifytIrl"
+                [className]="
+                  modifyTirl === false ? 'btn btn-primary' : 'btn btn-warning'
+                "
+              >
+                <i *ngIf="modifyTirl === false" class="bi bi-pen-fill"></i>
+                <i *ngIf="modifyTirl === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
+              </button>
+            </div>
           </div>
+          <small *ngIf="modifyRentRef == true"
+            >Modifier la valeur puis cliquez sur Enregistrer</small
+          >
         </div>
         <div class="col">
           <div class="form-group">
             <label for="valIrl"> Valeur de l'IRL </label>
-            <input
-              placeholder="123.45"
-              id="valIrl"
-              class="form-control"
-              type="valIrl"
-              formControlName="valIrl"
-            />
+            <div class="input-group mb-3">
+              <input
+                placeholder="123.45"
+                id="valIrl"
+                class="form-control"
+                type="valIrl"
+                formControlName="valIrl"
+              />
+              <button
+                (click)="sentValIrlTirl(formDoc.get('valIrl')?.value, 'valIrl')"
+                type="button"
+                id="button-modifyvalIrl"
+                [className]="
+                  modifyValIrl === false ? 'btn btn-primary' : 'btn btn-warning'
+                "
+              >
+                <i *ngIf="modifyValIrl === false" class="bi bi-pen-fill"></i>
+                <i *ngIf="modifyValIrl === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
+              </button>
+            </div>
           </div>
         </div>
         <div
@@ -247,7 +283,7 @@
                 [className]="
                   modifyRentRef === false
                     ? 'btn btn-primary'
-                    : 'btn btn-success'
+                    : 'btn btn-warning'
                 "
               >
                 <i *ngIf="modifyRentRef === false" class="bi bi-pen-fill"></i>
@@ -272,15 +308,15 @@
               />
               <button
                 (click)="
-                  sentRentRefMaj(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
-                "
-                [className]="
-                  modifyRentRefMaj === false
-                    ? 'btn btn-primary'
-                    : 'btn btn-success'
+                  sentRentRef(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
                 "
                 type="button"
                 id="button-modifyRentRefMaj"
+                [className]="
+                  modifyRentRef === false
+                    ? 'btn btn-primary'
+                    : 'btn btn-warning'
+                "
               >
                 <i
                   *ngIf="modifyRentRefMaj === false"
