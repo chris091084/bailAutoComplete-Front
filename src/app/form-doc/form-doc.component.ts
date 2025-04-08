@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ResultForm } from '../model/resultForm.model';
 import { RequestService } from '../service/requestService';
 import { Chambre } from '../model/Chambre.model';
@@ -10,6 +9,7 @@ import * as PizZip from 'pizzip';
 import * as Docxtemplater from 'docxtemplater';
 import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
+import { AppartementDto } from '../model/AppartementDto.model';
 
 @Component({
   selector: 'app-form-doc',
@@ -65,7 +65,7 @@ export class FormDocComponent {
 
   //APPARTEMENT
 
-  appartments: Appartement[] = [];
+  appartments: AppartementDto[] = [];
 
   typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
   pieces: string[] = [];
@@ -73,7 +73,7 @@ export class FormDocComponent {
   appartementName: string | undefined;
   typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
-  appartementSelected?: Appartement;
+  appartementSelected?: AppartementDto;
   modifyRentRefMaj: boolean = false;
   modifyRentRef: boolean = false;
   dateNow = new Date();
@@ -86,6 +86,7 @@ export class FormDocComponent {
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
+        console.log(data);
         this.appartments = data;
         console.log('hello');
         console.log(
@@ -174,7 +175,7 @@ export class FormDocComponent {
     }
   }
 
-  switchRooms(rooms: Chambre[], bailleur: any, appartement: Appartement) {
+  switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
     this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
     console.log(bailleur);
@@ -182,6 +183,8 @@ export class FormDocComponent {
     this.formDoc.patchValue({
       rentRef: appartement.rentRef,
       rentRefMaj: appartement.rentRefMaj,
+      tIrl: appartement.tIrl,
+      valIrl: appartement.valIrl,
     });
   }
 
@@ -385,6 +388,8 @@ export class FormDocComponent {
 
       this.formDoc.get(fieldName)?.disable();
       this.formDoc.get(otherField)?.disable();
+      this.formDoc.get('rentRef')?.disable();
+      this.formDoc.get('rentRefMaj')?.disable();
     }
   }
 
@@ -392,8 +397,6 @@ export class FormDocComponent {
     value: number | null | undefined,
     fieldName: 'rentRef' | 'rentRefMaj'
   ) {
-    console.log(value, fieldName, this.appartementSelected?.id);
-
     const otherField: 'rentRef' | 'rentRefMaj' =
       fieldName === 'rentRef' ? 'rentRefMaj' : 'rentRef';
     if (this.formDoc.get(fieldName)?.enabled === false) {
@@ -421,6 +424,8 @@ export class FormDocComponent {
 
       this.formDoc.get(fieldName)?.disable();
       this.formDoc.get(otherField)?.disable();
+      this.formDoc.get('valIrl')?.disable();
+      this.formDoc.get('tIrl')?.disable();
     }
   }
 

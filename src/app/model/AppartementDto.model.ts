@@ -2,7 +2,7 @@ import { Bailleur } from './bailleur.model';
 import { Chambre } from './Chambre.model';
 
 export interface AppartementDto {
-  id: number;
+  id: string;
   name: string;
   adress: string;
   bailleur: Bailleur;
@@ -20,4 +20,8 @@ export interface AppartementDto {
   petRule: string;
   rentRef: number;
   rentRefMaj: number;
+  valIrl: string;
+  tIrl: string;
+  energieWater: string;
+  energieHeating: string;
 }

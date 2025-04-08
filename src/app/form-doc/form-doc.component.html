@@ -135,7 +135,7 @@
           </div>
         </div>
       </div>
-      <div class="row">
+      <div class="row" *ngIf="appartementSelected">
         <div class="col">
           <div class="form-group">
             <label for="tIrl"> Trimestre de l'IRL </label>
@@ -165,7 +165,7 @@
               </button>
             </div>
           </div>
-          <small *ngIf="modifyRentRef == true"
+          <small *ngIf="modifyTirl == true"
             >Modifier la valeur puis cliquez sur Enregistrer</small
           >
         </div>
@@ -195,6 +195,9 @@
               </button>
             </div>
           </div>
+          <small *ngIf="modifyValIrl == true"
+            >Modifier la valeur puis cliquez sur Enregistrer</small
+          >
         </div>
         <div
           class="row"
@@ -313,7 +316,7 @@
                 type="button"
                 id="button-modifyRentRefMaj"
                 [className]="
-                  modifyRentRef === false
+                  modifyRentRefMaj === false
                     ? 'btn btn-primary'
                     : 'btn btn-warning'
                 "
@@ -356,7 +359,9 @@
           [disabled]="
             formDoc.valid === false ||
             formDoc.get('rentRefMaj')?.enabled ||
-            formDoc.get('rentRef')?.enabled
+            formDoc.get('rentRef')?.enabled ||
+            formDoc.get('tIrl')?.enabled ||
+            formDoc.get('valIrl')?.enabled
           "
           class="btn btn-primary"
         >
