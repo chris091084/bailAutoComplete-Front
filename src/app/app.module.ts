@@ -12,7 +12,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { ErrorMessagesComponent } from './error-messages/error-messages.component';
 
 @NgModule({
-  declarations: [AppComponent, FormDocComponent, DateLeft, NumberOfDays],
+  declarations: [
+    AppComponent,
+    FormDocComponent,
+    DateLeft,
+    NumberOfDays,
+    ErrorMessagesComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

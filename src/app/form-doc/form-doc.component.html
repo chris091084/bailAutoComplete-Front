@@ -69,7 +69,12 @@
               class="form-control"
               type="text"
               formControlName="name"
+              [class.is-invalid]="isInvalid('name')"
             />
+            <app-error-messages
+              [control]="formDoc.get('name')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
         <div class="col">
