@@ -17,14 +17,30 @@ export class RequestService {
 
   setRentRef(
     idAppartement?: string,
-    rentRef?: number | null,
-    rentRefMaj?: number | null
+    fieldName?: string | null,
+    value?: number | null
   ): Observable<any> {
     const body = {
       idAppartement,
-      rentRef,
-      rentRefMaj,
+      fieldName,
+      value,
     };
     return this.http.post<any>(`${this.apiUrl}appartement/updateRent`, body);
+  }
+
+  setValIrlTirl(
+    idAppartement?: string,
+    fieldName?: string | null,
+    value?: string | null
+  ): Observable<any> {
+    const body = {
+      idAppartement,
+      fieldName,
+      value,
+    };
+    return this.http.post<any>(
+      `${this.apiUrl}appartement/updateValIrlTirl`,
+      body
+    );
   }
 }

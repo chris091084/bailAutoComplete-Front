@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ResultForm } from '../model/resultForm.model';
 import { RequestService } from '../service/requestService';
 import { Chambre } from '../model/Chambre.model';
@@ -10,6 +9,7 @@ import * as PizZip from 'pizzip';
 import * as Docxtemplater from 'docxtemplater';
 import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
+import { AppartementDto } from '../model/AppartementDto.model';
 
 @Component({
   selector: 'app-form-doc',
@@ -50,8 +50,8 @@ export class FormDocComponent {
     priceNoCharge: new FormControl(null, Validators.required),
     chargePrice: new FormControl(null, Validators.required),
     typeBail: new FormControl('', Validators.required),
-    tIrl: new FormControl('', Validators.required),
-    valIrl: new FormControl('', Validators.required),
+    tIrl: new FormControl({ value: '', disabled: true }, Validators.required),
+    valIrl: new FormControl({ value: '', disabled: true }, Validators.required),
     lastPriceWithoutCharge: new FormControl(null, Validators.required),
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
@@ -65,7 +65,7 @@ export class FormDocComponent {
 
   //APPARTEMENT
 
-  appartments: Appartement[] = [];
+  appartments: AppartementDto[] = [];
 
   typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
   pieces: string[] = [];
@@ -73,10 +73,12 @@ export class FormDocComponent {
   appartementName: string | undefined;
   typeResidences = ['Principale', 'Secondaire'];
   resultForm: ResultForm = new ResultForm();
-  appartementSelected?: Appartement;
+  appartementSelected?: AppartementDto;
   modifyRentRefMaj: boolean = false;
   modifyRentRef: boolean = false;
   dateNow = new Date();
+  modifyValIrl?: boolean = false;
+  modifyTirl?: boolean = false;
 
   constructor(
     private requestService: RequestService,
@@ -84,6 +86,7 @@ export class FormDocComponent {
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
+        console.log(data);
         this.appartments = data;
         console.log('hello');
         console.log(
@@ -172,7 +175,7 @@ export class FormDocComponent {
     }
   }
 
-  switchRooms(rooms: Chambre[], bailleur: any, appartement: Appartement) {
+  switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
     this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
     console.log(bailleur);
@@ -180,6 +183,8 @@ export class FormDocComponent {
     this.formDoc.patchValue({
       rentRef: appartement.rentRef,
       rentRefMaj: appartement.rentRefMaj,
+      tIrl: appartement.tIrl,
+      valIrl: appartement.valIrl,
     });
   }
 
@@ -350,45 +355,77 @@ export class FormDocComponent {
       });
   }
 
-  sentRentRef(value: number | null | undefined, fieldName: string) {
+  sentValIrlTirl(
+    value: string | null | undefined,
+    fieldName: 'valIrl' | 'tIrl'
+  ) {
     console.log(value, fieldName, this.appartementSelected?.id);
-    if (this.formDoc.get('rentRef')?.enabled === false) {
-      this.modifyRentRef = true;
+
+    const otherField: 'valIrl' | 'tIrl' =
+      fieldName === 'valIrl' ? 'tIrl' : 'valIrl';
+    if (this.formDoc.get(fieldName)?.enabled === false) {
+      if (fieldName == 'valIrl') {
+        this.modifyValIrl = true;
+      } else {
+        this.modifyTirl = true;
+      }
       this.formDoc.disable();
-      this.formDoc.get('rentRef')?.enable();
+      this.formDoc.get(fieldName)?.enable();
 
       return;
     }
-    if (this.formDoc.get('rentRef')?.enabled === true) {
-      this.modifyRentRef = false;
+    if (this.formDoc.get(fieldName)?.enabled === true) {
+      console.log('helloSave', fieldName);
+      if (fieldName == 'valIrl') {
+        this.modifyValIrl = false;
+      } else {
+        this.modifyTirl = false;
+      }
       this.requestService
-        .setRentRef(this.appartementSelected?.id, value, undefined)
+        .setValIrlTirl(this.appartementSelected?.id, fieldName, value)
         .subscribe((data) => {});
       this.formDoc.enable();
 
+      this.formDoc.get(fieldName)?.disable();
+      this.formDoc.get(otherField)?.disable();
       this.formDoc.get('rentRef')?.disable();
       this.formDoc.get('rentRefMaj')?.disable();
     }
   }
 
-  sentRentRefMaj(value: number | null | undefined, fieldName: string) {
-    console.log(value, fieldName, this.appartementSelected?.id);
-    if (this.formDoc.get('rentRefMaj')?.enabled === false) {
-      this.modifyRentRefMaj = true;
+  setRentRef(
+    value: number | null | undefined,
+    fieldName: 'rentRef' | 'rentRefMaj'
+  ) {
+    const otherField: 'rentRef' | 'rentRefMaj' =
+      fieldName === 'rentRef' ? 'rentRefMaj' : 'rentRef';
+    if (this.formDoc.get(fieldName)?.enabled === false) {
+      if (fieldName == 'rentRef') {
+        this.modifyRentRef = true;
+      } else {
+        this.modifyRentRefMaj = true;
+      }
       this.formDoc.disable();
-      this.formDoc.get('rentRefMaj')?.enable();
+      this.formDoc.get(fieldName)?.enable();
 
       return;
     }
-    if (this.formDoc.get('rentRefMaj')?.enabled === true) {
-      this.modifyRentRefMaj = false;
+    if (this.formDoc.get(fieldName)?.enabled === true) {
+      console.log('helloSave', fieldName);
+      if (fieldName == 'rentRef') {
+        this.modifyRentRef = false;
+      } else {
+        this.modifyRentRefMaj = false;
+      }
       this.requestService
-        .setRentRef(this.appartementSelected?.id, undefined, value)
+        .setRentRef(this.appartementSelected?.id, fieldName, value)
         .subscribe((data) => {});
       this.formDoc.enable();
 
-      this.formDoc.get('rentRefMaj')?.disable();
-      this.formDoc.get('rentRef')?.disable();
+      this.formDoc.get(fieldName)?.disable();
+      this.formDoc.get(otherField)?.disable();
+      this.formDoc.get('valIrl')?.disable();
+      this.formDoc.get('tIrl')?.disable();
     }
   }
 
