@@ -20,7 +20,7 @@ export class FormDocComponent {
   formDoc = new FormGroup({
     name: new FormControl('', Validators.required),
     firstname: new FormControl('', Validators.required),
-    adress: new FormControl(''),
+    adress: new FormControl('', Validators.required),
     email: new FormControl('', Validators.required),
     telephone: new FormControl(''),
     from: new FormControl('', Validators.required),
