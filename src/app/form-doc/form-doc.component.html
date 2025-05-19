@@ -69,7 +69,12 @@
               class="form-control"
               type="text"
               formControlName="name"
+              [class.is-invalid]="isInvalid('name')"
             />
+            <app-error-messages
+              [control]="formDoc.get('name')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
         <div class="col">
@@ -80,7 +85,12 @@
               class="form-control"
               type="firstname"
               formControlName="firstname"
+              [class.is-invalid]="isInvalid('firstname')"
             />
+            <app-error-messages
+              [control]="formDoc.get('firstname')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
       </div>
@@ -91,7 +101,12 @@
           class="form-control"
           type="text"
           formControlName="adress"
+          [class.is-invalid]="isInvalid('adress')"
         />
+        <app-error-messages
+          [control]="formDoc.get('adress')"
+          [isSubmit]="isSubmit"
+        ></app-error-messages>
       </div>
       <div class="form-group">
         <label for="email"> email</label>
@@ -100,7 +115,12 @@
           class="form-control"
           type="text"
           formControlName="email"
+          [class.is-invalid]="isInvalid('email')"
         />
+        <app-error-messages
+          [control]="formDoc.get('email')"
+          [isSubmit]="isSubmit"
+        ></app-error-messages>
       </div>
       <div class="form-group">
         <label for="telephone"> Téléphone </label>
@@ -109,7 +129,12 @@
           class="form-control"
           type="text"
           formControlName="telephone"
+          [class.is-invalid]="isInvalid('telephone')"
         />
+        <app-error-messages
+          [control]="formDoc.get('telephone')"
+          [isSubmit]="isSubmit"
+        ></app-error-messages>
       </div>
       <div class="row">
         <div class="col">
@@ -120,7 +145,12 @@
               class="form-control"
               type="date"
               formControlName="from"
+              [class.is-invalid]="isInvalid('from')"
             />
+            <app-error-messages
+              [control]="formDoc.get('from')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
         <div class="col">
@@ -131,7 +161,12 @@
               class="form-control"
               type="date"
               formControlName="to"
+              [class.is-invalid]="isInvalid('to')"
             />
+            <app-error-messages
+              [control]="formDoc.get('to')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
       </div>
@@ -211,7 +246,12 @@
                 class="form-control"
                 type="motif"
                 formControlName="motif"
+                [class.is-invalid]="isInvalid('motif')"
               />
+              <app-error-messages
+                [control]="formDoc.get('motif')"
+                [isSubmit]="isSubmit"
+              ></app-error-messages>
             </div>
           </div>
         </div>
@@ -240,7 +280,12 @@
               class="form-control"
               type="number"
               formControlName="priceNoCharge"
+              [class.is-invalid]="isInvalid('priceNoCharge')"
             />
+            <app-error-messages
+              [control]="formDoc.get('priceNoCharge')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
         <div class="col">
@@ -251,7 +296,12 @@
               class="form-control"
               type="number"
               formControlName="chargePrice"
+              [class.is-invalid]="isInvalid('chargePrice')"
             />
+            <app-error-messages
+              [control]="formDoc.get('chargePrice')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
         <div class="col">
@@ -264,7 +314,12 @@
               class="form-control"
               type="number"
               formControlName="lastPriceWithoutCharge"
+              [class.is-invalid]="isInvalid('lastPriceWithoutCharge')"
             />
+            <app-error-messages
+              [control]="formDoc.get('lastPriceWithoutCharge')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
           </div>
         </div>
       </div>
@@ -354,17 +409,7 @@
         />
       </div>
       <div class="mt-4">
-        <button
-          type="submit"
-          [disabled]="
-            formDoc.valid === false ||
-            formDoc.get('rentRefMaj')?.enabled ||
-            formDoc.get('rentRef')?.enabled ||
-            formDoc.get('tIrl')?.enabled ||
-            formDoc.get('valIrl')?.enabled
-          "
-          class="btn btn-primary"
-        >
+        <button type="submit" class="btn btn-primary">
           Générer le fichier Word
         </button>
       </div>

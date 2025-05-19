@@ -20,7 +20,7 @@ export class FormDocComponent {
   formDoc = new FormGroup({
     name: new FormControl('', Validators.required),
     firstname: new FormControl('', Validators.required),
-    adress: new FormControl(''),
+    adress: new FormControl('', Validators.required),
     email: new FormControl('', Validators.required),
     telephone: new FormControl(''),
     from: new FormControl('', Validators.required),
@@ -79,6 +79,7 @@ export class FormDocComponent {
   dateNow = new Date();
   modifyValIrl?: boolean = false;
   modifyTirl?: boolean = false;
+  isSubmit: boolean = false;
 
   constructor(
     private requestService: RequestService,
@@ -103,6 +104,7 @@ export class FormDocComponent {
   }
 
   onSubmit() {
+    this.isSubmit = true;
     console.log(
       { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate()
     );
@@ -427,6 +429,17 @@ export class FormDocComponent {
       this.formDoc.get('valIrl')?.disable();
       this.formDoc.get('tIrl')?.disable();
     }
+  }
+
+  isInvalid(fieldName: string): boolean {
+    const fieldControl = this.formDoc.get(fieldName);
+    if (!fieldControl) {
+      return false;
+    }
+    return (
+      (fieldControl?.invalid && this.isSubmit) ||
+      (fieldControl.invalid && fieldControl.touched)
+    );
   }
 
   private dateLeft(dateInput: Date) {
