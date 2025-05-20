@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
@@ -10,13 +10,15 @@ import * as Docxtemplater from 'docxtemplater';
 import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
+import { FormSection } from '../model/form-section.model';
 
 @Component({
   selector: 'app-form-doc',
   templateUrl: './form-doc.component.html',
   styleUrls: ['./form-doc.component.scss'],
 })
-export class FormDocComponent {
+export class FormDocComponent implements OnInit {
+  @Input() formSections: FormSection[] = [];
   formDoc = new FormGroup({
     name: new FormControl('', Validators.required),
     firstname: new FormControl('', Validators.required),
@@ -85,6 +87,7 @@ export class FormDocComponent {
     private requestService: RequestService,
     private http: HttpClient
   ) {
+    console.log(this.formSections);
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
         console.log(data);
@@ -101,6 +104,10 @@ export class FormDocComponent {
         console.error('Données invalides reçues', data);
       }
     });
+  }
+
+  ngOnInit() {
+    console.log(this.formSections);
   }
 
   onSubmit() {

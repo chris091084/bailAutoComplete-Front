@@ -10,6 +10,7 @@ import { NumberOfDays } from './pipe/numberOfDays.pipe';
 import { NgxPrintModule } from 'ngx-print';
 import { HttpClientModule } from '@angular/common/http';
 import { ErrorMessagesComponent } from './error-messages/error-messages.component';
+import { FormInterfaceComponent } from './form-interface/form-interface.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { ErrorMessagesComponent } from './error-messages/error-messages.componen
     DateLeft,
     NumberOfDays,
     ErrorMessagesComponent,
+    FormInterfaceComponent,
   ],
   imports: [
     BrowserModule,

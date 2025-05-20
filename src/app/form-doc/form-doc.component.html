@@ -1,27 +1,28 @@
 <div class="modal-body">
   <div class="container">
     <form [formGroup]="formDoc" (ngSubmit)="onSubmit()">
-      <h2 class="mt-3">Appartement</h2>
-      <div
-        class="form-check form-check-inline"
-        *ngFor="let appartement of appartments; index as i"
-      >
-        <input
-          class="form-check-input"
-          type="radio"
-          name="appartement"
-          [id]="'appartement' + i"
-          (change)="
-            switchRooms(appartement.chambres, appartement.bailleur, appartement)
-          "
-          [value]="appartement"
-          formControlName="appartement"
-        />
-
-        <label class="form-check-label" [for]="'appartement' + i">{{
-          appartement.name
-        }}</label>
+      <div *ngFor="let section of formSections">
+        <h2 class="mt-3">{{ section.title }}</h2>
+        <div *ngFor="let field of section.fields; index as i">
+          <div
+            class="form-check form-check-inline"
+            *ngFor="let item of field.items; index as i"
+          >
+            <input
+              class="form-check-input"
+              type="radio"
+              name="{{ field.name }}"
+              [id]="field.name + i"
+              [value]="item.name"
+              formControlName="{{ field.name }}"
+            />
+            <label class="form-check-label" [for]="field.name + i">{{
+              item.name
+            }}</label>
+          </div>
+        </div>
       </div>
+
       <h2 class="mt-3">Type de résidence</h2>
       <div
         class="form-check form-check-inline"
