@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Appartement } from '../model/appartement.model';
 import { Bailleur } from '../model/bailleur.model';
 import { ResultForm } from '../model/resultForm.model';
@@ -10,11 +15,15 @@ import * as Docxtemplater from 'docxtemplater';
 import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
+import { ErrorMessagesComponent } from '../error-messages/error-messages.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
   selector: 'app-form-doc',
   templateUrl: './form-doc.component.html',
   styleUrls: ['./form-doc.component.scss'],
+  imports: [ErrorMessagesComponent, CommonModule, ReactiveFormsModule],
 })
 export class FormDocComponent {
   formDoc = new FormGroup({
