@@ -8,7 +8,7 @@ import { AppartementDto } from '../model/AppartementDto.model';
   providedIn: 'root',
 })
 export class RequestService {
-  private apiUrl = 'http://localhost:8080/';
+  private apiUrl = '/api/';
   constructor(private http: HttpClient) {}
 
   getAppartements(): Observable<AppartementDto> {
