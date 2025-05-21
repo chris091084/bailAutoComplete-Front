@@ -10,13 +10,11 @@ import { Bailleur } from '../model/bailleur.model';
 import { ResultForm } from '../model/resultForm.model';
 import { RequestService } from '../service/requestService';
 import { Chambre } from '../model/Chambre.model';
-import * as PizZip from 'pizzip';
-import * as Docxtemplater from 'docxtemplater';
-import * as saveAs from 'file-saver';
 import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
 import { ErrorMessagesComponent } from '../error-messages/error-messages.component';
 import { CommonModule } from '@angular/common';
+import { DocGeneratorService } from '../service/doc-generator.service';
 
 @Component({
   standalone: true,
@@ -92,7 +90,8 @@ export class FormDocComponent {
 
   constructor(
     private requestService: RequestService,
-    private http: HttpClient
+    private http: HttpClient,
+    private docGeneratorService: DocGeneratorService
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
@@ -181,8 +180,10 @@ export class FormDocComponent {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
-
-      this.generate();
+      this.docGeneratorService.generateDoc(
+        this.resultForm,
+        this.appartementSelected
+      );
     }
   }
 
@@ -204,166 +205,6 @@ export class FormDocComponent {
     typBail == 'Indéterminé'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
-  }
-
-  private generate() {
-    console.log(this.resultForm);
-    console.log(this.appartementSelected);
-    console.log(this.resultForm.getFormattedFromDate());
-    this.http
-      .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
-      .subscribe((data) => {
-        const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-          paragraphLoop: true,
-          linebreaks: true,
-        });
-        doc.render({
-          bailType: this.resultForm.bailType,
-          bailleurName: this.resultForm.bailleur?.name,
-          bailleurAdress: this.resultForm.bailleur?.adress,
-          bailleurEmail: this.resultForm.bailleur?.email,
-          bailleurTelephone: this.resultForm.bailleur?.telephone,
-          locataireName: this.resultForm.name,
-          locataireAdress: this.resultForm.adress,
-          locataireEmail: this.resultForm.email,
-          locataireTelephone: this.resultForm.telephone,
-          adressLogement: this.resultForm.appartement.adress,
-          constructionPeriod: this.appartementSelected?.constructionPeriod,
-          isLogiaFillature:
-            this.resultForm.appartement.name === 'Filature' ? ',logia' : '',
-          appartementEnergieHeating: this.appartementSelected?.energieHeating,
-          appartementEnergieWater: this.appartementSelected?.energieWater,
-          appartementSuface: this.appartementSelected?.surface,
-          caracteristiquesAppartement:
-            this.appartementSelected?.caracteristiques,
-          hasAccessToGarageAndPoubelle:
-            this.resultForm.appartement?.name === 'Filature' ||
-            this.resultForm.appartement?.name === 'Chateau Gaillard',
-          dateFrom: this.resultForm?.getFormattedFromDate(),
-          dateTo: this.resultForm?.getFormattedToDate(),
-          isMobilite: this.resultForm?.bailType === 'Mobilité',
-          isEtudiant: this.resultForm?.bailType === 'Etudiant',
-          isIndetermine: this.resultForm?.bailType === 'Indéterminé',
-          hasMobiliteAndEtudiant:
-            this.resultForm?.bailType === 'Mobilité' ||
-            this.resultForm?.bailType === 'Etudiant',
-          priceNoCharge: this.resultForm.priceNoCharge,
-          appartementRentRef: this.resultForm.rentRef,
-          appartementRentRefMaj: this.resultForm.rentRefMaj,
-          rentRef: (
-            this.resultForm.priceNoCharge -
-            this.resultForm.appartement.rentRefMaj
-          ).toFixed(2),
-          rentRefMaj: (
-            this.resultForm.priceNoCharge -
-            this.resultForm.appartement.rentRefMaj
-          ).toFixed(2),
-          isFilature: this.resultForm.appartement?.name === 'Filature',
-          isChateauGaillard:
-            this.resultForm.appartement?.name === 'Chateau Gaillard',
-          isRueRene: this.resultForm.appartement?.name === 'rue René',
-          rentWithoutCharge: this.resultForm.lastPriceWithoutCharge,
-          tIrl: this.resultForm.tIrl,
-          valIrl: this.resultForm.valIrl,
-          chargePrice: this.resultForm.chargePrice,
-          rentPrice: this.resultForm.priceNoCharge,
-          proportionalRent: (
-            (this.resultForm.priceNoCharge *
-              this.dateLeft(this.resultForm.from)) /
-            this.numberOfDays(
-              this.resultForm.from.getMonth() + 1,
-              this.resultForm.from.getFullYear()
-            )
-          ).toFixed(2),
-          howDayOfMonth: this.numberOfDays(
-            this.resultForm.from.getMonth() + 1,
-            this.resultForm.from.getFullYear()
-          ),
-          dayLeft: this.dateLeft(this.resultForm.from),
-          chargePriceLeft: (
-            (this.resultForm.chargePrice *
-              this.dateLeft(this.resultForm.from)) /
-            this.numberOfDays(
-              this.resultForm.from.getMonth() + 1,
-              this.resultForm.from.getFullYear()
-            )
-          ).toFixed(2),
-          totalRentProMonth:
-            this.resultForm.priceNoCharge + this.resultForm.chargePrice,
-          totalMontNotCompletRent: (
-            ((this.resultForm.priceNoCharge + this.resultForm.chargePrice) *
-              this.dateLeft(this.resultForm.from)) /
-            this.numberOfDays(
-              this.resultForm.from.getMonth() + 1,
-              this.resultForm.from.getFullYear()
-            )
-          ).toFixed(2),
-          totalMontCompletRent:
-            this.resultForm.priceNoCharge + this.resultForm.chargePrice,
-          garantiePrice: this.resultForm.priceNoCharge * 2,
-          isClauseLess6Month: this.resultForm.clauseLess6Month === true,
-          petRule: this.resultForm.appartement.petRule,
-          dateNow:
-            this.dateNow.getDate() +
-            '/' +
-            this.dateNow.getMonth() +
-            '/' +
-            this.dateNow.getFullYear(),
-          typeResidence: this.resultForm.typeResidence,
-          isResidencePrincipal: this.resultForm.typeResidence === 'Principale',
-          isResidenceSecondaire: this.resultForm.typeResidence === 'Secondaire',
-          room: this.resultForm.room,
-          rentComp:
-            (this.resultForm.priceNoCharge ?? 0) -
-            (this.resultForm.rentRefMaj ?? 0),
-        });
-        const out = doc.getZip().generate({
-          type: 'blob',
-          mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(out, 'Projet_bail_' + this.resultForm.name + '.docx');
-      });
-
-    const appartementName = this.appartementSelected?.name.replace(' ', '_');
-    const chambreNumber = this.resultForm.room?.split(' ')[1];
-
-    this.http
-      .get(
-        'assets/docx/doc-annexe/' + appartementName + chambreNumber + '.docx',
-        {
-          responseType: 'arraybuffer',
-        }
-      )
-      .subscribe((data) => {
-        const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
-        const zip = new PizZip(content);
-        const doc = new Docxtemplater(zip, {
-          paragraphLoop: true,
-          linebreaks: true,
-        });
-        doc.render({
-          locataireName: this.resultForm.name,
-          locataireAdress: this.resultForm.adress,
-          locataireEmail: this.resultForm.email,
-          locataireTelephone: this.resultForm.telephone,
-          adressLogement: this.resultForm.appartement.adress,
-          dateFrom: this.resultForm?.getFormattedFromDate(),
-        });
-        const out = doc.getZip().generate({
-          type: 'blob',
-          mimeType:
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        });
-
-        saveAs(
-          out,
-          'Annexe_1_Etat_des_lieux_' + this.resultForm.name + '.docx'
-        );
-      });
   }
 
   sentValIrlTirl(
@@ -449,19 +290,5 @@ export class FormDocComponent {
       (fieldControl?.invalid && this.isSubmit) ||
       (fieldControl.invalid && fieldControl.touched)
     );
-  }
-
-  private dateLeft(dateInput: Date) {
-    const date: Date = new Date(dateInput);
-    const mois: number = date.getMonth();
-    const annee: number = date.getFullYear();
-
-    const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
-
-    return dernierJour - date.getDate();
-  }
-
-  private numberOfDays(mois: number, year: number): number {
-    return new Date(year, mois, 0).getDate();
   }
 }
