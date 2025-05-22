@@ -2,24 +2,41 @@
 
 _Licence MIT_
 
-This application allows you to recover all train problems such as delay, cancellation ...
+BailAutoComplet lets you generate rental lease agreements quickly and accurately by simply filling out a web form. By automating the lease template, it minimizes the risk of errors and ensures consistency across all documents
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.0.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.
 
-## 1. Development
+## Prerequisites
 
-The following software must be installed:
+- Java 11 + (or your project’s JDK version)
+- Maven 3.6+
+- Node.js v18.14.2
+- Angular CLI 17.3
+- Docker & Docker Compose
 
-- [docker](https://docs.docker.com/engine/install/)
-- [node v18.14.2](https://nodejs.org/en/)
-- [Angular cli 15.2.0](https://angular.io/guide/setup-local#:~:text=Install%20the%20Angular%20CLI%20link%20You%20use%20the,following%20command%3A%20content_copy%20npm%20install%20-g%20%40angular%2Fcli%20)
+## Installation
 
-## 2. Run Docker
+```bash
+git clone https://github.com/votre-compte/bailautocomplet.git
+cd bailautocomplet
+npm install
+```
+
+### Clone the back-end
+
+```bash
+git clone git@github.com:chris091084/back-bailAutoComplet.git
+cd back-bailAutoComplet
+```
+
+more info see back project
+
+## Run Docker
 
 To create and activ the container
 run `docker-compose up --build -d`
 
-## 3. Run Server
+## Run Server
 
 If it's your first time you have to run this:
 `npm install`
@@ -28,8 +45,8 @@ Then
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## 4. Library
+## Library
 
 Templating: bootstrap@5.2.3
-
 Form building: ReactiveFormsModule
+DocxTemplate: docxtemplater@3.5
