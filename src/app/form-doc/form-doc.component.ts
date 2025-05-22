@@ -96,7 +96,6 @@ export class FormDocComponent {
 
   constructor(
     private requestService: RequestService,
-    private http: HttpClient,
     private docGeneratorService: DocGeneratorService
   ) {
     this.requestService.getAppartements().subscribe((data) => {
@@ -137,9 +136,6 @@ export class FormDocComponent {
         chargePriceValue !== null && chargePriceValue !== undefined
           ? chargePriceValue
           : 0;
-
-      // this.resultForm.chargePrice = this.formDoc.get('chargePrice')?.value;
-
       this.resultForm.email = this.formDoc.get('email')?.value;
       this.resultForm.firstname = this.formDoc.get('firstname')?.value;
       this.resultForm.from = new Date(this.formDoc.get('from')?.getRawValue());
@@ -167,10 +163,6 @@ export class FormDocComponent {
         this.formDoc.get('clauseLess6Month')?.value;
       this.resultForm.rentRef = this.formDoc.get('rentRef')?.value;
       this.resultForm.rentRefMaj = this.formDoc.get('rentRefMaj')?.value;
-
-      console.log(this.resultForm);
-
-      console.log(new Date());
       // cas particulier pour les bails étudiants
       if (this.formDoc.get('typeBail')?.value == 'Etudiant') {
         let dateFrom = new Date(this.formDoc.get('from')?.getRawValue());
