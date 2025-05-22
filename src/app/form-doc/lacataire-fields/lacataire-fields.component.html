@@ -1,0 +1,208 @@
+<h2 class="mt-3">Le locataire</h2>
+<div class="row">
+  <div class="col">
+    <div class="form-group">
+      <label for="name"> Nom </label>
+      <input
+        id="name"
+        class="form-control"
+        type="text"
+        formControlName="name"
+        [class.is-invalid]="isInvalid('name')"
+      />
+      <app-error-messages
+        [control]="formDoc.get('name')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <label for="firstname"> Prénom </label>
+      <input
+        id="firstname"
+        class="form-control"
+        type="firstname"
+        formControlName="firstname"
+        [class.is-invalid]="isInvalid('firstname')"
+      />
+      <app-error-messages
+        [control]="formDoc.get('firstname')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+</div>
+<div class="form-group">
+  <label for="adress"> Adresse complète </label>
+  <input
+    id="adress"
+    class="form-control"
+    type="text"
+    formControlName="adress"
+    [class.is-invalid]="isInvalid('adress')"
+  />
+  <app-error-messages
+    [control]="formDoc.get('adress')"
+    [isSubmit]="isSubmit"
+  ></app-error-messages>
+</div>
+<div class="form-group">
+  <label for="email"> email</label>
+  <input
+    id="email"
+    class="form-control"
+    type="text"
+    formControlName="email"
+    [class.is-invalid]="isInvalid('email')"
+  />
+  <app-error-messages
+    [control]="formDoc.get('email')"
+    [isSubmit]="isSubmit"
+  ></app-error-messages>
+</div>
+<div class="form-group">
+  <label for="telephone"> Téléphone </label>
+  <input
+    id="telephone"
+    class="form-control"
+    type="text"
+    formControlName="telephone"
+    [class.is-invalid]="isInvalid('telephone')"
+  />
+  <app-error-messages
+    [control]="formDoc.get('telephone')"
+    [isSubmit]="isSubmit"
+  ></app-error-messages>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="form-group">
+      <label for="from"> date de début</label>
+      <input
+        id="from"
+        class="form-control"
+        type="date"
+        formControlName="from"
+        [class.is-invalid]="isInvalid('from')"
+      />
+      <app-error-messages
+        [control]="formDoc.get('from')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <label for="to"> date de fin</label>
+      <input
+        id="to"
+        class="form-control"
+        type="date"
+        formControlName="to"
+        [class.is-invalid]="isInvalid('to')"
+      />
+      <app-error-messages
+        [control]="formDoc.get('to')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+</div>
+<div class="row" *ngIf="appartementSelected">
+  <div class="col">
+    <div class="form-group">
+      <label for="tIrl"> Trimestre de l'IRL </label>
+      <div class="input-group mb-3">
+        <input
+          placeholder="1T2023"
+          id="tIrl"
+          class="form-control"
+          type="tIrl"
+          formControlName="tIrl"
+          [ngClass]="
+            modifyTirl === false ? '' : 'bg-warning-subtle border-warning'
+          "
+        />
+        <button
+          (click)="sentValIrlTirl(formDoc.get('tIrl')?.value, 'tIrl')"
+          type="button"
+          id="button-modifytIrl"
+          [className]="
+            modifyTirl === false ? 'btn btn-primary' : 'btn btn-warning'
+          "
+        >
+          <i *ngIf="modifyTirl === false" class="bi bi-pen-fill"></i>
+          <i *ngIf="modifyTirl === true" class="bi bi-floppy-fill">
+            Enregistrer la valeur</i
+          >
+        </button>
+      </div>
+    </div>
+    <small *ngIf="modifyTirl == true"
+      >Modifier la valeur puis cliquez sur Enregistrer</small
+    >
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <label for="valIrl"> Valeur de l'IRL </label>
+      <div class="input-group mb-3">
+        <input
+          placeholder="123.45"
+          id="valIrl"
+          class="form-control"
+          type="valIrl"
+          formControlName="valIrl"
+        />
+        <button
+          (click)="sentValIrlTirl(formDoc.get('valIrl')?.value, 'valIrl')"
+          type="button"
+          id="button-modifyvalIrl"
+          [className]="
+            modifyValIrl === false ? 'btn btn-primary' : 'btn btn-warning'
+          "
+        >
+          <i *ngIf="modifyValIrl === false" class="bi bi-pen-fill"></i>
+          <i *ngIf="modifyValIrl === true" class="bi bi-floppy-fill">
+            Enregistrer la valeur</i
+          >
+        </button>
+      </div>
+    </div>
+    <small *ngIf="modifyValIrl == true"
+      >Modifier la valeur puis cliquez sur Enregistrer</small
+    >
+  </div>
+  <div class="row" *ngIf="this.formDoc.get('typeBail')?.value == 'Mobilité'">
+    <div class="col">
+      <div class="form-group">
+        <label for="motif"> Motif </label>
+        <input
+          id="motif"
+          class="form-control"
+          type="motif"
+          formControlName="motif"
+          [class.is-invalid]="isInvalid('motif')"
+        />
+        <app-error-messages
+          [control]="formDoc.get('motif')"
+          [isSubmit]="isSubmit"
+        ></app-error-messages>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="form-check form-check-inline"
+  *ngFor="let room of pieces; index as i"
+>
+  <input
+    class="form-check-input"
+    type="radio"
+    name="room"
+    [id]="'room' + i"
+    [value]="room"
+    formControlName="room"
+  />
+  <label class="form-check-label" [for]="'room ' + i">{{ room }}</label>
+</div>
