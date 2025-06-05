@@ -22,6 +22,7 @@ export class DocGeneratorService {
       .subscribe((data) => {
         const content = new Uint8Array(data);
         const zip = new PizZip(content);
+        console.log(resultForm.appartement?.name);
         const doc = new Docxtemplater(zip, {
           paragraphLoop: true,
           linebreaks: true,
@@ -56,8 +57,13 @@ export class DocGeneratorService {
             resultForm?.bailType === 'Mobilité' ||
             resultForm?.bailType === 'Etudiant',
           priceNoCharge: resultForm.priceNoCharge,
-          appartementRentRef: resultForm.rentRef,
-          appartementRentRefMaj: resultForm.rentRefMaj,
+          appartementRentRef:
+            ((resultForm.rentRef ?? 0) * (appartementSelected?.surface ?? 0)) /
+            4,
+          appartementRentRefMaj:
+            ((resultForm.rentRefMaj ?? 0) *
+              (appartementSelected?.surface ?? 0)) /
+            4,
           rentRef: (
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
@@ -67,7 +73,7 @@ export class DocGeneratorService {
           isFilature: resultForm.appartement?.name === 'Filature',
           isChateauGaillard:
             resultForm.appartement?.name === 'Chateau Gaillard',
-          isRueRene: resultForm.appartement?.name === 'rue René',
+          isRueRene: resultForm.appartement?.name === 'Rue René',
           rentWithoutCharge: resultForm.lastPriceWithoutCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
@@ -109,7 +115,7 @@ export class DocGeneratorService {
           dateNow:
             this.dateNow.getDate() +
             '/' +
-            this.dateNow.getMonth() +
+            (this.dateNow.getMonth() + 1) +
             '/' +
             this.dateNow.getFullYear(),
           typeResidence: resultForm.typeResidence,
@@ -164,13 +170,19 @@ export class DocGeneratorService {
   }
 
   private dateLeft(dateInput: Date) {
+    let result: number = 0;
     const date: Date = new Date(dateInput);
     const mois: number = date.getMonth();
     const annee: number = date.getFullYear();
 
     const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
+    console.log('dernierJour', dernierJour - date.getDate());
+    result = dernierJour - date.getDate();
+    if (dernierJour - date.getDate() == 0) {
+      result = 1;
+    }
 
-    return dernierJour - date.getDate();
+    return result;
   }
 
   private numberOfDays(mois: number, year: number): number {
