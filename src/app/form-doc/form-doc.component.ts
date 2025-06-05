@@ -106,14 +106,6 @@ export class FormDocComponent {
       if (data && Array.isArray(data)) {
         console.log(data);
         this.appartments = data;
-        console.log('hello');
-        console.log(
-          this.dateNow.getDate() +
-            '/' +
-            this.dateNow.getMonth() +
-            '/' +
-            this.dateNow.getFullYear()
-        );
       } else {
         console.error('Données invalides reçues', data);
       }

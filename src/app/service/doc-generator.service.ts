@@ -10,7 +10,6 @@ import * as saveAs from 'file-saver';
   providedIn: 'root',
 })
 export class DocGeneratorService {
-  dateNow: Date = new Date();
   constructor(private http: HttpClient) {}
 
   generateDoc(
@@ -76,7 +75,7 @@ export class DocGeneratorService {
           isChateauGaillard:
             resultForm.appartement?.name === 'Chateau Gaillard',
           isRueRene: resultForm.appartement?.name === 'Rue René',
-          rentWithoutCharge: resultForm.lastPriceWithoutCharge,
+          rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
           chargePrice: resultForm.chargePrice,
@@ -114,18 +113,18 @@ export class DocGeneratorService {
           garantiePrice: resultForm.priceNoCharge * 2,
           isClauseLess6Month: resultForm.clauseLess6Month === true,
           petRule: resultForm.appartement.petRule,
-          dateNow:
-            this.dateNow.getDate() +
-            '/' +
-            (this.dateNow.getMonth() + 1) +
-            '/' +
-            this.dateNow.getFullYear(),
+          dateNow: this.dateNow(),
+
           typeResidence: resultForm.typeResidence,
           isResidencePrincipal: resultForm.typeResidence === 'Principale',
           isResidenceSecondaire: resultForm.typeResidence === 'Secondaire',
           room: resultForm.room,
-          rentComp:
-            (resultForm.priceNoCharge ?? 0) - (resultForm.rentRefMaj ?? 0),
+          rentComp: (
+            (resultForm.priceNoCharge ?? 0) -
+            ((resultForm.rentRefMaj ?? 0) *
+              (appartementSelected?.surface ?? 0)) /
+              4
+          ).toFixed(2),
         });
         const out = doc.getZip().generate({
           type: 'blob',
@@ -189,5 +188,13 @@ export class DocGeneratorService {
 
   private numberOfDays(mois: number, year: number): number {
     return new Date(year, mois, 0).getDate();
+  }
+
+  private dateNow(): string {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 }
