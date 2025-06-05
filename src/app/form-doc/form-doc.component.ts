@@ -238,7 +238,7 @@ export class FormDocComponent {
         this.modifyTirl = false;
       }
       this.requestService
-        .setValIrlTirl(this.appartementSelected?.id, fieldName, value)
+        .setValIrlTirl(fieldName, value)
         .subscribe((data) => {});
       this.formDoc.enable();
 

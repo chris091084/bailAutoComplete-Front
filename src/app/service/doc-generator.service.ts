@@ -22,7 +22,7 @@ export class DocGeneratorService {
       .subscribe((data) => {
         const content = new Uint8Array(data);
         const zip = new PizZip(content);
-        console.log(resultForm.appartement?.name);
+        console.log(resultForm.tIrl);
         const doc = new Docxtemplater(zip, {
           paragraphLoop: true,
           linebreaks: true,
@@ -57,13 +57,15 @@ export class DocGeneratorService {
             resultForm?.bailType === 'Mobilité' ||
             resultForm?.bailType === 'Etudiant',
           priceNoCharge: resultForm.priceNoCharge,
-          appartementRentRef:
+          appartementRentRef: (
             ((resultForm.rentRef ?? 0) * (appartementSelected?.surface ?? 0)) /
-            4,
-          appartementRentRefMaj:
+            4
+          ).toFixed(2),
+          appartementRentRefMaj: (
             ((resultForm.rentRefMaj ?? 0) *
               (appartementSelected?.surface ?? 0)) /
-            4,
+            4
+          ).toFixed(2),
           rentRef: (
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
