@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 
-import { AppRoutingModule } from './app-routing.module';
 import { FormDocComponent } from './form-doc/form-doc.component';
 
 @Component({

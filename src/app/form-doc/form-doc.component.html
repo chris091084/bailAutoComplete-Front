@@ -207,10 +207,20 @@
         />
       </div>
       <div class="mt-4">
-        <button type="submit" class="btn btn-primary">
+        <button
+          (click)="showSuccess(standardTpl)"
+          type="submit"
+          class="btn btn-primary"
+        >
           Générer le fichier Word
         </button>
       </div>
     </form>
   </div>
 </div>
+
+<ng-template #standardTpl> I'm a standard toast </ng-template>
+<app-toast-container
+  aria-live="polite"
+  aria-atomic="true"
+></app-toast-container>

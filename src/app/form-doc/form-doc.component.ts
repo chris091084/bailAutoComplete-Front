@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -16,6 +16,9 @@ import { ErrorMessagesComponent } from '../error-messages/error-messages.compone
 import { CommonModule } from '@angular/common';
 import { DocGeneratorService } from '../service/doc-generator.service';
 import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.component';
+import { ToastService } from '../service/taost.service';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastContainerComponent } from '../toast-container/toast-container.component';
 
 @Component({
   standalone: true,
@@ -27,6 +30,8 @@ import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.co
     CommonModule,
     ReactiveFormsModule,
     LacataireFieldsComponent,
+    NgbTooltipModule,
+    ToastContainerComponent,
   ],
 })
 export class FormDocComponent {
@@ -38,7 +43,7 @@ export class FormDocComponent {
     telephone: new FormControl(''),
     from: new FormControl('', Validators.required),
     to: new FormControl({ value: '', disabled: true }),
-    motif: new FormControl('', Validators.required),
+    motif: new FormControl(''),
     room: new FormControl('', Validators.required),
     appartement: new FormControl(
       new Appartement(
@@ -96,7 +101,8 @@ export class FormDocComponent {
 
   constructor(
     private requestService: RequestService,
-    private docGeneratorService: DocGeneratorService
+    private docGeneratorService: DocGeneratorService,
+    private toastService: ToastService
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
@@ -130,7 +136,6 @@ export class FormDocComponent {
       if (appartement != null) {
         this.resultForm.appartement = appartement;
       }
-
       const chargePriceValue = this.formDoc.get('chargePrice')?.value;
       this.resultForm.chargePrice =
         chargePriceValue !== null && chargePriceValue !== undefined
@@ -147,7 +152,6 @@ export class FormDocComponent {
         priceNoChargeValue !== null && priceNoChargeValue !== undefined
           ? priceNoChargeValue
           : 0;
-
       this.resultForm.room = this.formDoc.get('room')?.value;
       this.resultForm.telephone = this.formDoc.get('telephone')?.value;
       this.resultForm.bailleur = this.bailleurSelected;
@@ -183,6 +187,7 @@ export class FormDocComponent {
         this.appartementSelected
       );
     }
+    this.showFailed();
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
@@ -288,5 +293,21 @@ export class FormDocComponent {
       (fieldControl?.invalid && this.isSubmit) ||
       (fieldControl.invalid && fieldControl.touched)
     );
+  }
+  showSuccess(template: TemplateRef<any>) {
+    console.log(template);
+    this.toastService.show({
+      template,
+      classname: 'bg-success text-light',
+      delay: 10000,
+    });
+  }
+  showFailed(template: TemplateRef<any>) {
+    console.log(template);
+    this.toastService.show({
+      template,
+      classname: 'bg-danger text-light',
+      delay: 10000,
+    });
   }
 }
