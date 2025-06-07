@@ -10,7 +10,6 @@ import * as saveAs from 'file-saver';
   providedIn: 'root',
 })
 export class DocGeneratorService {
-  dateNow: Date = new Date();
   constructor(private http: HttpClient) {}
 
   generateDoc(
@@ -22,6 +21,7 @@ export class DocGeneratorService {
       .subscribe((data) => {
         const content = new Uint8Array(data);
         const zip = new PizZip(content);
+        console.log(resultForm.tIrl);
         const doc = new Docxtemplater(zip, {
           paragraphLoop: true,
           linebreaks: true,
@@ -56,8 +56,15 @@ export class DocGeneratorService {
             resultForm?.bailType === 'Mobilité' ||
             resultForm?.bailType === 'Etudiant',
           priceNoCharge: resultForm.priceNoCharge,
-          appartementRentRef: resultForm.rentRef,
-          appartementRentRefMaj: resultForm.rentRefMaj,
+          appartementRentRef: (
+            ((resultForm.rentRef ?? 0) * (appartementSelected?.surface ?? 0)) /
+            4
+          ).toFixed(2),
+          appartementRentRefMaj: (
+            ((resultForm.rentRefMaj ?? 0) *
+              (appartementSelected?.surface ?? 0)) /
+            4
+          ).toFixed(2),
           rentRef: (
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
@@ -67,8 +74,8 @@ export class DocGeneratorService {
           isFilature: resultForm.appartement?.name === 'Filature',
           isChateauGaillard:
             resultForm.appartement?.name === 'Chateau Gaillard',
-          isRueRene: resultForm.appartement?.name === 'rue René',
-          rentWithoutCharge: resultForm.lastPriceWithoutCharge,
+          isRueRene: resultForm.appartement?.name === 'Rue René',
+          rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
           chargePrice: resultForm.chargePrice,
@@ -106,18 +113,18 @@ export class DocGeneratorService {
           garantiePrice: resultForm.priceNoCharge * 2,
           isClauseLess6Month: resultForm.clauseLess6Month === true,
           petRule: resultForm.appartement.petRule,
-          dateNow:
-            this.dateNow.getDate() +
-            '/' +
-            this.dateNow.getMonth() +
-            '/' +
-            this.dateNow.getFullYear(),
+          dateNow: this.dateNow(),
+
           typeResidence: resultForm.typeResidence,
           isResidencePrincipal: resultForm.typeResidence === 'Principale',
           isResidenceSecondaire: resultForm.typeResidence === 'Secondaire',
           room: resultForm.room,
-          rentComp:
-            (resultForm.priceNoCharge ?? 0) - (resultForm.rentRefMaj ?? 0),
+          rentComp: (
+            (resultForm.priceNoCharge ?? 0) -
+            ((resultForm.rentRefMaj ?? 0) *
+              (appartementSelected?.surface ?? 0)) /
+              4
+          ).toFixed(2),
         });
         const out = doc.getZip().generate({
           type: 'blob',
@@ -164,16 +171,30 @@ export class DocGeneratorService {
   }
 
   private dateLeft(dateInput: Date) {
+    let result: number = 0;
     const date: Date = new Date(dateInput);
     const mois: number = date.getMonth();
     const annee: number = date.getFullYear();
 
     const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
+    console.log('dernierJour', dernierJour - date.getDate());
+    result = dernierJour - date.getDate();
+    if (dernierJour - date.getDate() == 0) {
+      result = 1;
+    }
 
-    return dernierJour - date.getDate();
+    return result;
   }
 
   private numberOfDays(mois: number, year: number): number {
     return new Date(year, mois, 0).getDate();
+  }
+
+  private dateNow(): string {
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 }

@@ -30,6 +30,26 @@ import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.co
   ],
 })
 export class FormDocComponent {
+  //APPARTEMENT
+
+  appartments: AppartementDto[] = [];
+
+  typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
+  pieces: string[] = [];
+  bailleurSelected: any;
+  appartementName: string | undefined;
+  typeResidences = ['Principale', 'Secondaire'];
+  resultForm: ResultForm = new ResultForm();
+  appartementSelected?: AppartementDto;
+  modifyRentRefMaj: boolean = false;
+  modifyRentRef: boolean = false;
+  dateNow = new Date();
+  modifyValIrl?: boolean = false;
+  modifyTirl?: boolean = false;
+  isSubmit: boolean = false;
+  typBailSelected: string = '';
+
+  // Formulaire de document
   formDoc = new FormGroup({
     name: new FormControl('', Validators.required),
     firstname: new FormControl('', Validators.required),
@@ -38,7 +58,10 @@ export class FormDocComponent {
     telephone: new FormControl(''),
     from: new FormControl('', Validators.required),
     to: new FormControl({ value: '', disabled: true }),
-    motif: new FormControl('', Validators.required),
+    motif: new FormControl(
+      '',
+      this.typBailSelected === 'Mobilité' ? Validators.required : null
+    ),
     room: new FormControl('', Validators.required),
     appartement: new FormControl(
       new Appartement(
@@ -75,25 +98,6 @@ export class FormDocComponent {
       Validators.required
     ),
   });
-
-  //APPARTEMENT
-
-  appartments: AppartementDto[] = [];
-
-  typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
-  pieces: string[] = [];
-  bailleurSelected: any;
-  appartementName: string | undefined;
-  typeResidences = ['Principale', 'Secondaire'];
-  resultForm: ResultForm = new ResultForm();
-  appartementSelected?: AppartementDto;
-  modifyRentRefMaj: boolean = false;
-  modifyRentRef: boolean = false;
-  dateNow = new Date();
-  modifyValIrl?: boolean = false;
-  modifyTirl?: boolean = false;
-  isSubmit: boolean = false;
-
   constructor(
     private requestService: RequestService,
     private docGeneratorService: DocGeneratorService
@@ -102,14 +106,6 @@ export class FormDocComponent {
       if (data && Array.isArray(data)) {
         console.log(data);
         this.appartments = data;
-        console.log('hello');
-        console.log(
-          this.dateNow.getDate() +
-            '/' +
-            this.dateNow.getMonth() +
-            '/' +
-            this.dateNow.getFullYear()
-        );
       } else {
         console.error('Données invalides reçues', data);
       }
@@ -117,6 +113,7 @@ export class FormDocComponent {
   }
 
   onSubmit() {
+    console.log(this.formDoc.get('room'));
     this.isSubmit = true;
     console.log(
       { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate()
@@ -203,6 +200,7 @@ export class FormDocComponent {
     typBail == 'Indéterminé'
       ? this.formDoc.get('to')?.disable()
       : this.formDoc.get('to')?.enable();
+    this.typBailSelected = typBail;
   }
 
   sentValIrlTirl(
@@ -232,7 +230,7 @@ export class FormDocComponent {
         this.modifyTirl = false;
       }
       this.requestService
-        .setValIrlTirl(this.appartementSelected?.id, fieldName, value)
+        .setValIrlTirl(fieldName, value)
         .subscribe((data) => {});
       this.formDoc.enable();
 

@@ -29,12 +29,10 @@ export class RequestService {
   }
 
   setValIrlTirl(
-    idAppartement?: string,
     fieldName?: string | null,
     value?: string | null
   ): Observable<any> {
     const body = {
-      idAppartement,
       fieldName,
       value,
     };
