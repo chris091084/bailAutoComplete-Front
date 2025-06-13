@@ -21,7 +21,7 @@ export class DocGeneratorService {
       .subscribe((data) => {
         const content = new Uint8Array(data);
         const zip = new PizZip(content);
-        console.log(resultForm.tIrl);
+        console.log(resultForm.firstname);
         const doc = new Docxtemplater(zip, {
           paragraphLoop: true,
           linebreaks: true,
@@ -32,7 +32,7 @@ export class DocGeneratorService {
           bailleurAdress: resultForm.bailleur?.adress,
           bailleurEmail: resultForm.bailleur?.email,
           bailleurTelephone: resultForm.bailleur?.telephone,
-          locataireName: resultForm.name,
+          locataireName: resultForm.name + ' ' + resultForm.firstname,
           locataireAdress: resultForm.adress,
           locataireEmail: resultForm.email,
           locataireTelephone: resultForm.telephone,
@@ -171,19 +171,19 @@ export class DocGeneratorService {
   }
 
   private dateLeft(dateInput: Date) {
-    let result: number = 0;
-    const date: Date = new Date(dateInput);
-    const mois: number = date.getMonth();
-    const annee: number = date.getFullYear();
+    const date = new Date(
+      dateInput.getFullYear(),
+      dateInput.getMonth(),
+      dateInput.getDate()
+    );
 
-    const dernierJour: number = new Date(annee, mois + 1, 0).getDate();
-    console.log('dernierJour', dernierJour - date.getDate());
-    result = dernierJour - date.getDate();
-    if (dernierJour - date.getDate() == 0) {
-      result = 1;
-    }
+    const lastDay = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0
+    ).getDate();
 
-    return result;
+    return lastDay - date.getDate() + 1;
   }
 
   private numberOfDays(mois: number, year: number): number {
