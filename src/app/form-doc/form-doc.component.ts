@@ -113,7 +113,7 @@ export class FormDocComponent {
   }
 
   onSubmit() {
-    console.log(this.formDoc.get('room'));
+    console.log(this.formDoc.get('firstname'));
     this.isSubmit = true;
     console.log(
       { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate()
