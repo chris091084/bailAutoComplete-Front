@@ -153,7 +153,7 @@ export class DocGeneratorService {
           linebreaks: true,
         });
         doc.render({
-          locataireName: resultForm.name,
+          locataireName: resultForm.name + ' ' + resultForm.firstname,
           locataireAdress: resultForm.adress,
           locataireEmail: resultForm.email,
           locataireTelephone: resultForm.telephone,
