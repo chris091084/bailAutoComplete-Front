@@ -1,0 +1,216 @@
+<div class="modal-body">
+  <div class="container">
+    <form [formGroup]="formDoc" (ngSubmit)="onSubmit()">
+      <h2 class="mt-3">Appartement</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let appartement of appartments; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="appartement"
+          [id]="'appartement' + i"
+          (change)="
+            switchRooms(appartement.chambres, appartement.bailleur, appartement)
+          "
+          [value]="appartement"
+          formControlName="appartement"
+        />
+
+        <label class="form-check-label" [for]="'appartement' + i">{{
+          appartement.name
+        }}</label>
+      </div>
+      <h2 class="mt-3">Type de résidence</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let typeResidence of typeResidences; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="typeResidence"
+          [id]="'typeResidence' + i"
+          [value]="typeResidence"
+          formControlName="typeResidence"
+        />
+
+        <label class="form-check-label" [for]="'typeResidence' + i">{{
+          typeResidence
+        }}</label>
+      </div>
+      <h2 class="mt-3">Type de bail</h2>
+      <div
+        class="form-check form-check-inline"
+        *ngFor="let typeBail of typeBails; index as i"
+      >
+        <input
+          class="form-check-input"
+          type="radio"
+          name="typeBail"
+          [id]="'typeBail' + i"
+          [value]="typeBail"
+          (change)="isMobilite(typeBail)"
+          formControlName="typeBail"
+          [checked]="this.formDoc.get('typeBail')?.value === typeBail"
+        />
+        <label class="form-check-label" [for]="'typeBail' + i">{{
+          typeBail
+        }}</label>
+      </div>
+      <app-lacataire-fields
+        [isInvalid]="isInvalid.bind(this)"
+        [sentValIrlTirl]="sentValIrlTirl.bind(this)"
+        [modifyValIrl]="modifyValIrl!"
+        [modifyTirl]="modifyTirl!"
+        [formDoc]="formDoc"
+        [pieces]="pieces"
+        [appartementSelected]="appartementSelected!"
+      ></app-lacataire-fields>
+      <h2 class="mt-3">Le loyer</h2>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label for="priceNoCharge"> Loyer Mensuel hors charges (€) </label>
+            <input
+              id="priceNoCharge"
+              class="form-control"
+              type="number"
+              formControlName="priceNoCharge"
+              [class.is-invalid]="isInvalid('priceNoCharge')"
+            />
+            <app-error-messages
+              [control]="formDoc.get('priceNoCharge')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="chargePrice"> Montant des charges (€) </label>
+            <input
+              id="chargePrice"
+              class="form-control"
+              type="number"
+              formControlName="chargePrice"
+              [class.is-invalid]="isInvalid('chargePrice')"
+            />
+            <app-error-messages
+              [control]="formDoc.get('chargePrice')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="lastPriceWithoutCharge">
+              Loyer hors charges du dernier locataire
+            </label>
+            <input
+              id="lastPriceWithoutCharge"
+              class="form-control"
+              type="number"
+              formControlName="lastPriceWithoutCharge"
+              [class.is-invalid]="isInvalid('lastPriceWithoutCharge')"
+            />
+            <app-error-messages
+              [control]="formDoc.get('lastPriceWithoutCharge')"
+              [isSubmit]="isSubmit"
+            ></app-error-messages>
+          </div>
+        </div>
+      </div>
+      <div class="row" *ngIf="appartementSelected">
+        <div class="col">
+          <div class="form-group">
+            <label for="rentRefMaj"> tarif au M2 du loyer de référence </label>
+            <div class="input-group mb-3">
+              <input
+                id="rentRef"
+                class="form-control"
+                type="number"
+                formControlName="rentRef"
+              />
+              <button
+                (click)="setRentRef(formDoc.get('rentRef')?.value, 'rentRef')"
+                type="button"
+                id="button-modifyRentRef"
+                [className]="
+                  modifyRentRef === false
+                    ? 'btn btn-primary'
+                    : 'btn btn-warning'
+                "
+              >
+                <i *ngIf="modifyRentRef === false" class="bi bi-pen-fill"></i>
+                <i *ngIf="modifyRentRef === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label for="rentRefMaj">
+              tarif au M2 du loyer de référence majoré
+            </label>
+            <div class="input-group mb-3">
+              <input
+                id="rentRefMaj"
+                class="form-control"
+                type="number"
+                formControlName="rentRefMaj"
+              />
+              <button
+                (click)="
+                  setRentRef(formDoc.get('rentRefMaj')?.value, 'rentRefMaj')
+                "
+                type="button"
+                id="button-modifyRentRefMaj"
+                [className]="
+                  modifyRentRefMaj === false
+                    ? 'btn btn-primary'
+                    : 'btn btn-warning'
+                "
+              >
+                <i
+                  *ngIf="modifyRentRefMaj === false"
+                  class="bi bi-pen-fill"
+                ></i>
+                <i *ngIf="modifyRentRefMaj === true" class="bi bi-floppy-fill">
+                  Enregistrer la valeur</i
+                >
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-check">
+        <label for="chargeList"> Listes des charges </label>
+
+        <input
+          id="chargeList"
+          class="form-check-input"
+          type="checkbox"
+          formControlName="chargeList"
+        />
+      </div>
+      <div class="form-check">
+        <label for="clauseLess6Month"> Clause durée inférieur à 6 mois </label>
+
+        <input
+          id="clauseLess6Month"
+          class="form-check-input"
+          type="checkbox"
+          formControlName="clauseLess6Month"
+        />
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+          Générer le fichier Word
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,15 +1,25 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { BailDocComponent } from './bail-doc/bail-doc.component';
+
+import { DateLeft } from './pipe/dateLeft.pipe';
+import { NumberOfDays } from './pipe/numberOfDays.pipe';
+
+import { ErrorMessagesComponent } from './error-messages/error-messages.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppRoutingModule } from './app-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NgxPrintModule } from 'ngx-print';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
-  declarations: [AppComponent, BailDocComponent],
-  imports: [BrowserModule, AppRoutingModule, ReactiveFormsModule],
+  declarations: [DateLeft, NumberOfDays],
+  imports: [
+    AppRoutingModule,
+    ReactiveFormsModule,
+    NgxPrintModule,
+    HttpClientModule,
+  ],
   providers: [],
-  bootstrap: [AppComponent],
 })
 export class AppModule {}
