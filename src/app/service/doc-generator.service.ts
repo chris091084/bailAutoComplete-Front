@@ -5,13 +5,16 @@ import * as Docxtemplater from 'docxtemplater';
 import { ResultForm } from '../model/resultForm.model';
 import { AppartementDto } from '../model/AppartementDto.model';
 import * as saveAs from 'file-saver';
+import { AppartementName } from '../model/NameAppartementEnum.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DocGeneratorService {
-  constructor(private http: HttpClient) {}
-
+  constructor(
+    private http: HttpClient,
+    private ApartmentName: AppartementName
+  ) {}
   generateDoc(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto
@@ -39,14 +42,16 @@ export class DocGeneratorService {
           adressLogement: resultForm.appartement.adress,
           constructionPeriod: appartementSelected?.constructionPeriod,
           isLogiaFillature:
-            resultForm.appartement.name === 'Filature' ? ',logia' : '',
+            resultForm.appartement.name === AppartementName.FILATURE_4
+              ? ',logia'
+              : '',
           appartementEnergieHeating: appartementSelected?.energieHeating,
           appartementEnergieWater: appartementSelected?.energieWater,
           appartementSuface: appartementSelected?.surface,
           caracteristiquesAppartement: appartementSelected?.caracteristiques,
           hasAccessToGarageAndPoubelle:
-            resultForm.appartement?.name === 'Filature' ||
-            resultForm.appartement?.name === 'Chateau Gaillard',
+            resultForm.appartement?.name === AppartementName.FILATURE_4 ||
+            resultForm.appartement?.name === AppartementName.CHATEAU_GAILLARD,
           dateFrom: resultForm?.getFormattedFromDate(),
           dateTo: resultForm?.getFormattedToDate(),
           isMobilite: resultForm?.bailType === 'Mobilité',
@@ -71,10 +76,11 @@ export class DocGeneratorService {
           rentRefMaj: (
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
-          isFilature: resultForm.appartement?.name === 'Filature',
+          isFilature:
+            resultForm.appartement?.name === AppartementName.FILATURE_4,
           isChateauGaillard:
-            resultForm.appartement?.name === 'Chateau Gaillard',
-          isRueRene: resultForm.appartement?.name === 'Rue René',
+            resultForm.appartement?.name === AppartementName.CHATEAU_GAILLARD,
+          isRueRene: resultForm.appartement?.name === AppartementName.RUE_RENE,
           rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
