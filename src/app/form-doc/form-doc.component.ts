@@ -104,7 +104,6 @@ export class FormDocComponent {
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
-        console.log(data);
         this.appartments = data;
       } else {
         console.error('Données invalides reçues', data);
