@@ -11,8 +11,26 @@ export class RequestService {
   private apiUrl = '/api/';
   constructor(private http: HttpClient) {}
 
-  getAppartements(): Observable<AppartementDto> {
-    return this.http.get<AppartementDto>(`${this.apiUrl}appartement`);
+  getAppartements(): Observable<AppartementDto[]> {
+    return this.http.get<AppartementDto[]>(`${this.apiUrl}appartement`);
+  }
+
+  addAppartement(appartement: AppartementDto): Observable<AppartementDto> {
+    return this.http.post<AppartementDto>(
+      `${this.apiUrl}appartement`,
+      appartement
+    );
+  }
+
+  updateAppartement(appartement: AppartementDto): Observable<AppartementDto> {
+    return this.http.put<AppartementDto>(
+      `${this.apiUrl}appartement`,
+      appartement
+    );
+  }
+
+  deleteAppartement(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}appartement/${id}`);
   }
 
   setRentRef(
