@@ -174,6 +174,11 @@ export class FormDocComponent {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
+      this.requestService.saveLeaseRequest(this.resultForm).subscribe({
+        next: () => console.log('Form saved successfully'),
+        error: (err) => console.error('Error saving form', err),
+      });
+
       this.docGeneratorService.generateDoc(
         this.resultForm,
         this.appartementSelected

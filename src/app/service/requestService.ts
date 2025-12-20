@@ -4,6 +4,8 @@ import { Appartement } from '../model/appartement.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
 
+import { ResultForm } from '../model/resultForm.model';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -31,6 +33,17 @@ export class RequestService {
 
   deleteAppartement(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}appartement/${id}`);
+  }
+
+  saveLeaseRequest(resultForm: ResultForm): Observable<ResultForm> {
+    return this.http.post<ResultForm>(
+      `${this.apiUrl}lease-request`,
+      resultForm
+    );
+  }
+
+  getLeaseRequests(): Observable<ResultForm[]> {
+    return this.http.get<ResultForm[]>(`${this.apiUrl}lease-request`);
   }
 
   setRentRef(

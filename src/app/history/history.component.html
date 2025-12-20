@@ -1,0 +1,29 @@
+<div class="container mt-4">
+  <h2>Historique des Générations</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Date (Du)</th>
+          <th scope="col">Date (Au)</th>
+          <th scope="col">Locataire</th>
+          <th scope="col">Email</th>
+          <th scope="col">Appartement</th>
+          <th scope="col">Type Bail</th>
+          <th scope="col">Motif</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of history">
+          <td>{{ item.from | date : "dd/MM/yyyy" }}</td>
+          <td>{{ item.to | date : "dd/MM/yyyy" }}</td>
+          <td>{{ item.firstname }} {{ item.name }}</td>
+          <td>{{ item.email }}</td>
+          <td>{{ item.appartement?.name }}</td>
+          <td>{{ item.bailType }}</td>
+          <td>{{ item.motif }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
