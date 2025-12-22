@@ -5,6 +5,7 @@ import * as Docxtemplater from 'docxtemplater';
 import { ResultForm } from '../model/resultForm.model';
 import { AppartementDto } from '../model/AppartementDto.model';
 import * as saveAs from 'file-saver';
+import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +27,8 @@ export class DocGeneratorService {
           paragraphLoop: true,
           linebreaks: true,
         });
+        console.log(resultForm);
+        console.log(appartementSelected);
         doc.render({
           bailType: resultForm.bailType,
           bailleurName: resultForm.bailleur?.name,
@@ -49,12 +52,12 @@ export class DocGeneratorService {
             resultForm.appartement?.name === 'Chateau Gaillard',
           dateFrom: resultForm?.getFormattedFromDate(),
           dateTo: resultForm?.getFormattedToDate(),
-          isMobilite: resultForm?.bailType === 'Mobilité',
-          isEtudiant: resultForm?.bailType === 'Etudiant',
-          isIndetermine: resultForm?.bailType === 'Indéterminé',
+          isMobilite: resultForm?.bailType === BailTypeEnum.MOBILITE,
+          isEtudiant: resultForm?.bailType === BailTypeEnum.ETUDIANT,
+          isIndetermine: resultForm?.bailType === BailTypeEnum.INDETERMINER,
           hasMobiliteAndEtudiant:
-            resultForm?.bailType === 'Mobilité' ||
-            resultForm?.bailType === 'Etudiant',
+            resultForm?.bailType === BailTypeEnum.MOBILITE ||
+            resultForm?.bailType === BailTypeEnum.ETUDIANT,
           priceNoCharge: resultForm.priceNoCharge,
           appartementRentRef: (
             ((resultForm.rentRef ?? 0) * (appartementSelected?.surface ?? 0)) /
@@ -71,10 +74,20 @@ export class DocGeneratorService {
           rentRefMaj: (
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
-          isFilature: resultForm.appartement?.name === 'Filature',
-          isChateauGaillard:
-            resultForm.appartement?.name === 'Chateau Gaillard',
-          isRueRene: resultForm.appartement?.name === 'Rue René',
+          isFilature4D:
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.FILATURE_4D,
+          isFilature3G:
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.FILATURE_3G,
+          isChateauGaillard17B:
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.CHATEAU_GAILLARD_17B,
+          isChateauGaillard53A:
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.CHATEAU_GAILLARD_53A,
+          isRueRene:
+            resultForm.appartement?.formName === AppartementNameEnum.RUE_RENE,
           rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,

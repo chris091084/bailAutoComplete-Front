@@ -79,6 +79,7 @@ export class FormDocComponent {
         '',
         0,
         0,
+        '',
         ''
       ),
       Validators.required
@@ -179,6 +180,7 @@ export class FormDocComponent {
         this.appartementSelected
       );
     }
+    console.log(this.resultForm);
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
