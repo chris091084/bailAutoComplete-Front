@@ -3,12 +3,13 @@ import { Observable } from 'rxjs';
 import { Appartement } from '../model/appartement.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
+import { environment } from 'environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RequestService {
-  private apiUrl = '/api/';
+  private apiUrl = `${environment.apiUrl}/api/`;
   constructor(private http: HttpClient) {}
 
   getAppartements(): Observable<AppartementDto[]> {
