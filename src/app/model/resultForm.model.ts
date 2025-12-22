@@ -18,6 +18,7 @@ export class ResultForm {
     '',
     0,
     0,
+    '',
     ''
   );
   chargePrice: number = 0;

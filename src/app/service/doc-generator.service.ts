@@ -27,6 +27,8 @@ export class DocGeneratorService {
           paragraphLoop: true,
           linebreaks: true,
         });
+        console.log(resultForm);
+        console.log(appartementSelected);
         doc.render({
           bailType: resultForm.bailType,
           bailleurName: resultForm.bailleur?.name,
@@ -73,17 +75,19 @@ export class DocGeneratorService {
             resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
           ).toFixed(2),
           isFilature4D:
-            resultForm.appartement?.name === AppartementNameEnum.FILATURE_4D,
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.FILATURE_4D,
           isFilature3G:
-            resultForm.appartement?.name === AppartementNameEnum.FILATURE_3G,
+            resultForm.appartement?.formName ===
+            AppartementNameEnum.FILATURE_3G,
           isChateauGaillard17B:
-            resultForm.appartement?.name ===
+            resultForm.appartement?.formName ===
             AppartementNameEnum.CHATEAU_GAILLARD_17B,
           isChateauGaillard53A:
-            resultForm.appartement?.name ===
+            resultForm.appartement?.formName ===
             AppartementNameEnum.CHATEAU_GAILLARD_53A,
           isRueRene:
-            resultForm.appartement?.name === AppartementNameEnum.RUE_RENE,
+            resultForm.appartement?.formName === AppartementNameEnum.RUE_RENE,
           rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
