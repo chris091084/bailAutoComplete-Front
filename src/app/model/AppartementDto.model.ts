@@ -24,4 +24,5 @@ export interface AppartementDto {
   tIrl: string;
   energieWater: string;
   energieHeating: string;
+  formName: string;
 }

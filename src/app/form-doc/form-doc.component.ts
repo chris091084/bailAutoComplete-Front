@@ -79,6 +79,7 @@ export class FormDocComponent {
         '',
         0,
         0,
+        '',
         ''
       ),
       Validators.required
@@ -104,7 +105,6 @@ export class FormDocComponent {
   ) {
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
-        console.log(data);
         this.appartments = data;
       } else {
         console.error('Données invalides reçues', data);
@@ -180,6 +180,7 @@ export class FormDocComponent {
         this.appartementSelected
       );
     }
+    console.log(this.resultForm);
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
