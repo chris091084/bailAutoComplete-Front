@@ -4,7 +4,7 @@ _Licence MIT_
 
 BailAutoComplet lets you generate rental lease agreements quickly and accurately by simply filling out a web form. By automating the lease template, it minimizes the risk of errors and ensures consistency across all documents
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 19.
 
 ## Prerequisites
 
