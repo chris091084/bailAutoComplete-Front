@@ -48,6 +48,7 @@ export class FormDocComponent {
   modifyTirl?: boolean = false;
   isSubmit: boolean = false;
   typBailSelected: string = '';
+  isLoading: boolean = false;
 
   // Formulaire de document
   formDoc = new FormGroup({
@@ -103,16 +104,11 @@ export class FormDocComponent {
     private requestService: RequestService,
     private docGeneratorService: DocGeneratorService
   ) {
-    this.requestService.getAppartements().subscribe((data) => {
-      if (data && Array.isArray(data)) {
-        this.appartments = data;
-      } else {
-        console.error('Données invalides reçues', data);
-      }
-    });
+    this.loadAppartements();
   }
 
   onSubmit() {
+    this.isLoading = true;
     console.log(this.formDoc.get('firstname'));
     this.isSubmit = true;
     console.log(
@@ -170,7 +166,6 @@ export class FormDocComponent {
         this.resultForm.to = new Date(
           futureDate.setDate(dateFrom.getDate() - 1)
         );
-        console.log(this.resultForm.to);
       } else {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
@@ -179,11 +174,13 @@ export class FormDocComponent {
         this.resultForm,
         this.appartementSelected
       );
+      this.isLoading = false;
     }
     console.log(this.resultForm);
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
+    console.log(appartement);
     this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
     console.log(bailleur);
@@ -230,9 +227,9 @@ export class FormDocComponent {
       } else {
         this.modifyTirl = false;
       }
-      this.requestService
-        .setValIrlTirl(fieldName, value)
-        .subscribe((data) => {});
+      this.requestService.setValIrlTirl(fieldName, value).subscribe((data) => {
+        this.loadAppartements();
+      });
       this.formDoc.enable();
 
       this.formDoc.get(fieldName)?.disable();
@@ -287,5 +284,14 @@ export class FormDocComponent {
       (fieldControl?.invalid && this.isSubmit) ||
       (fieldControl.invalid && fieldControl.touched)
     );
+  }
+  loadAppartements() {
+    this.requestService.getAppartements().subscribe((data) => {
+      if (data && Array.isArray(data)) {
+        this.appartments = data;
+      } else {
+        console.error('Données invalides reçues', data);
+      }
+    });
   }
 }

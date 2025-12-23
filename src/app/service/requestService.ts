@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Appartement } from '../model/appartement.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
-import { environment } from 'environments/environment.prod';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root',
