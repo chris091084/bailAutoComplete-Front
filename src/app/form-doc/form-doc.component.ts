@@ -286,13 +286,20 @@ export class FormDocComponent {
   }
   loadAppartements() {
     this.isLoading = true;
-    this.requestService.getAppartements().subscribe((data) => {
-      if (data && Array.isArray(data)) {
-        this.appartments = data;
+    this.requestService.getAppartements().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.appartments = data;
+        } else {
+          console.error('Données invalides reçues', data);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement', err);
+      },
+      complete: () => {
         this.isLoading = false;
-      } else {
-        console.error('Données invalides reçues', data);
-      }
+      },
     });
   }
 }
