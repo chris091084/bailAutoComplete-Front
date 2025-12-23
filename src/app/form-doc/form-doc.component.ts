@@ -108,7 +108,6 @@ export class FormDocComponent {
   }
 
   onSubmit() {
-    this.isLoading = true;
     console.log(this.formDoc.get('firstname'));
     this.isSubmit = true;
     console.log(
@@ -286,9 +285,11 @@ export class FormDocComponent {
     );
   }
   loadAppartements() {
+    this.isLoading = true;
     this.requestService.getAppartements().subscribe((data) => {
       if (data && Array.isArray(data)) {
         this.appartments = data;
+        this.isLoading = false;
       } else {
         console.error('Données invalides reçues', data);
       }
