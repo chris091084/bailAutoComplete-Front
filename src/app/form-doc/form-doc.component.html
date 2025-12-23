@@ -18,9 +18,11 @@
           formControlName="appartement"
         />
 
-        <label class="form-check-label" [for]="'appartement' + i">{{
-          appartement.formName
-        }}</label>
+        <label class="form-check-label" [for]="'appartement' + i">
+          <span class="badge bg-primary">{{
+            appartement.formName
+          }}</span></label
+        >
       </div>
       <h2 class="mt-3">Type de résidence</h2>
       <div
@@ -186,26 +188,7 @@
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label for="rentRefMaj"> tarif au M2 du loyer de référence </label>
-        <input
-          id="rentRef"
-          class="form-control"
-          type="number"
-          formControlName="rentRef"
-        />
-      </div>
-      <div class="form-group">
-        <label for="rentRefMaj">
-          tarif au M2 du loyer de référence majoré
-        </label>
-        <input
-          id="rentRefMaj"
-          class="form-control"
-          type="number"
-          formControlName="rentRefMaj"
-        />
-      </div>
+
       <div class="form-check">
         <label for="chargeList"> Listes des charges </label>
 
@@ -227,7 +210,11 @@
         />
       </div>
       <div class="mt-4">
-        <button type="submit" class="btn btn-primary">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="formDoc.invalid"
+        >
           Générer le fichier Word
         </button>
       </div>
