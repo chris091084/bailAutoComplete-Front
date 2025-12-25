@@ -160,7 +160,7 @@ export class DocGeneratorService {
         // Save generation history
         const generation = new Generation(
           new Date(),
-          resultForm.appartement?.name ?? '',
+          resultForm.appartement?.formName ?? '',
           resultForm.name + ' ' + resultForm.firstname,
           resultForm
         );
