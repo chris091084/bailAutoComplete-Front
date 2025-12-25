@@ -60,4 +60,12 @@ export class RequestService {
       body
     );
   }
+
+  getGenerations(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}generation`);
+  }
+
+  saveGeneration(generation: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}generation`, generation);
+  }
 }

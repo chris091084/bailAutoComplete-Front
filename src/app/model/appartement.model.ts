@@ -1,5 +1,6 @@
 import { Bailleur } from './bailleur.model';
 import { Chambre } from './Chambre.model';
+import { Caracteristique } from './Caracteristique.model';
 
 export class Appartement {
   id: string = '';
@@ -7,7 +8,7 @@ export class Appartement {
   bailleur: Bailleur;
   adress: string = '';
   chambres: Chambre[] = [];
-  caracteristiques: string[] = [];
+  caracteristiques: Caracteristique[] = [];
   energieWater: string = '';
   energieHeating: string = '';
   bankName: string = '';
@@ -24,7 +25,7 @@ export class Appartement {
     bailleur: Bailleur,
     adresse: string,
     chambres: Chambre[],
-    caracteristiques: string[],
+    caracteristiques: Caracteristique[],
     energieWater: string,
     energieHeating: string,
     bankName: string,

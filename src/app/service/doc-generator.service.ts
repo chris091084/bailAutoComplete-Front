@@ -7,16 +7,23 @@ import { AppartementDto } from '../model/AppartementDto.model';
 import saveAs from 'file-saver';
 import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
+import { Generation } from '../model/Generation.model';
+import { RequestService } from './requestService';
+
 @Injectable({
   providedIn: 'root',
 })
 export class DocGeneratorService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private requestService: RequestService
+  ) {}
 
   generateDoc(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto
   ): any {
+    console.log(resultForm);
     this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .subscribe((data) => {
@@ -39,14 +46,15 @@ export class DocGeneratorService {
           locataireAdress: resultForm.adress,
           locataireEmail: resultForm.email,
           locataireTelephone: resultForm.telephone,
-          adressLogement: resultForm.appartement.adress,
+          adressLogement: resultForm.appartement?.adress,
           constructionPeriod: appartementSelected?.constructionPeriod,
           isLogiaFillature:
-            resultForm.appartement.name === 'Filature' ? ',logia' : '',
+            resultForm.appartement?.name === 'Filature' ? ',logia' : '',
           appartementEnergieHeating: appartementSelected?.energieHeating,
           appartementEnergieWater: appartementSelected?.energieWater,
           appartementSuface: appartementSelected?.surface,
-          caracteristiquesAppartement: appartementSelected?.caracteristiques,
+          caracteristiquesAppartement:
+            appartementSelected?.caracteristiques?.map((c) => c.description),
           hasAccessToGarageAndPoubelle:
             resultForm.appartement?.name === 'Filature' ||
             resultForm.appartement?.name === 'Chateau Gaillard',
@@ -69,10 +77,10 @@ export class DocGeneratorService {
             4
           ).toFixed(2),
           rentRef: (
-            resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
+            resultForm.priceNoCharge - (resultForm.appartement?.rentRefMaj ?? 0)
           ).toFixed(2),
           rentRefMaj: (
-            resultForm.priceNoCharge - resultForm.appartement.rentRefMaj
+            resultForm.priceNoCharge - (resultForm.appartement?.rentRefMaj ?? 0)
           ).toFixed(2),
           isFilature4D:
             resultForm.appartement?.formName ===
@@ -125,7 +133,7 @@ export class DocGeneratorService {
             resultForm.priceNoCharge + resultForm.chargePrice,
           garantiePrice: resultForm.priceNoCharge * 2,
           isClauseLess6Month: resultForm.clauseLess6Month === true,
-          petRule: resultForm.appartement.petRule,
+          petRule: resultForm.appartement?.petRule,
           dateNow: this.dateNow(),
 
           typeResidence: resultForm.typeResidence,
@@ -138,6 +146,7 @@ export class DocGeneratorService {
               (appartementSelected?.surface ?? 0)) /
               4
           ).toFixed(2),
+          isChargeList: resultForm.chargeList,
         });
         const out = doc.getZip().generate({
           type: 'blob',
@@ -146,6 +155,19 @@ export class DocGeneratorService {
         });
 
         saveAs(out, 'Projet_bail_' + resultForm.name + '.docx');
+        console.log('Projet_bail_' + resultForm + '.docx');
+
+        // Save generation history
+        const generation = new Generation(
+          new Date(),
+          resultForm.appartement?.formName ?? '',
+          resultForm.name + ' ' + resultForm.firstname,
+          resultForm
+        );
+        this.requestService.saveGeneration(generation).subscribe({
+          next: () => console.log('Generation saved successfully'),
+          error: (err) => console.error('Error saving generation', err),
+        });
       });
 
     const appartementName = appartementSelected?.name.replace(' ', '_');
@@ -170,7 +192,7 @@ export class DocGeneratorService {
           locataireAdress: resultForm.adress,
           locataireEmail: resultForm.email,
           locataireTelephone: resultForm.telephone,
-          adressLogement: resultForm.appartement.adress,
+          adressLogement: resultForm.appartement?.adress ?? '',
           dateFrom: resultForm?.getFormattedFromDate(),
         });
         const out = doc.getZip().generate({
