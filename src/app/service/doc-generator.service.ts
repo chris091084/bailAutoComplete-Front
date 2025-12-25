@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as PizZip from 'pizzip';
-import * as Docxtemplater from 'docxtemplater';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
 import { ResultForm } from '../model/resultForm.model';
 import { AppartementDto } from '../model/AppartementDto.model';
-import * as saveAs from 'file-saver';
+import saveAs from 'file-saver';
 import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
 @Injectable({
