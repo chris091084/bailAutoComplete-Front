@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+
 import { AppartementDto } from '../model/AppartementDto.model';
 import { environment } from 'environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -58,5 +59,13 @@ export class RequestService {
       `${this.apiUrl}appartement/updateValIrlTirl`,
       body
     );
+  }
+
+  getGenerations(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}generation`);
+  }
+
+  saveGeneration(generation: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}generation`, generation);
   }
 }
