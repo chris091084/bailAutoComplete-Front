@@ -3,24 +3,7 @@ import { Bailleur } from './bailleur.model';
 
 export class ResultForm {
   adress?: string | null;
-  appartement: Appartement = new Appartement(
-    '',
-    '',
-    new Bailleur('', '', '', ''),
-    '',
-    [],
-    [],
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    0,
-    0,
-    '',
-    ''
-  );
+  appartement?: Appartement;
   chargePrice: number = 0;
   email?: string | null;
   firstname?: string | null;

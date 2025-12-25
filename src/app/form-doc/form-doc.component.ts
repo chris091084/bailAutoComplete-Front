@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import {
   FormControl,
   FormGroup,
@@ -64,27 +65,7 @@ export class FormDocComponent {
       this.typBailSelected === 'Mobilité' ? Validators.required : null
     ),
     room: new FormControl('', Validators.required),
-    appartement: new FormControl(
-      new Appartement(
-        '',
-        '',
-        new Bailleur('', '', '', ''),
-        '',
-        [],
-        [],
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        0,
-        0,
-        '',
-        ''
-      ),
-      Validators.required
-    ),
+    appartement: new FormControl(null, Validators.required),
     priceNoCharge: new FormControl(null, Validators.required),
     chargePrice: new FormControl(null, Validators.required),
     typeBail: new FormControl('', Validators.required),
@@ -102,9 +83,64 @@ export class FormDocComponent {
   });
   constructor(
     private requestService: RequestService,
-    private docGeneratorService: DocGeneratorService
+    private docGeneratorService: DocGeneratorService,
+    private router: Router
   ) {
     this.loadAppartements();
+    const rehydrationData =
+      this.router.getCurrentNavigation()?.extras.state?.['rehydrationData'];
+    if (rehydrationData) {
+      console.log('Rehydrating form with data:', rehydrationData);
+      setTimeout(() => {
+        this.rehydrateForm(rehydrationData);
+      }, 500); // Small delay to ensure appartements are loaded if needed, though ideal flow handles this robustly
+    }
+  }
+
+  rehydrateForm(data: any) {
+    this.formDoc.patchValue({
+      name: data.name,
+      firstname: data.firstname,
+      adress: data.adress,
+      email: data.email,
+      telephone: data.telephone,
+      from: data.from,
+      // to: data.to, // 'to' is often calculated or disabled
+      motif: data.motif,
+      room: data.room,
+      // appartement: handled separately if needed, or by simple patch if object matches
+      priceNoCharge: data.priceNoCharge,
+      chargePrice: data.chargePrice,
+      typeBail: data.bailType, // Mapping bailType to typeBail
+      tIrl: data.tIrl,
+      valIrl: data.valIrl,
+      lastPriceWithoutCharge: data.lastPriceWithoutCharge,
+      chargeList: data.chargeList,
+      clauseLess6Month: data.clauseLess6Month,
+      typeResidence: data.typeResidence,
+      rentRef: data.rentRef,
+      rentRefMaj: data.rentRefMaj,
+    });
+
+    if (data.appartement) {
+      // Find the appartement in the loaded list to select it properly if it's a dropdown,
+      // but here it seems we might just patch the form control.
+      // If 'appartement' is an object in the form, we patch it.
+      // However, usually we want to find the matching object in 'this.appartments'.
+      const matchingAppartement = this.appartments.find(
+        (a) => a.id === data.appartement.id
+      );
+      if (matchingAppartement) {
+        this.formDoc.controls['appartement'].setValue(
+          matchingAppartement as any
+        );
+        this.appartementSelected = matchingAppartement;
+      }
+    }
+
+    if (data.bailleur) {
+      this.bailleurSelected = data.bailleur;
+    }
   }
 
   onSubmit() {
@@ -117,7 +153,10 @@ export class FormDocComponent {
       console.log(this.resultForm.chargePrice);
 
       this.resultForm.adress = this.formDoc.get('adress')?.value;
-
+      console.log(
+        this.formDoc.get('appartement')?.value,
+        'jhjhjdhfjdfhsdhfsdfhfhsdjfhsdfhkj'
+      );
       const appartement = this.formDoc.get('appartement')?.value;
       if (appartement != null) {
         this.resultForm.appartement = appartement;

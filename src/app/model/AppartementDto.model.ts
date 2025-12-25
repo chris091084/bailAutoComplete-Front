@@ -1,5 +1,6 @@
 import { Bailleur } from './bailleur.model';
 import { Chambre } from './Chambre.model';
+import { Caracteristique } from './Caracteristique.model';
 
 export interface AppartementDto {
   id: string;
@@ -7,7 +8,7 @@ export interface AppartementDto {
   adress: string;
   bailleur: Bailleur;
   chambres: Chambre[];
-  caracteristiques: string[];
+  caracteristiques: Caracteristique[];
   typeChauffage: string;
   chauffageCollectif: boolean;
   bankName: string;

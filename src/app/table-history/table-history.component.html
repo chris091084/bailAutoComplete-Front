@@ -1,0 +1,36 @@
+<div class="container mt-4">
+  <h2>Historique des Générations</h2>
+
+  <div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <table class="table table-striped" *ngIf="!isLoading">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Nom de l'appartement</th>
+        <th scope="col">Noms du locataire</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let gen of generations">
+        <td>{{ gen.date | date : "dd/MM/yyyy HH:mm" }}</td>
+        <td>{{ gen.appartementName }}</td>
+        <td>{{ gen.locataireName }}</td>
+        <td>
+          <button class="btn btn-primary btn-sm" (click)="rehydrate(gen)">
+            Réhydrater
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && generations.length === 0" class="alert alert-info">
+    Aucune génération trouvée.
+  </div>
+</div>
