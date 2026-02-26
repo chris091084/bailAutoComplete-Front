@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://relative-ammamaria-mundus09-e11bb300.koyeb.app',
+  apiUrl: 'https://spiritual-python-christiancoley-621b8ed3.koyeb.app',
 };
