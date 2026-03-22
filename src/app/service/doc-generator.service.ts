@@ -16,12 +16,12 @@ import { RequestService } from './requestService';
 export class DocGeneratorService {
   constructor(
     private http: HttpClient,
-    private requestService: RequestService
+    private requestService: RequestService,
   ) {}
 
   generateDoc(
     resultForm: ResultForm,
-    appartementSelected?: AppartementDto
+    appartementSelected?: AppartementDto,
   ): any {
     console.log(resultForm);
     this.http
@@ -101,23 +101,24 @@ export class DocGeneratorService {
           valIrl: resultForm.valIrl,
           chargePrice: resultForm.chargePrice,
           rentPrice: resultForm.priceNoCharge,
+          lastPriceWithoutCharge: resultForm.lastPriceWithoutCharge,
           proportionalRent: (
             (resultForm.priceNoCharge * this.dateLeft(resultForm.from)) /
             this.numberOfDays(
               resultForm.from.getMonth() + 1,
-              resultForm.from.getFullYear()
+              resultForm.from.getFullYear(),
             )
           ).toFixed(2),
           howDayOfMonth: this.numberOfDays(
             resultForm.from.getMonth() + 1,
-            resultForm.from.getFullYear()
+            resultForm.from.getFullYear(),
           ),
           dayLeft: this.dateLeft(resultForm.from),
           chargePriceLeft: (
             (resultForm.chargePrice * this.dateLeft(resultForm.from)) /
             this.numberOfDays(
               resultForm.from.getMonth() + 1,
-              resultForm.from.getFullYear()
+              resultForm.from.getFullYear(),
             )
           ).toFixed(2),
           totalRentProMonth: resultForm.priceNoCharge + resultForm.chargePrice,
@@ -126,7 +127,7 @@ export class DocGeneratorService {
               this.dateLeft(resultForm.from)) /
             this.numberOfDays(
               resultForm.from.getMonth() + 1,
-              resultForm.from.getFullYear()
+              resultForm.from.getFullYear(),
             )
           ).toFixed(2),
           totalMontCompletRent:
@@ -162,7 +163,7 @@ export class DocGeneratorService {
           new Date(),
           resultForm.appartement?.formName ?? '',
           resultForm.name + ' ' + resultForm.firstname,
-          resultForm
+          resultForm,
         );
         this.requestService.saveGeneration(generation).subscribe({
           next: () => console.log('Generation saved successfully'),
@@ -178,7 +179,7 @@ export class DocGeneratorService {
         'assets/docx/doc-annexe/' + appartementName + chambreNumber + '.docx',
         {
           responseType: 'arraybuffer',
-        }
+        },
       )
       .subscribe((data) => {
         const content = new Uint8Array(data); // Convertir ArrayBuffer en Uint8Array
@@ -209,13 +210,13 @@ export class DocGeneratorService {
     const date = new Date(
       dateInput.getFullYear(),
       dateInput.getMonth(),
-      dateInput.getDate()
+      dateInput.getDate(),
     );
 
     const lastDay = new Date(
       date.getFullYear(),
       date.getMonth() + 1,
-      0
+      0,
     ).getDate();
 
     return lastDay - date.getDate() + 1;
