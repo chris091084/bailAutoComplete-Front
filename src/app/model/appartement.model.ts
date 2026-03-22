@@ -19,6 +19,7 @@ export class Appartement {
   rentRefMaj: number = 0;
   maxConsoElec: string = '';
   formName: string = '';
+  etage: string = '';
   constructor(
     id: string,
     name: string,
@@ -35,7 +36,8 @@ export class Appartement {
     rentRef: number,
     rentMaj: number,
     maxConsoElec: string,
-    formName: string
+    formName: string,
+    etage: string,
   ) {
     this.id = id;
     this.name = name;
@@ -53,5 +55,6 @@ export class Appartement {
     this.rentRefMaj = rentMaj;
     this.maxConsoElec = maxConsoElec;
     this.formName = formName;
+    this.etage = etage;
   }
 }

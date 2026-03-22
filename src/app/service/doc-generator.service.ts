@@ -24,6 +24,7 @@ export class DocGeneratorService {
     appartementSelected?: AppartementDto,
   ): any {
     console.log(resultForm);
+    console.log(appartementSelected);
     this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .subscribe((data) => {
@@ -102,6 +103,7 @@ export class DocGeneratorService {
           chargePrice: resultForm.chargePrice,
           rentPrice: resultForm.priceNoCharge,
           lastPriceWithoutCharge: resultForm.lastPriceWithoutCharge,
+          etage: appartementSelected?.etage,
           proportionalRent: (
             (resultForm.priceNoCharge * this.dateLeft(resultForm.from)) /
             this.numberOfDays(
