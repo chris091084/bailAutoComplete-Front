@@ -62,7 +62,7 @@ export class FormDocComponent {
     to: new FormControl({ value: '', disabled: true }),
     motif: new FormControl(
       '',
-      this.typBailSelected === 'Mobilité' ? Validators.required : null
+      this.typBailSelected === 'Mobilité' ? Validators.required : null,
     ),
     room: new FormControl('', Validators.required),
     appartement: new FormControl(null, Validators.required),
@@ -78,13 +78,13 @@ export class FormDocComponent {
     rentRef: new FormControl({ value: 0, disabled: true }, Validators.required),
     rentRefMaj: new FormControl(
       { value: 0, disabled: true },
-      Validators.required
+      Validators.required,
     ),
   });
   constructor(
     private requestService: RequestService,
     private docGeneratorService: DocGeneratorService,
-    private router: Router
+    private router: Router,
   ) {
     this.loadAppartements();
     const rehydrationData =
@@ -121,18 +121,21 @@ export class FormDocComponent {
       rentRef: data.rentRef,
       rentRefMaj: data.rentRefMaj,
     });
+    console.log(data);
 
     if (data.appartement) {
+      console.log(data.appartement);
       // Find the appartement in the loaded list to select it properly if it's a dropdown,
       // but here it seems we might just patch the form control.
       // If 'appartement' is an object in the form, we patch it.
       // However, usually we want to find the matching object in 'this.appartments'.
       const matchingAppartement = this.appartments.find(
-        (a) => a.id === data.appartement.id
+        (a) => a.id === data.appartement.id,
       );
       if (matchingAppartement) {
+        console.log(matchingAppartement);
         this.formDoc.controls['appartement'].setValue(
-          matchingAppartement as any
+          matchingAppartement as any,
         );
         this.appartementSelected = matchingAppartement;
       }
@@ -147,7 +150,7 @@ export class FormDocComponent {
     console.log(this.formDoc.get('firstname'));
     this.isSubmit = true;
     console.log(
-      { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate()
+      { type: 'date', value: new Date(), fmt: 'DD/MM/YYYY' }.value.getDate(),
     );
     if (this.formDoc.valid) {
       console.log(this.resultForm.chargePrice);
@@ -155,7 +158,7 @@ export class FormDocComponent {
       this.resultForm.adress = this.formDoc.get('adress')?.value;
       console.log(
         this.formDoc.get('appartement')?.value,
-        'jhjhjdhfjdfhsdhfsdfhfhsdjfhsdfhkj'
+        'jhjhjdhfjdfhsdhfsdfhfhsdjfhsdfhkj',
       );
       const appartement = this.formDoc.get('appartement')?.value;
       if (appartement != null) {
@@ -188,7 +191,7 @@ export class FormDocComponent {
       this.resultForm.valIrl = this.formDoc.get('valIrl')?.value;
       this.resultForm.chargeList = this.formDoc.get('chargeList')?.value;
       this.resultForm.lastPriceWithoutCharge = this.formDoc.get(
-        'lastPriceWithoutCharge'
+        'lastPriceWithoutCharge',
       )?.value;
       this.resultForm.clauseLess6Month =
         this.formDoc.get('clauseLess6Month')?.value;
@@ -202,7 +205,7 @@ export class FormDocComponent {
         futureDate.setMonth(dateFrom.getMonth() + 9);
 
         this.resultForm.to = new Date(
-          futureDate.setDate(dateFrom.getDate() - 1)
+          futureDate.setDate(dateFrom.getDate() - 1),
         );
       } else {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
@@ -210,7 +213,7 @@ export class FormDocComponent {
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
       this.docGeneratorService.generateDoc(
         this.resultForm,
-        this.appartementSelected
+        this.appartementSelected,
       );
       this.isLoading = false;
     }
@@ -241,7 +244,7 @@ export class FormDocComponent {
 
   sentValIrlTirl(
     value: string | null | undefined,
-    fieldName: 'valIrl' | 'tIrl'
+    fieldName: 'valIrl' | 'tIrl',
   ) {
     console.log(value, fieldName, this.appartementSelected?.id);
 
@@ -279,7 +282,7 @@ export class FormDocComponent {
 
   setRentRef(
     value: number | null | undefined,
-    fieldName: 'rentRef' | 'rentRefMaj'
+    fieldName: 'rentRef' | 'rentRefMaj',
   ) {
     const otherField: 'rentRef' | 'rentRefMaj' =
       fieldName === 'rentRef' ? 'rentRefMaj' : 'rentRef';
