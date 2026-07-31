@@ -1,0 +1,65 @@
+<div class="login-wrapper">
+  <div class="card shadow-sm login-card">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-1">Connexion</h1>
+      <p class="text-muted small mb-4">
+        Cette application est protégée par un mot de passe unique.
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="password">Mot de passe</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            formControlName="password"
+            autocomplete="current-password"
+            maxlength="72"
+            [class.is-invalid]="passwordControl.invalid && passwordControl.touched"
+          />
+
+          @if (passwordControl.touched && passwordControl.invalid) {
+            <div class="invalid-feedback d-block">
+              @if (passwordControl.hasError('required')) {
+                <span>Le mot de passe est obligatoire.</span>
+              } @else if (passwordControl.hasError('minlength')) {
+                <span>Le mot de passe doit contenir au moins 8 caractères.</span>
+              } @else if (passwordControl.hasError('maxlength')) {
+                <span>Le mot de passe ne peut pas dépasser 72 caractères.</span>
+              }
+            </div>
+          }
+        </div>
+
+        @if (errorMessage(); as message) {
+          <div class="alert alert-danger py-2" role="alert">
+            <div>{{ message }}</div>
+            @if (retryAfter(); as seconds) {
+              <div class="small mt-1">
+                Nouvelle tentative possible dans
+                {{ retryAfterLabel(seconds) }}.
+              </div>
+            }
+          </div>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true"
+            ></span>
+            <span>Connexion…</span>
+          } @else {
+            <span>Se connecter</span>
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
