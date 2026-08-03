@@ -13,6 +13,7 @@ import { RequestService } from '../service/requestService';
 import { Chambre } from '../model/Chambre.model';
 import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
+import { LocataireDto } from '../model/LocataireDto.model';
 import { ErrorMessagesComponent } from '../error-messages/error-messages.component';
 import { CommonModule } from '@angular/common';
 import { DocGeneratorService } from '../service/doc-generator.service';
@@ -211,6 +212,7 @@ export class FormDocComponent {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
+      this.saveLocataire();
       this.docGeneratorService.generateDoc(
         this.resultForm,
         this.appartementSelected,
@@ -218,6 +220,37 @@ export class FormDocComponent {
       this.isLoading = false;
     }
     console.log(this.resultForm);
+  }
+
+  /**
+   * Enregistre le locataire saisi et le rattache à l'appartement sélectionné.
+   * L'échec est seulement journalisé : la génération du bail ne doit pas être
+   * bloquée par l'indisponibilité de l'API.
+   */
+  private saveLocataire() {
+    const appartement = this.formDoc.get('appartement')?.value as
+      | AppartementDto
+      | null
+      | undefined;
+
+    if (!appartement?.id) {
+      console.error("Aucun appartement sélectionné, locataire non enregistré");
+      return;
+    }
+
+    const locataire: LocataireDto = {
+      nom: this.formDoc.get('name')?.value ?? '',
+      prenom: this.formDoc.get('firstname')?.value ?? '',
+      telephone: this.formDoc.get('telephone')?.value || null,
+      email: this.formDoc.get('email')?.value || null,
+      appartementId: Number(appartement.id),
+    };
+
+    this.requestService.addLocataire(locataire).subscribe({
+      next: (data) => console.log('Locataire enregistré', data),
+      error: (err) =>
+        console.error("Erreur lors de l'enregistrement du locataire", err),
+    });
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
