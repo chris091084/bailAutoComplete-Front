@@ -10,6 +10,14 @@ const routes: Routes = [
   { path: '', component: FormDocComponent, canActivate: [authGuard] },
   { path: 'table', component: TableComponent, canActivate: [authGuard] },
   {
+    path: 'locataires',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./locataires/locataires.component').then(
+        (m) => m.LocatairesComponent
+      ),
+  },
+  {
     path: 'history',
     canActivate: [authGuard],
     loadComponent: () =>

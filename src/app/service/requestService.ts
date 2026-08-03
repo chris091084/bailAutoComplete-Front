@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
+import { LocataireDto } from '../model/LocataireDto.model';
 import { environment } from 'environments/environment';
 import { HttpClient } from '@angular/common/http';
 
@@ -59,6 +60,25 @@ export class RequestService {
       `${this.apiUrl}appartement/updateValIrlTirl`,
       body
     );
+  }
+
+  getLocataires(): Observable<LocataireDto[]> {
+    return this.http.get<LocataireDto[]>(`${this.apiUrl}locataire`);
+  }
+
+  addLocataire(locataire: LocataireDto): Observable<LocataireDto> {
+    return this.http.post<LocataireDto>(`${this.apiUrl}locataire`, locataire);
+  }
+
+  updateLocataire(locataire: LocataireDto): Observable<LocataireDto> {
+    return this.http.put<LocataireDto>(
+      `${this.apiUrl}locataire/${locataire.id}`,
+      locataire
+    );
+  }
+
+  deleteLocataire(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}locataire/${id}`);
   }
 
   getGenerations(): Observable<any[]> {

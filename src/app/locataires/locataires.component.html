@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Liste des Locataires</h2>
+    <button class="btn btn-success" (click)="openAddModal()">Ajouter</button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Nom</th>
+          <th scope="col">Prénom</th>
+          <th scope="col">Téléphone</th>
+          <th scope="col">Email</th>
+          <th scope="col">Appartement</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let locataire of locataires">
+          <td>{{ locataire.nom }}</td>
+          <td>{{ locataire.prenom }}</td>
+          <td>{{ locataire.telephone }}</td>
+          <td>{{ locataire.email }}</td>
+          <td>{{ locataire.appartementNom }}</td>
+          <td>
+            <button
+              class="btn btn-primary btn-sm me-2"
+              (click)="openEditModal(locataire)"
+            >
+              Modifier
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              (click)="deleteLocataire(locataire.id)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="locataires.length === 0">
+          <td colspan="6" class="text-center text-muted">
+            Aucun locataire enregistré.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <app-locataire-modal
+    *ngIf="showModal"
+    [locataire]="selectedLocataire"
+    (save)="onSave($event)"
+    (cancel)="closeModal()"
+  >
+  </app-locataire-modal>
+</div>
