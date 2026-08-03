@@ -1,0 +1,101 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ locataire ? "Modifier" : "Ajouter" }} un Locataire
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="onCancel()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="nom" class="form-label">Nom</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nom"
+                formControlName="nom"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="prenom" class="form-label">Prénom</label>
+              <input
+                type="text"
+                class="form-control"
+                id="prenom"
+                formControlName="prenom"
+              />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="telephone" class="form-label">Téléphone</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="telephone"
+                formControlName="telephone"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                formControlName="email"
+              />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="appartementId" class="form-label">Appartement</label>
+            <select
+              class="form-select"
+              id="appartementId"
+              formControlName="appartementId"
+            >
+              <option [ngValue]="null" disabled>
+                Sélectionner un appartement
+              </option>
+              <option
+                *ngFor="let appartement of appartementsOptions"
+                [ngValue]="appartement.id"
+              >
+                {{ appartement.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="onCancel()"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="form.invalid"
+            >
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
