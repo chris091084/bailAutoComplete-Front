@@ -20,7 +20,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  // Navigation initiale déclenchée à la main par AppComponent, une fois le
+  // backend réveillé : sinon authGuard appellerait /auth/me sur un conteneur
+  // endormi, échouerait, et redirigerait vers /login une session valide.
+  imports: [RouterModule.forRoot(routes, { initialNavigation: 'disabled' })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

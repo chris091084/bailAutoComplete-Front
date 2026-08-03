@@ -1,0 +1,56 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  // Au-dessus de la navbar Bootstrap (1030) et des modales (1055).
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  opacity: 1;
+  transition: opacity 300ms ease-out;
+}
+
+.splash--leaving {
+  opacity: 0;
+}
+
+.splash__logo {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
+
+.splash__progress {
+  width: 100%;
+  max-width: 20rem;
+  height: 0.5rem;
+
+  .progress-bar {
+    // Calé sur la cadence du signal (100 ms) : la barre interpole exactement
+    // d'un palier au suivant, là où la transition Bootstrap par défaut (0,6 s)
+    // la ferait traîner loin derrière.
+    transition: width 100ms linear;
+  }
+}
+
+.splash__status {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.875rem;
+  text-align: center;
+  // Réserve la place des deux messages pour éviter un saut de mise en page.
+  min-height: 2.5rem;
+}
+
+// Sans animation : la barre reste pilotée par le signal, mais saute d'un palier
+// à l'autre, et le splash disparaît sans fondu.
+@media (prefers-reduced-motion: reduce) {
+  .splash,
+  .splash__progress .progress-bar {
+    transition: none;
+  }
+}
