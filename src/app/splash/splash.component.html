@@ -1,0 +1,21 @@
+<div class="splash" [class.splash--leaving]="leaving()">
+  <img
+    class="splash__logo"
+    src="assets/images/logo-bailautocomplet.png"
+    alt="BailAutoComplet"
+  />
+
+  <div class="progress splash__progress">
+    <div
+      class="progress-bar"
+      role="progressbar"
+      aria-label="Démarrage de l’application"
+      [style.width.%]="progress()"
+      [attr.aria-valuenow]="progress()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    ></div>
+  </div>
+
+  <p class="splash__status" aria-live="polite">{{ statusMessage() }}</p>
+</div>
