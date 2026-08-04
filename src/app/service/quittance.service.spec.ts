@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
+import { AppartementDto } from '../model/AppartementDto.model';
+import { LocataireDto } from '../model/LocataireDto.model';
 import { QuittanceService } from './quittance.service';
 
 describe('QuittanceService', () => {
   let service: QuittanceService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient()] });
+    TestBed.configureTestingModule({});
     service = TestBed.inject(QuittanceService);
   });
 
@@ -43,6 +45,38 @@ describe('QuittanceService', () => {
 
   it('rend une liste vide sur une période inversée', () => {
     expect(service.moisDeLaPeriode(options('2026-04', '2026-01'))).toEqual([]);
+  });
+
+  it('produit un PDF par mois de la période', async () => {
+    const locataire = {
+      nom: 'DUPONT',
+      prenom: 'Marie',
+      loyerHorsCharges: 550,
+      charges: 45,
+    } as LocataireDto;
+    const appartement = {
+      adress: '12 rue des Lilas, 44000 Nantes',
+      bailleur: { name: 'S. BODIN', adress: '3 place du Marché, 44100 Nantes' },
+    } as AppartementDto;
+
+    const quittances = await firstValueFrom(
+      service.genererQuittances(
+        locataire,
+        appartement,
+        options('2026-01', '2026-03'),
+      ),
+    );
+
+    expect(quittances.length).toBe(3);
+    expect(quittances.map((q) => q.nomFichier)).toEqual([
+      'Quittance_2026-01_DUPONT_Marie.pdf',
+      'Quittance_2026-02_DUPONT_Marie.pdf',
+      'Quittance_2026-03_DUPONT_Marie.pdf',
+    ]);
+    quittances.forEach((quittance) => {
+      expect(quittance.fichier.type).toBe('application/pdf');
+      expect(quittance.fichier.size).toBeGreaterThan(0);
+    });
   });
 
   it('borne chaque quittance à son propre mois', () => {

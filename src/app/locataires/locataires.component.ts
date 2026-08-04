@@ -456,7 +456,7 @@ export class LocatairesComponent implements OnInit {
     locataire: LocataireDto,
     quittances: QuittanceGeneree[],
   ): string {
-    const entete = `Bonjour ${locataire.prenom} ${locataire.nom},`;
+    const entete = `Bonjour ${locataire.prenom},`;
 
     if (quittances.length === 1) {
       return [
