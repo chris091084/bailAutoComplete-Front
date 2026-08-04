@@ -13,9 +13,16 @@ import { LocataireDto } from '../../model/LocataireDto.model';
 import { QuittanceOptions, QuittanceService } from '../../service/quittance.service';
 
 /**
- * Paramétrage d'une quittance de loyer : la période couverte, les montants et
- * la date de paiement. La période se choisit au mois — une quittance couvre des
- * mois entiers — d'où deux champs « month » plutôt que deux dates libres.
+ * Nombre de mois qu'une même saisie peut couvrir. Chaque mois produit une
+ * quittance, et l'API n'accepte pas plus de douze pièces jointes par mail.
+ */
+const MAX_MOIS = 12;
+
+/**
+ * Paramétrage des quittances de loyer : la période couverte, les montants et
+ * la date de paiement. La période se choisit au mois — une quittance couvre un
+ * mois entier — d'où deux champs « month » plutôt que deux dates libres. Une
+ * période de plusieurs mois produit autant de quittances distinctes.
  */
 @Component({
   selector: 'app-quittance-modal',
@@ -44,9 +51,12 @@ export class QuittanceModalComponent implements OnInit {
         moisFin: ['', Validators.required],
         datePaiement: ['', Validators.required],
       },
-      { validators: [periodeCroissante] },
+      { validators: [periodeCroissante, periodeBornee] },
     );
   }
+
+  /** Rappelé dans le message d'erreur de période trop longue. */
+  readonly maxMois = MAX_MOIS;
 
   ngOnInit(): void {
     // La quittance se délivre pour le mois qui vient d'être réglé : le mois
@@ -66,14 +76,33 @@ export class QuittanceModalComponent implements OnInit {
       .join(' ');
   }
 
-  /** « Période du 01/01/2026 au 31/01/2026 », recalculée à chaque saisie. */
-  get libellePeriode(): string {
+  /**
+   * Les mois couverts par la saisie, un par quittance à produire. Vide tant que
+   * la période n'est pas exploitable, ce qui masque le récapitulatif.
+   */
+  get moisCouverts(): string[] {
     const { moisDebut, moisFin } = this.form.value;
     if (!moisDebut || !moisFin || this.form.hasError('periodeInversee')) {
-      return '';
+      return [];
     }
 
-    return `du ${this.quittanceService.debutPeriode(moisDebut)} au ${this.quittanceService.finPeriode(moisFin)}`;
+    return this.quittanceService.moisDeLaPeriode({
+      moisDebut,
+      moisFin,
+      datePaiement: '',
+    });
+  }
+
+  /**
+   * « du 01/01/2026 au 31/01/2026 » pour un mois donné : le détail de ce que
+   * portera chaque document, recalculé à chaque saisie.
+   */
+  periodeDuMois(mois: string): string {
+    return `du ${this.quittanceService.debutPeriode(mois)} au ${this.quittanceService.finPeriode(mois)}`;
+  }
+
+  libelleMois(mois: string): string {
+    return this.quittanceService.libelleMois(mois);
   }
 
   /** Montants du bail signé, repris tels quels : ils ne se saisissent pas. */
@@ -153,4 +182,23 @@ function periodeCroissante(form: AbstractControl): ValidationErrors | null {
   return moisDebut && moisFin && moisFin < moisDebut
     ? { periodeInversee: true }
     : null;
+}
+
+/**
+ * Chaque mois de la période part en pièce jointe : au-delà de douze, le mail
+ * serait refusé par l'API. Mieux vaut le dire au moment de la saisie qu'à
+ * l'envoi.
+ */
+function periodeBornee(form: AbstractControl): ValidationErrors | null {
+  const moisDebut: string = form.get('moisDebut')?.value;
+  const moisFin: string = form.get('moisFin')?.value;
+  if (!moisDebut || !moisFin || moisFin < moisDebut) {
+    return null;
+  }
+
+  const [anneeDebut, debut] = moisDebut.split('-').map(Number);
+  const [anneeFin, fin] = moisFin.split('-').map(Number);
+  const nombreMois = (anneeFin * 12 + fin) - (anneeDebut * 12 + debut) + 1;
+
+  return nombreMois > MAX_MOIS ? { periodeTropLongue: true } : null;
 }

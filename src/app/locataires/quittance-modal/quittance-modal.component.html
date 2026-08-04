@@ -49,9 +49,31 @@
           >
             Le mois de fin doit être postérieur ou égal au mois de début.
           </div>
-          <p class="text-muted" *ngIf="libellePeriode as periode">
-            La quittance couvrira la période {{ periode }}.
-          </p>
+          <div
+            class="alert alert-danger py-2"
+            role="alert"
+            *ngIf="form.hasError('periodeTropLongue')"
+          >
+            La période ne peut pas dépasser {{ maxMois }} mois, soit
+            {{ maxMois }} quittances en un envoi.
+          </div>
+
+          <ng-container *ngIf="moisCouverts as mois">
+            <p class="text-muted mb-1" *ngIf="mois.length">
+              <ng-container *ngIf="mois.length === 1"
+                >Une quittance sera générée :</ng-container
+              >
+              <ng-container *ngIf="mois.length > 1"
+                >{{ mois.length }} quittances seront générées, une par
+                mois :</ng-container
+              >
+            </p>
+            <ul class="text-muted small mb-3" *ngIf="mois.length">
+              <li *ngFor="let m of mois">
+                {{ libelleMois(m) }} — {{ periodeDuMois(m) }}
+              </li>
+            </ul>
+          </ng-container>
 
           <table class="table table-sm mb-1" *ngIf="montantsConnus">
             <tbody>
@@ -72,7 +94,8 @@
             </tbody>
           </table>
           <p class="form-text mt-0 mb-3" *ngIf="montantsConnus">
-            Montants repris du bail signé.
+            Montants repris du bail signé, reportés à l'identique sur chaque
+            quittance mensuelle.
           </p>
           <div class="alert alert-danger" *ngIf="!montantsConnus">
             Aucun montant sur le bail de ce locataire : rattachez-lui un bail

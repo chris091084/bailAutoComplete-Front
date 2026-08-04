@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import saveAs from 'file-saver';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { RequestService } from '../service/requestService';
 import { ResiliationService } from '../service/resiliation.service';
 import {
+  QuittanceGeneree,
   QuittanceOptions,
   QuittanceService,
 } from '../service/quittance.service';
@@ -257,14 +258,33 @@ export class LocatairesComponent implements OnInit {
     this.quittanceAConfirmer = null;
   }
 
-  /** « la quittance de loyer de janvier 2026 », dans la phrase de confirmation. */
+  /**
+   * « la quittance de loyer de janvier 2026 », ou « les 4 quittances de loyer
+   * de janvier 2026 à avril 2026 », dans la phrase de confirmation.
+   */
   get documentAConfirmer(): string {
-    return this.quittanceAConfirmer
-      ? `la quittance de loyer de ${this.quittanceService.libellePeriode(this.quittanceAConfirmer)}`
-      : '';
+    if (!this.quittanceAConfirmer) {
+      return '';
+    }
+
+    const periode = this.quittanceService.libellePeriode(
+      this.quittanceAConfirmer,
+    );
+    const nombreMois = this.quittanceService.moisDeLaPeriode(
+      this.quittanceAConfirmer,
+    ).length;
+
+    return nombreMois > 1
+      ? `les ${nombreMois} quittances de loyer de ${periode}`
+      : `la quittance de loyer de ${periode}`;
   }
 
-  /** Génère la quittance et la remet au navigateur, sans passer par le mail. */
+  /**
+   * Génère les quittances de la période — une par mois — et les remet au
+   * navigateur, sans passer par le mail. Sur plusieurs mois, le navigateur
+   * reçoit autant de fichiers et peut demander confirmation avant de les
+   * enregistrer.
+   */
   telechargerQuittance(options: QuittanceOptions) {
     const locataire = this.locataireAQuittancer;
     const appartement = locataire ? this.appartementDe(locataire) : undefined;
@@ -277,22 +297,26 @@ export class LocatairesComponent implements OnInit {
     this.quittanceEnCours = locataire.id;
 
     this.quittanceService
-      .genererQuittance(locataire, appartement, options)
+      .genererQuittances(locataire, appartement, options)
       .subscribe({
-        next: (blob) => {
-          saveAs(blob, this.quittanceService.nomFichier(locataire, options));
+        next: (quittances) => {
+          quittances.forEach((quittance) =>
+            saveAs(quittance.fichier, quittance.nomFichier),
+          );
           this.quittanceEnCours = null;
           this.locataireAQuittancer = null;
-          this.afficherSucces(
-            `Quittance de ${this.quittanceService.libellePeriode(options)} téléchargée.`,
-          );
+          this.afficherSucces(this.succesQuittances(quittances, 'téléchargée'));
         },
         error: (err) =>
-          this.echecQuittance(err, 'La génération de la quittance a échoué.'),
+          this.echecQuittance(err, 'La génération des quittances a échoué.'),
       });
   }
 
-  /** Même chemin que la résiliation : génération, puis envoi en pièce jointe. */
+  /**
+   * Même chemin que la résiliation : génération, puis envoi en pièces jointes.
+   * Les quittances de la période partent dans un seul mail, un fichier par
+   * mois — le locataire reçoit un envoi, pas quatre.
+   */
   confirmerEnvoiQuittance() {
     const locataire = this.locataireAQuittancer;
     const options = this.quittanceAConfirmer;
@@ -314,35 +338,67 @@ export class LocatairesComponent implements OnInit {
     const periode = this.quittanceService.libellePeriode(options);
 
     this.quittanceService
-      .genererQuittance(locataire, appartement, options)
+      .genererQuittances(locataire, appartement, options)
       .pipe(
-        switchMap((blob) => this.toBase64(blob)),
-        switchMap((contentBase64) =>
-          this.requestService.sendMail({
-            to: locataire.email!,
-            subject: `Quittance de loyer - ${periode}`,
-            text: this.corpsDuMailQuittance(locataire, periode),
-            attachments: [
-              {
-                filename: this.quittanceService.nomFichier(locataire, options),
+        switchMap((quittances) =>
+          Promise.all(
+            quittances.map((quittance) =>
+              this.toBase64(quittance.fichier).then((contentBase64) => ({
+                filename: quittance.nomFichier,
                 contentBase64,
-              },
-            ],
-          }),
+              })),
+            ),
+          ).then((attachments) => ({ quittances, attachments })),
+        ),
+        switchMap(({ quittances, attachments }) =>
+          this.requestService
+            .sendMail({
+              to: locataire.email!,
+              subject:
+                quittances.length > 1
+                  ? `Quittances de loyer - ${periode}`
+                  : `Quittance de loyer - ${periode}`,
+              text: this.corpsDuMailQuittance(locataire, quittances),
+              attachments,
+            })
+            .pipe(map(() => quittances)),
         ),
       )
       .subscribe({
-        next: () => {
+        next: (quittances) => {
           this.quittanceEnCours = null;
           this.locataireAQuittancer = null;
           this.quittanceAConfirmer = null;
           this.afficherSucces(
-            `Quittance de ${periode} envoyée à ${locataire.email}.`,
+            this.succesQuittances(
+              quittances,
+              `envoyée à ${locataire.email}`,
+              `envoyées à ${locataire.email}`,
+            ),
           );
         },
         error: (err) =>
-          this.echecQuittance(err, "L'envoi de la quittance a échoué."),
+          this.echecQuittance(err, "L'envoi des quittances a échoué."),
       });
+  }
+
+  /**
+   * « Quittance de janvier 2026 téléchargée. » au singulier, « 4 quittances
+   * (janvier 2026 à avril 2026) téléchargées. » au-delà.
+   */
+  private succesQuittances(
+    quittances: QuittanceGeneree[],
+    action: string,
+    actionPluriel = `${action}s`,
+  ): string {
+    if (quittances.length === 1) {
+      return `Quittance de ${quittances[0].libelle} ${action}.`;
+    }
+
+    const premier = quittances[0].libelle;
+    const dernier = quittances[quittances.length - 1].libelle;
+
+    return `${quittances.length} quittances (${premier} à ${dernier}) ${actionPluriel}.`;
   }
 
   private echecQuittance(err: any, message: string) {
@@ -392,15 +448,34 @@ export class LocatairesComponent implements OnInit {
     ].join('\n');
   }
 
+  /**
+   * Sur plusieurs mois, le mail énumère les quittances jointes : le locataire
+   * doit pouvoir vérifier qu'aucun mois ne manque sans ouvrir les fichiers.
+   */
   private corpsDuMailQuittance(
     locataire: LocataireDto,
-    periode: string,
+    quittances: QuittanceGeneree[],
   ): string {
+    const entete = `Bonjour ${locataire.prenom} ${locataire.nom},`;
+
+    if (quittances.length === 1) {
+      return [
+        entete,
+        '',
+        `Vous trouverez en pièce jointe votre quittance de loyer pour le mois de ${quittances[0].libelle}.`,
+        'Elle vaut reçu du loyer et des charges pour cette période.',
+        '',
+        'Cordialement,',
+      ].join('\n');
+    }
+
     return [
-      `Bonjour ${locataire.prenom} ${locataire.nom},`,
+      entete,
       '',
-      `Vous trouverez en pièce jointe votre quittance de loyer pour la période de ${periode}.`,
-      'Elle vaut reçu du loyer et des charges pour cette période.',
+      `Vous trouverez en pièce jointe vos ${quittances.length} quittances de loyer, une par mois :`,
+      ...quittances.map((quittance) => `- ${quittance.libelle}`),
+      '',
+      'Chacune vaut reçu du loyer et des charges pour le mois qu’elle couvre.',
       '',
       'Cordialement,',
     ].join('\n');
