@@ -217,8 +217,14 @@ export class FormDocComponent {
       this.docGeneratorService
         .generateDoc(this.resultForm, this.appartementSelected)
         .subscribe({
-          next: (generation) =>
-            this.saveLocataire(generation?.resultForm?.id),
+          next: (generation) => {
+            this.saveLocataire(generation?.resultForm?.id);
+            // La génération est déjà écrite dans l'historique quand on arrive
+            // ici : la liste affichée contiendra donc ce bail.
+            this.router.navigate(['/history'], {
+              state: { messageSucces: 'Le bail a bien été généré.' },
+            });
+          },
           error: (err) =>
             console.error(
               'Bail non enregistré, locataire non créé',

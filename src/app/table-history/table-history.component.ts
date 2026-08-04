@@ -14,8 +14,18 @@ import { Generation } from '../model/Generation.model';
 export class TableHistoryComponent implements OnInit {
   generations: Generation[] = [];
   isLoading = false;
+  messageSucces: string | null = null;
 
-  constructor(private requestService: RequestService, private router: Router) {}
+  constructor(private requestService: RequestService, private router: Router) {
+    // Message porté par la navigation (et non l'URL) : il ne doit pas réapparaître
+    // quand l'utilisateur revient sur l'historique par lui-même.
+    const messageSucces =
+      this.router.getCurrentNavigation()?.extras.state?.['messageSucces'];
+    if (messageSucces) {
+      this.messageSucces = messageSucces;
+      setTimeout(() => (this.messageSucces = null), 6000);
+    }
+  }
 
   ngOnInit(): void {
     this.loadGenerations();
