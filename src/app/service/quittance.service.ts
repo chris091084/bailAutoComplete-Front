@@ -46,6 +46,16 @@ export interface QuittanceOptions {
   datePaiement: string;
 }
 
+/** Une quittance produite, prête à être téléchargée ou mise en pièce jointe. */
+export interface QuittanceGeneree {
+  /** Mois couvert, « AAAA-MM ». */
+  mois: string;
+  /** « janvier 2026 », pour les messages à l'écran et le corps du mail. */
+  libelle: string;
+  nomFichier: string;
+  fichier: Blob;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -53,33 +63,78 @@ export class QuittanceService {
   constructor(private http: HttpClient) {}
 
   /**
-   * Produit la quittance de loyer d'un locataire pour la période choisie.
+   * Produit les quittances de loyer d'un locataire sur la période choisie, à
+   * raison d'une par mois : une quittance atteste du paiement d'un loyer, et le
+   * loyer est mensuel. Une période de janvier à avril donne donc quatre
+   * documents, du 01/01 au 31/01, du 01/02 au 28/02, etc.
+   *
+   * Le modèle n'est téléchargé qu'une fois, puis rempli autant de fois qu'il y
+   * a de mois.
    *
    * Les montants ne sont pas demandés : ils viennent du bail signé
    * (`result_form.price_no_charge` et `charge_price`), que l'API expose sur le
    * locataire.
    */
-  genererQuittance(
+  genererQuittances(
     locataire: LocataireDto,
     appartement: AppartementDto,
     options: QuittanceOptions,
-  ): Observable<Blob> {
-    return this.http
-      .get(TEMPLATE_URL, { responseType: 'arraybuffer' })
-      .pipe(
-        map((data) =>
-          this.remplirModele(data, locataire, appartement, options),
-        ),
-      );
+  ): Observable<QuittanceGeneree[]> {
+    return this.http.get(TEMPLATE_URL, { responseType: 'arraybuffer' }).pipe(
+      map((data) =>
+        this.moisDeLaPeriode(options).map((mois) => {
+          // Chaque document ne couvre que son propre mois : la période du
+          // formulaire n'est qu'un raccourci de saisie.
+          const optionsDuMois: QuittanceOptions = {
+            ...options,
+            moisDebut: mois,
+            moisFin: mois,
+          };
+
+          return {
+            mois,
+            libelle: this.libelleMois(mois),
+            nomFichier: this.nomFichier(locataire, mois),
+            fichier: this.remplirModele(
+              data,
+              locataire,
+              appartement,
+              optionsDuMois,
+            ),
+          };
+        }),
+      ),
+    );
   }
 
-  nomFichier(locataire: LocataireDto, options: QuittanceOptions): string {
-    const periode =
-      options.moisDebut === options.moisFin
-        ? options.moisDebut
-        : `${options.moisDebut}_${options.moisFin}`;
+  /**
+   * Les mois couverts par la période, « AAAA-MM », bornes comprises. Le calcul
+   * passe par un nombre de mois absolu (année × 12 + mois) plutôt que par une
+   * date incrémentée, qui déborderait sur le mois suivant depuis un 31.
+   */
+  moisDeLaPeriode(options: QuittanceOptions): string[] {
+    const [anneeDebut, moisDebut] = this.decouperMois(options.moisDebut);
+    const [anneeFin, moisFin] = this.decouperMois(options.moisFin);
 
-    return `Quittance_${periode}_${locataire.nom}_${locataire.prenom}.docx`;
+    const premier = anneeDebut * 12 + (moisDebut - 1);
+    const dernier = anneeFin * 12 + (moisFin - 1);
+    if (!Number.isFinite(premier) || !Number.isFinite(dernier)) {
+      return [];
+    }
+
+    const mois: string[] = [];
+    for (let curseur = premier; curseur <= dernier; curseur++) {
+      const annee = Math.floor(curseur / 12);
+      const moisSeul = (curseur % 12) + 1;
+      mois.push(`${annee}-${String(moisSeul).padStart(2, '0')}`);
+    }
+
+    return mois;
+  }
+
+  /** Une quittance ne couvre qu'un mois : son nom le porte, « AAAA-MM ». */
+  nomFichier(locataire: LocataireDto, mois: string): string {
+    return `Quittance_${mois}_${locataire.nom}_${locataire.prenom}.docx`;
   }
 
   /** « janvier 2026 », ou « janvier 2026 à mars 2026 » sur plusieurs mois. */
@@ -114,7 +169,10 @@ export class QuittanceService {
     appartement: AppartementDto,
     options: QuittanceOptions,
   ): Blob {
-    const zip = new PizZip(new Uint8Array(data));
+    // `slice()` copie le modèle : le même ArrayBuffer sert à remplir toutes les
+    // quittances de la période, et PizZip ne doit pas travailler dessus en
+    // place au risque d'abîmer les documents suivants.
+    const zip = new PizZip(new Uint8Array(data.slice(0)));
     const doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
@@ -158,7 +216,8 @@ export class QuittanceService {
     return [Number(annee), Number(moisSeul)];
   }
 
-  private libelleMois(mois: string): string {
+  /** « AAAA-MM » -> « janvier 2026 ». */
+  libelleMois(mois: string): string {
     const [annee, moisSeul] = this.decouperMois(mois);
     return `${MOIS[moisSeul - 1] ?? mois} ${annee}`;
   }
