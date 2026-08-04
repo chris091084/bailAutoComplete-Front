@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
+import { SendMailPayload } from '../model/SendMail.model';
 import { environment } from 'environments/environment';
 import { HttpClient } from '@angular/common/http';
 
@@ -81,11 +82,23 @@ export class RequestService {
     return this.http.delete<void>(`${this.apiUrl}locataire/${id}`);
   }
 
+  /** Horodate l'envoi de la lettre de congé, une fois le mail parti. */
+  marquerResiliationEnvoyee(id: number): Observable<LocataireDto> {
+    return this.http.post<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/resiliation`,
+      {}
+    );
+  }
+
   getGenerations(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}generation`);
   }
 
   saveGeneration(generation: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}generation`, generation);
+  }
+
+  sendMail(payload: SendMailPayload): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}mail/send`, payload);
   }
 }

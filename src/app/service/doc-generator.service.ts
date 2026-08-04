@@ -9,6 +9,7 @@ import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
 import { Generation } from '../model/Generation.model';
 import { RequestService } from './requestService';
+import { EMPTY, Observable, ReplaySubject, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +20,28 @@ export class DocGeneratorService {
     private requestService: RequestService,
   ) {}
 
+  /**
+   * Émet la génération telle que l'API l'a enregistrée. Le locataire ne pouvant
+   * être créé qu'à partir de son `resultForm`, l'appelant a besoin de cet id :
+   * il n'est connu qu'une fois l'historique écrit.
+   */
   generateDoc(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto,
-  ): any {
+  ): Observable<any> {
+    const generationEnregistree = new ReplaySubject<any>(1);
     console.log(resultForm);
     console.log(appartementSelected);
     this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
+      // Sans modèle de bail, pas de génération : l'appelant doit le savoir
+      // plutôt que d'attendre indéfiniment un id de result_form.
+      .pipe(
+        catchError((err) => {
+          generationEnregistree.error(err);
+          return EMPTY;
+        }),
+      )
       .subscribe((data) => {
         const content = new Uint8Array(data);
         const zip = new PizZip(content);
@@ -168,8 +183,15 @@ export class DocGeneratorService {
           resultForm,
         );
         this.requestService.saveGeneration(generation).subscribe({
-          next: () => console.log('Generation saved successfully'),
-          error: (err) => console.error('Error saving generation', err),
+          next: (saved) => {
+            console.log('Generation saved successfully');
+            generationEnregistree.next(saved);
+            generationEnregistree.complete();
+          },
+          error: (err) => {
+            console.error('Error saving generation', err);
+            generationEnregistree.error(err);
+          },
         });
       });
 
@@ -206,6 +228,8 @@ export class DocGeneratorService {
 
         saveAs(out, 'Annexe_1_Etat_des_lieux_' + resultForm.name + '.docx');
       });
+
+    return generationEnregistree.asObservable();
   }
 
   private dateLeft(dateInput: Date) {

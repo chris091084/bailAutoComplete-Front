@@ -7,9 +7,7 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">
-          {{ locataire ? "Modifier" : "Ajouter" }} un Locataire
-        </h5>
+        <h5 class="modal-title">Modifier un Locataire</h5>
         <button
           type="button"
           class="btn-close"
@@ -76,6 +74,28 @@
                 {{ appartement.label }}
               </option>
             </select>
+          </div>
+          <div class="mb-3">
+            <label for="resultFormId" class="form-label">
+              Bail d'origine <span class="text-muted">(facultatif)</span>
+            </label>
+            <select
+              class="form-select"
+              id="resultFormId"
+              formControlName="resultFormId"
+            >
+              <option [ngValue]="null">Aucun</option>
+              <option
+                *ngFor="let resultForm of resultFormsOptions"
+                [ngValue]="resultForm.id"
+              >
+                {{ resultForm.label }}
+              </option>
+            </select>
+            <div class="form-text">
+              Fournit la date de signature du bail reprise dans la lettre de
+              congé.
+            </div>
           </div>
 
           <div class="modal-footer">

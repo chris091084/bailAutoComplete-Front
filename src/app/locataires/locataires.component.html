@@ -1,7 +1,15 @@
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="mb-3">
     <h2>Liste des Locataires</h2>
-    <button class="btn btn-success" (click)="openAddModal()">Ajouter</button>
+    <p class="text-muted mb-0">
+      Un locataire est créé uniquement lors de la génération d'un bail.
+    </p>
+  </div>
+  <div *ngIf="messageSucces" class="alert alert-success" role="alert">
+    {{ messageSucces }}
+  </div>
+  <div *ngIf="messageErreur" class="alert alert-danger" role="alert">
+    {{ messageErreur }}
   </div>
   <div class="table-responsive">
     <table class="table table-striped table-hover">
@@ -12,6 +20,7 @@
           <th scope="col">Téléphone</th>
           <th scope="col">Email</th>
           <th scope="col">Appartement</th>
+          <th scope="col">Résiliation</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
@@ -23,6 +32,23 @@
           <td>{{ locataire.email }}</td>
           <td>{{ locataire.appartementNom }}</td>
           <td>
+            <span
+              *ngIf="locataire.resiliationEnvoyeeLe as envoiLe; else pasDeResiliation"
+              class="badge text-bg-success"
+              [title]="
+                'Lettre envoyée le ' +
+                (envoiLe | date: 'dd/MM/yyyy') +
+                ' à ' +
+                (envoiLe | date: 'HH:mm')
+              "
+            >
+              Envoyée le {{ envoiLe | date: 'dd/MM/yyyy' }}
+            </span>
+            <ng-template #pasDeResiliation>
+              <span class="text-muted">—</span>
+            </ng-template>
+          </td>
+          <td>
             <button
               class="btn btn-primary btn-sm me-2"
               (click)="openEditModal(locataire)"
@@ -30,15 +56,32 @@
               Modifier
             </button>
             <button
-              class="btn btn-danger btn-sm"
+              class="btn btn-danger btn-sm me-2"
               (click)="deleteLocataire(locataire.id)"
             >
               Supprimer
             </button>
+            <button
+              class="btn btn-warning btn-sm"
+              [disabled]="!locataire.email || envoiEnCours !== null"
+              [title]="
+                locataire.email
+                  ? 'Envoyer la lettre de résiliation par mail'
+                  : 'Aucune adresse email renseignée'
+              "
+              (click)="demanderResiliation(locataire)"
+            >
+              <span
+                *ngIf="envoiEnCours === locataire.id"
+                class="spinner-border spinner-border-sm me-1"
+                aria-hidden="true"
+              ></span>
+              {{ locataire.resiliationEnvoyeeLe ? 'Résiliation à renvoyer' : 'Résiliation' }}
+            </button>
           </td>
         </tr>
         <tr *ngIf="locataires.length === 0">
-          <td colspan="6" class="text-center text-muted">
+          <td colspan="7" class="text-center text-muted">
             Aucun locataire enregistré.
           </td>
         </tr>
@@ -52,4 +95,12 @@
     (cancel)="closeModal()"
   >
   </app-locataire-modal>
+  <app-resiliation-modal
+    *ngIf="locataireAResilier"
+    [locataire]="locataireAResilier"
+    [envoiEnCours]="envoiEnCours !== null"
+    (confirm)="confirmerResiliation($event)"
+    (cancel)="annulerResiliation()"
+  >
+  </app-resiliation-modal>
 </div>

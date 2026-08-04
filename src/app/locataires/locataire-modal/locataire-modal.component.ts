@@ -26,6 +26,11 @@ export class LocataireModalComponent implements OnInit {
   // `appartementId` (un nombre) sélectionne bien la ligne en édition.
   appartementsOptions: { id: number; label: string }[] = [];
 
+  // Les result_form ne sont exposés qu'à travers leurs générations : on y prend
+  // l'id du formulaire, mais le libellé vient de la génération, seule à porter
+  // les noms d'appartement et de locataire.
+  resultFormsOptions: { id: number; label: string }[] = [];
+
   form: FormGroup;
 
   constructor(
@@ -38,15 +43,21 @@ export class LocataireModalComponent implements OnInit {
       telephone: [''],
       email: ['', Validators.email],
       appartementId: [null, Validators.required],
+      resultFormId: [null],
     });
   }
 
   ngOnInit(): void {
-    this.loadAppartements();
-
-    if (this.locataire) {
-      this.form.patchValue(this.locataire);
+    // Modale d'édition uniquement : la création d'un locataire passe par la
+    // génération d'un bail. Sans locataire à modifier, on referme.
+    if (!this.locataire?.id) {
+      this.cancel.emit();
+      return;
     }
+
+    this.loadAppartements();
+    this.loadResultForms();
+    this.form.patchValue(this.locataire);
   }
 
   loadAppartements() {
@@ -61,19 +72,62 @@ export class LocataireModalComponent implements OnInit {
     });
   }
 
+  loadResultForms() {
+    this.requestService.getGenerations().subscribe({
+      next: (data) => {
+        this.resultFormsOptions = (data ?? [])
+          .filter((generation) => generation?.resultForm?.id != null)
+          .map((generation) => ({
+            id: Number(generation.resultForm.id),
+            label: this.libelleResultForm(generation),
+          }))
+          // Les générations arrivent dans l'ordre d'insertion : la plus récente
+          // en tête évite de dérouler toute la liste pour un bail signé hier.
+          .reverse();
+      },
+      error: (err) => console.error('Error fetching generations', err),
+    });
+  }
+
   onSubmit() {
-    if (this.form.valid) {
+    if (this.form.valid && this.locataire?.id) {
       const formValue = this.form.value;
       const result: LocataireDto = {
-        id: this.locataire?.id,
+        id: this.locataire.id,
         nom: formValue.nom,
         prenom: formValue.prenom,
         telephone: formValue.telephone || null,
         email: formValue.email || null,
         appartementId: Number(formValue.appartementId),
+        // `null` explicite plutôt qu'omis : l'API distingue « détacher » de
+        // « ne pas toucher à la liaison ».
+        resultFormId:
+          formValue.resultFormId != null ? Number(formValue.resultFormId) : null,
       };
       this.save.emit(result);
     }
+  }
+
+  /** « 12/03/2024 — Bail signé le 01/03/2024 (Studio Filature, Dupont) ». */
+  private libelleResultForm(generation: any): string {
+    const signature = generation?.resultForm?.from;
+    const parties = [
+      generation?.appartementName,
+      generation?.locataireName,
+    ].filter(Boolean);
+
+    return [
+      signature ? `Bail du ${this.formaterDateIso(signature)}` : 'Bail',
+      parties.length ? `(${parties.join(', ')})` : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  /** « AAAA-MM-JJ » (colonne `date`) -> « JJ/MM/AAAA ». */
+  private formaterDateIso(date: string): string {
+    const iso = String(date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return iso ? `${iso[3]}/${iso[2]}/${iso[1]}` : String(date);
   }
 
   onCancel() {
