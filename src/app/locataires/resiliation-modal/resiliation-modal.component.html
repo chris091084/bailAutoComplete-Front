@@ -1,0 +1,66 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="resiliationModalTitle"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resiliationModalTitle">
+          Envoi d'une lettre de résiliation
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          [disabled]="envoiEnCours"
+          (click)="onCancel()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2">
+          Êtes-vous sûr de bien vouloir envoyer une lettre de résiliation à
+          <strong>{{ nomComplet }}</strong> ?
+        </p>
+        <p class="text-muted mb-0" *ngIf="locataire?.email">
+          Le courrier partira à l'adresse {{ locataire?.email }}.
+        </p>
+        <div
+          class="alert alert-warning mt-3 mb-0"
+          role="alert"
+          *ngIf="locataire?.resiliationEnvoyeeLe as envoiPrecedent"
+        >
+          Une lettre de résiliation a déjà été envoyée le
+          {{ envoiPrecedent | date: 'dd/MM/yyyy' }} à
+          {{ envoiPrecedent | date: 'HH:mm' }}.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="envoiEnCours"
+          (click)="onCancel()"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-warning"
+          [disabled]="envoiEnCours"
+          (click)="onConfirm()"
+        >
+          <span
+            *ngIf="envoiEnCours"
+            class="spinner-border spinner-border-sm me-1"
+            aria-hidden="true"
+          ></span>
+          Envoyer la lettre
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

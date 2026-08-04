@@ -212,22 +212,30 @@ export class FormDocComponent {
         this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
       }
       this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
-      this.saveLocataire();
-      this.docGeneratorService.generateDoc(
-        this.resultForm,
-        this.appartementSelected,
-      );
+      // Le locataire est rattaché au bail qui vient d'être généré : on attend
+      // l'id du result_form enregistré, seule origine admise par l'API.
+      this.docGeneratorService
+        .generateDoc(this.resultForm, this.appartementSelected)
+        .subscribe({
+          next: (generation) =>
+            this.saveLocataire(generation?.resultForm?.id),
+          error: (err) =>
+            console.error(
+              'Bail non enregistré, locataire non créé',
+              err,
+            ),
+        });
       this.isLoading = false;
     }
     console.log(this.resultForm);
   }
 
   /**
-   * Enregistre le locataire saisi et le rattache à l'appartement sélectionné.
-   * L'échec est seulement journalisé : la génération du bail ne doit pas être
-   * bloquée par l'indisponibilité de l'API.
+   * Enregistre le locataire saisi, rattaché à l'appartement sélectionné et au
+   * bail qui vient d'être généré. L'échec est seulement journalisé : les
+   * documents sont déjà téléchargés, l'API ne doit pas bloquer l'utilisateur.
    */
-  private saveLocataire() {
+  private saveLocataire(resultFormId?: number) {
     const appartement = this.formDoc.get('appartement')?.value as
       | AppartementDto
       | null
@@ -238,12 +246,21 @@ export class FormDocComponent {
       return;
     }
 
+    // L'API refuse une création sans bail d'origine : inutile d'appeler.
+    if (resultFormId == null) {
+      console.error(
+        'Aucun bail enregistré pour cette génération, locataire non enregistré',
+      );
+      return;
+    }
+
     const locataire: LocataireDto = {
       nom: this.formDoc.get('name')?.value ?? '',
       prenom: this.formDoc.get('firstname')?.value ?? '',
       telephone: this.formDoc.get('telephone')?.value || null,
       email: this.formDoc.get('email')?.value || null,
       appartementId: Number(appartement.id),
+      resultFormId: Number(resultFormId),
     };
 
     this.requestService.addLocataire(locataire).subscribe({
