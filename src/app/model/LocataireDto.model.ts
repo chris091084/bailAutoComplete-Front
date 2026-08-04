@@ -17,6 +17,10 @@ export interface LocataireDto {
   appartementNom?: string | null;
   // `result_form.date_from`, au format « AAAA-MM-JJ ».
   dateSignatureContrat?: string | null;
+  // Montants du bail signé (`result_form`), repris comme valeurs par défaut de
+  // la quittance de loyer. `null` pour les fiches sans result_form rattaché.
+  loyerHorsCharges?: number | null;
+  charges?: number | null;
   // Date ISO du dernier envoi de la lettre de congé, `null` si aucune n'est
   // partie. Renseignée par l'API, jamais renvoyée au serveur : elle se met à
   // jour par POST /locataire/:id/resiliation.

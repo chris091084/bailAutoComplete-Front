@@ -1,0 +1,144 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="quittanceModalTitle"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quittanceModalTitle">
+          Quittance de loyer — {{ nomComplet }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          [disabled]="traitementEnCours"
+          (click)="onCancel()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="moisDebut" class="form-label">Du mois de</label>
+              <input
+                type="month"
+                class="form-control"
+                id="moisDebut"
+                formControlName="moisDebut"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="moisFin" class="form-label">Au mois de</label>
+              <input
+                type="month"
+                class="form-control"
+                id="moisFin"
+                formControlName="moisFin"
+              />
+            </div>
+          </div>
+          <div
+            class="alert alert-danger py-2"
+            role="alert"
+            *ngIf="form.hasError('periodeInversee')"
+          >
+            Le mois de fin doit être postérieur ou égal au mois de début.
+          </div>
+          <p class="text-muted" *ngIf="libellePeriode as periode">
+            La quittance couvrira la période {{ periode }}.
+          </p>
+
+          <table class="table table-sm mb-1" *ngIf="montantsConnus">
+            <tbody>
+              <tr>
+                <td>Loyer hors charges</td>
+                <td class="text-end">
+                  {{ loyerHorsCharges | number: '1.0-2' }} €
+                </td>
+              </tr>
+              <tr>
+                <td>Forfait charges</td>
+                <td class="text-end">{{ charges | number: '1.0-2' }} €</td>
+              </tr>
+              <tr class="fw-bold">
+                <td>Total</td>
+                <td class="text-end">{{ total | number: '1.0-2' }} €</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="form-text mt-0 mb-3" *ngIf="montantsConnus">
+            Montants repris du bail signé.
+          </p>
+          <div class="alert alert-danger" *ngIf="!montantsConnus">
+            Aucun montant sur le bail de ce locataire : rattachez-lui un bail
+            d'origine depuis « Modifier » pour pouvoir éditer sa quittance.
+          </div>
+
+          <div class="mb-3">
+            <label for="datePaiement" class="form-label">
+              Date de paiement
+            </label>
+            <input
+              type="date"
+              class="form-control"
+              id="datePaiement"
+              formControlName="datePaiement"
+            />
+            <div class="form-text">
+              Reportée telle quelle sur la quittance, avec le mode de paiement
+              « virement bancaire ».
+            </div>
+          </div>
+
+          <div class="alert alert-warning mb-0" *ngIf="!peutEnvoyer">
+            Aucune adresse email renseignée pour ce locataire : la quittance ne
+            peut être que téléchargée.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="traitementEnCours"
+          (click)="onCancel()"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          [disabled]="form.invalid || traitementEnCours || !montantsConnus"
+          (click)="onTelecharger()"
+        >
+          Télécharger
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="
+            form.invalid || traitementEnCours || !montantsConnus || !peutEnvoyer
+          "
+          [title]="
+            peutEnvoyer
+              ? 'Envoyer la quittance par mail'
+              : 'Aucune adresse email renseignée'
+          "
+          (click)="onEnvoyer()"
+        >
+          <span
+            *ngIf="traitementEnCours"
+            class="spinner-border spinner-border-sm me-1"
+            aria-hidden="true"
+          ></span>
+          Envoyer par mail
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

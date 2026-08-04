@@ -1,17 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import saveAs from 'file-saver';
 import { catchError, of, switchMap } from 'rxjs';
 import { RequestService } from '../service/requestService';
 import { ResiliationService } from '../service/resiliation.service';
+import {
+  QuittanceOptions,
+  QuittanceService,
+} from '../service/quittance.service';
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { LocataireModalComponent } from './locataire-modal/locataire-modal.component';
-import { ResiliationModalComponent } from './resiliation-modal/resiliation-modal.component';
+import { ConfirmationEnvoiModalComponent } from './confirmation-envoi-modal/confirmation-envoi-modal.component';
+import { QuittanceModalComponent } from './quittance-modal/quittance-modal.component';
 
 @Component({
   selector: 'app-locataires',
   standalone: true,
-  imports: [CommonModule, LocataireModalComponent, ResiliationModalComponent],
+  imports: [
+    CommonModule,
+    LocataireModalComponent,
+    ConfirmationEnvoiModalComponent,
+    QuittanceModalComponent,
+  ],
   templateUrl: './locataires.component.html',
   styleUrls: ['./locataires.component.scss'],
 })
@@ -25,6 +36,19 @@ export class LocatairesComponent implements OnInit {
 
   /** Id du locataire dont la résiliation part, pour n'occuper qu'un bouton. */
   envoiEnCours: number | null = null;
+
+  /** Locataire dont on prépare la quittance ; `null` = modale fermée. */
+  locataireAQuittancer: LocataireDto | null = null;
+
+  /** Id du locataire dont la quittance se génère ou s'envoie. */
+  quittanceEnCours: number | null = null;
+
+  /**
+   * Quittance en attente de confirmation d'envoi ; `null` = pas de confirmation
+   * à l'écran. La modale de quittance reste montée dessous : un renoncement
+   * rend la période et la date de paiement telles qu'elles ont été saisies.
+   */
+  quittanceAConfirmer: QuittanceOptions | null = null;
   messageSucces: string | null = null;
   messageErreur: string | null = null;
 
@@ -38,6 +62,7 @@ export class LocatairesComponent implements OnInit {
   constructor(
     private requestService: RequestService,
     private resiliationService: ResiliationService,
+    private quittanceService: QuittanceService,
   ) {}
 
   ngOnInit(): void {
@@ -194,6 +219,141 @@ export class LocatairesComponent implements OnInit {
   }
 
   /**
+   * Ouvre la modale de quittance. Comme pour la résiliation, l'appartement est
+   * vérifié dès le clic : il porte l'adresse du logement et le bailleur, sans
+   * lesquels la quittance ne veut rien dire.
+   */
+  demanderQuittance(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    if (!this.appartementDe(locataire)) {
+      this.afficherErreur(
+        `Aucun appartement trouvé pour ${locataire.prenom} ${locataire.nom} : impossible de générer la quittance.`,
+      );
+      return;
+    }
+
+    this.locataireAQuittancer = locataire;
+  }
+
+  annulerQuittance() {
+    this.locataireAQuittancer = null;
+    this.quittanceAConfirmer = null;
+  }
+
+  /**
+   * Le mail ne part pas au clic : comme pour la résiliation, il passe par la
+   * modale de confirmation, qui nomme le destinataire.
+   */
+  demanderEnvoiQuittance(options: QuittanceOptions) {
+    if (this.locataireAQuittancer?.email) {
+      this.quittanceAConfirmer = options;
+    }
+  }
+
+  annulerEnvoiQuittance() {
+    this.quittanceAConfirmer = null;
+  }
+
+  /** « la quittance de loyer de janvier 2026 », dans la phrase de confirmation. */
+  get documentAConfirmer(): string {
+    return this.quittanceAConfirmer
+      ? `la quittance de loyer de ${this.quittanceService.libellePeriode(this.quittanceAConfirmer)}`
+      : '';
+  }
+
+  /** Génère la quittance et la remet au navigateur, sans passer par le mail. */
+  telechargerQuittance(options: QuittanceOptions) {
+    const locataire = this.locataireAQuittancer;
+    const appartement = locataire ? this.appartementDe(locataire) : undefined;
+    if (!locataire || locataire.id == null || !appartement) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.quittanceEnCours = locataire.id;
+
+    this.quittanceService
+      .genererQuittance(locataire, appartement, options)
+      .subscribe({
+        next: (blob) => {
+          saveAs(blob, this.quittanceService.nomFichier(locataire, options));
+          this.quittanceEnCours = null;
+          this.locataireAQuittancer = null;
+          this.afficherSucces(
+            `Quittance de ${this.quittanceService.libellePeriode(options)} téléchargée.`,
+          );
+        },
+        error: (err) =>
+          this.echecQuittance(err, 'La génération de la quittance a échoué.'),
+      });
+  }
+
+  /** Même chemin que la résiliation : génération, puis envoi en pièce jointe. */
+  confirmerEnvoiQuittance() {
+    const locataire = this.locataireAQuittancer;
+    const options = this.quittanceAConfirmer;
+    const appartement = locataire ? this.appartementDe(locataire) : undefined;
+    if (
+      !locataire ||
+      !options ||
+      !locataire.email ||
+      locataire.id == null ||
+      !appartement
+    ) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.quittanceEnCours = locataire.id;
+
+    const periode = this.quittanceService.libellePeriode(options);
+
+    this.quittanceService
+      .genererQuittance(locataire, appartement, options)
+      .pipe(
+        switchMap((blob) => this.toBase64(blob)),
+        switchMap((contentBase64) =>
+          this.requestService.sendMail({
+            to: locataire.email!,
+            subject: `Quittance de loyer - ${periode}`,
+            text: this.corpsDuMailQuittance(locataire, periode),
+            attachments: [
+              {
+                filename: this.quittanceService.nomFichier(locataire, options),
+                contentBase64,
+              },
+            ],
+          }),
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.quittanceEnCours = null;
+          this.locataireAQuittancer = null;
+          this.quittanceAConfirmer = null;
+          this.afficherSucces(
+            `Quittance de ${periode} envoyée à ${locataire.email}.`,
+          );
+        },
+        error: (err) =>
+          this.echecQuittance(err, "L'envoi de la quittance a échoué."),
+      });
+  }
+
+  private echecQuittance(err: any, message: string) {
+    this.quittanceEnCours = null;
+    this.locataireAQuittancer = null;
+    this.quittanceAConfirmer = null;
+    console.error('Erreur lors de la génération de la quittance', err);
+    this.afficherErreur(err?.error?.message ?? message);
+  }
+
+  /**
    * Le locataire ne porte qu'un `appartementId`, et `AppartementDto` type son
    * id en chaîne : d'où la comparaison numérique.
    */
@@ -227,6 +387,20 @@ export class LocatairesComponent implements OnInit {
       '',
       'Vous trouverez en pièce jointe votre lettre de résiliation pré-remplie.',
       aCompleter,
+      '',
+      'Cordialement,',
+    ].join('\n');
+  }
+
+  private corpsDuMailQuittance(
+    locataire: LocataireDto,
+    periode: string,
+  ): string {
+    return [
+      `Bonjour ${locataire.prenom} ${locataire.nom},`,
+      '',
+      `Vous trouverez en pièce jointe votre quittance de loyer pour la période de ${periode}.`,
+      'Elle vaut reçu du loyer et des charges pour cette période.',
       '',
       'Cordialement,',
     ].join('\n');

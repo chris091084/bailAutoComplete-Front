@@ -6,6 +6,11 @@ import { Observable, map } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
+import {
+  capitaliser,
+  rueDepuisAdresse,
+  villeDepuisAdresse,
+} from './adresse.util';
 
 const TEMPLATE_URL = 'assets/docx/resiliation.docx';
 const DOCX_MIME =
@@ -59,53 +64,18 @@ export class ResiliationService {
       paragraphLoop: true,
       linebreaks: true,
     });
-    console.log(this.formaterDate(dateSignatureContrat))
 
     doc.render({
-      locataireNomPrenom: this.capitaliser(
-        `${locataire.prenom} ${locataire.nom}`,
-      ),
-      locataireAdresse: this.rueDepuisAdresse(appartement.adress),
+      locataireNomPrenom: capitaliser(`${locataire.prenom} ${locataire.nom}`),
+      locataireAdresse: rueDepuisAdresse(appartement.adress),
       proprietaireNomPrenom: appartement.bailleur?.name ?? '',
-      proprietaireAdresse: this.rueDepuisAdresse(appartement.bailleur?.adress),
-      villeSignature: this.villeDepuisAdresse(appartement.adress),
+      proprietaireAdresse: rueDepuisAdresse(appartement.bailleur?.adress),
+      villeSignature: capitaliser(villeDepuisAdresse(appartement.adress)),
       dateSignatureContrat: this.formaterDate(dateSignatureContrat),
       dateDuJour: this.dateDuJour(),
     });
 
     return doc.getZip().generate({ type: 'blob', mimeType: DOCX_MIME });
-  }
-
-  /**
-   * « 56 rue de la Filature - 69100 VILLEURBANNE » -> « 56 rue de la Filature ».
-   * L'en-tête du courrier ne veut que la voie : le tiret séparateur, le code
-   * postal et la commune sont coupés à partir du premier code postal rencontré.
-   */
-  private rueDepuisAdresse(adresse?: string): string {
-    return adresse?.replace(/[\s,;-]*\d{5}\b[\s\S]*$/, '').trim() ?? '';
-  }
-
-  /**
-   * « 56 rue de la Filature - 69100 VILLEURBANNE » -> « Villeurbanne ».
-   * Les adresses saisies mettent la ville en capitales, ce qui détonnerait
-   * dans la ligne de signature.
-   */
-  private villeDepuisAdresse(adresse?: string): string {
-    return this.capitaliser(adresse?.match(/\d{5}\s+(.+)$/)?.[1]?.trim());
-  }
-
-  /**
-   * « jean-pierre DUPONT » -> « Jean-Pierre Dupont ». Les saisies mélangent
-   * capitales et minuscules ; le courrier veut une initiale par mot, en
-   * traitant les composés (tiret, apostrophe) comme autant de mots.
-   */
-  private capitaliser(texte?: string): string {
-    return (
-      texte?.replace(
-        /[^\s\-']+/g,
-        (mot) => mot.charAt(0).toUpperCase() + mot.slice(1).toLowerCase(),
-      ) ?? ''
-    );
   }
 
   /**
