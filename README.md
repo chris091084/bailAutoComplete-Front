@@ -45,8 +45,22 @@ Then
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
+## Document templates
+
+Leases and termination letters are produced from the Word templates in
+`src/assets/docx/`, filled in with docxtemplater and delivered as `.docx`.
+
+Rent receipts (*quittances*) are the exception: they are delivered as PDF, drawn
+by pdfmake in `src/app/service/quittance.service.ts`. The Word template
+`Quittance_de_loyer.docx` is kept as the visual reference the landlord edits,
+but **it is no longer read by the code** — editing it does not change the
+generated PDF. When an updated template comes in, convert it
+(`soffice --headless --convert-to pdf`) and port the differences into
+`definitionDocument`.
+
 ## Library
 
 Templating: bootstrap@5.2.3
 Form building: ReactiveFormsModule
 DocxTemplate: docxtemplater@3.5
+PDF (quittances): pdfmake@0.3
