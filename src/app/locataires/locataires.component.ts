@@ -219,11 +219,11 @@ export class LocatairesComponent implements OnInit {
 
   private corpsDuMail(locataire: LocataireDto): string {
     const aCompleter =
-    'Il vous reste à compléter la date de déménagement et votre nouvelle\nadresse, puis à la dater et la signer.'
+    'Il vous reste à compléter la date de déménagement et votre nouvelle adresse, puis à la dater et la signer.'
    
 
     return [
-      `Bonjour ${locataire.prenom} ${locataire.nom},`,
+      `Bonjour ${locataire.prenom},`,
       '',
       'Vous trouverez en pièce jointe votre lettre de résiliation pré-remplie.',
       aCompleter,
