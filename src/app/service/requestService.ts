@@ -101,4 +101,20 @@ export class RequestService {
   sendMail(payload: SendMailPayload): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}mail/send`, payload);
   }
+
+  /**
+   * Convertit un document Word rempli en PDF. La conversion tourne sur l'API,
+   * seule à disposer de LibreOffice ; le navigateur ne sait pas le faire.
+   *
+   * Le document part en `multipart/form-data` plutôt qu'en base64 : un `.docx`
+   * pèse une dizaine de kilo-octets, autant ne pas l'enfler d'un tiers.
+   */
+  convertirEnPdf(docx: Blob, nomFichier: string): Observable<Blob> {
+    const formulaire = new FormData();
+    formulaire.append('document', docx, nomFichier);
+
+    return this.http.post(`${this.apiUrl}documents/pdf`, formulaire, {
+      responseType: 'blob',
+    });
+  }
 }
