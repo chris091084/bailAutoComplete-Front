@@ -47,20 +47,22 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 
 ## Document templates
 
-Leases and termination letters are produced from the Word templates in
-`src/assets/docx/`, filled in with docxtemplater and delivered as `.docx`.
+Every document comes from a Word template in `src/assets/docx/`, filled in with
+docxtemplater. Those templates are the source of truth: the landlord edits them
+in Word, and the change shows up in the generated documents without touching any
+code.
 
-Rent receipts (*quittances*) are the exception: they are delivered as PDF, drawn
-by pdfmake in `src/app/service/quittance.service.ts`. The Word template
-`Quittance_de_loyer.docx` is kept as the visual reference the landlord edits,
-but **it is no longer read by the code** — editing it does not change the
-generated PDF. When an updated template comes in, convert it
-(`soffice --headless --convert-to pdf`) and port the differences into
-`definitionDocument`.
+Leases and termination letters are delivered as `.docx` — the tenant still has
+fields to fill in on the termination letter.
+
+Rent receipts (*quittances*) are delivered as PDF. The browser fills
+`Quittance_de_loyer.docx` as usual, then posts each document to the API
+(`POST /documents/pdf`), which converts it with LibreOffice and returns the PDF.
+One receipt per month is produced, and the conversions run one at a time — see
+`quittance.service.ts` and the backend's `documents` module.
 
 ## Library
 
 Templating: bootstrap@5.2.3
 Form building: ReactiveFormsModule
 DocxTemplate: docxtemplater@3.5
-PDF (quittances): pdfmake@0.3

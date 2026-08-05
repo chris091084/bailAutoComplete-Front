@@ -1,3 +1,8 @@
+import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
@@ -7,11 +12,20 @@ import { QuittanceService } from './quittance.service';
 
 describe('QuittanceService', () => {
   let service: QuittanceService;
+  let http: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(QuittanceService);
+    http = TestBed.inject(HttpTestingController);
   });
+
+  afterEach(() => http.verify());
+
+  /** Laisse la chaîne de promesses du service avancer d'un cran. */
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   const options = (moisDebut: string, moisFin: string) => ({
     moisDebut,
@@ -47,7 +61,13 @@ describe('QuittanceService', () => {
     expect(service.moisDeLaPeriode(options('2026-04', '2026-01'))).toEqual([]);
   });
 
-  it('produit un PDF par mois de la période', async () => {
+  it('remplit le modèle Word par mois et fait convertir chacun en PDF', async () => {
+    // Le vrai modèle : docxtemplater refuserait un contenu inventé, et c'est
+    // précisément le remplissage du document du bailleur qu'on veut couvrir.
+    const modele = await fetch('assets/docx/Quittance_de_loyer.docx').then(
+      (reponse) => reponse.arrayBuffer(),
+    );
+
     const locataire = {
       nom: 'DUPONT',
       prenom: 'Marie',
@@ -59,7 +79,7 @@ describe('QuittanceService', () => {
       bailleur: { name: 'S. BODIN', adress: '3 place du Marché, 44100 Nantes' },
     } as AppartementDto;
 
-    const quittances = await firstValueFrom(
+    const promesse = firstValueFrom(
       service.genererQuittances(
         locataire,
         appartement,
@@ -67,7 +87,30 @@ describe('QuittanceService', () => {
       ),
     );
 
-    expect(quittances.length).toBe(3);
+    http.expectOne('assets/docx/Quittance_de_loyer.docx').flush(modele);
+    await tick();
+
+    // Une conversion à la fois : la suivante n'est demandée qu'une fois la
+    // précédente rendue.
+    for (const mois of ['2026-01', '2026-02', '2026-03']) {
+      const requete = http.expectOne((r) =>
+        r.url.endsWith('documents/pdf'),
+      );
+      const envoye = (requete.request.body as FormData).get(
+        'document',
+      ) as File;
+
+      expect(envoye.name).toBe(`Quittance_${mois}_DUPONT_Marie.pdf`);
+      expect(envoye.size).toBeGreaterThan(0);
+
+      requete.flush(
+        new Blob(['%PDF-1.7 …'], { type: 'application/pdf' }),
+      );
+      await tick();
+    }
+
+    const quittances = await promesse;
+
     expect(quittances.map((q) => q.nomFichier)).toEqual([
       'Quittance_2026-01_DUPONT_Marie.pdf',
       'Quittance_2026-02_DUPONT_Marie.pdf',
@@ -75,7 +118,6 @@ describe('QuittanceService', () => {
     ]);
     quittances.forEach((quittance) => {
       expect(quittance.fichier.type).toBe('application/pdf');
-      expect(quittance.fichier.size).toBeGreaterThan(0);
     });
   });
 
