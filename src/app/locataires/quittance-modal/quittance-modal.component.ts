@@ -18,6 +18,9 @@ import { QuittanceOptions, QuittanceService } from '../../service/quittance.serv
  */
 const MAX_MOIS = 12;
 
+/** Jour d'échéance habituel du loyer, proposé par défaut à la saisie. */
+const JOUR_PAIEMENT = '05';
+
 /**
  * Paramétrage des quittances de loyer : la période couverte, les montants et
  * la date de paiement. La période se choisit au mois — une quittance couvre un
@@ -60,13 +63,14 @@ export class QuittanceModalComponent implements OnInit {
 
   ngOnInit(): void {
     // La quittance se délivre pour le mois qui vient d'être réglé : le mois
-    // courant et la date du jour sont le cas courant, et restent modifiables.
+    // courant, réglé au 5 comme le veut l'échéance habituelle. Le tout reste
+    // modifiable.
     const moisCourant = this.moisIso(new Date());
 
     this.form.patchValue({
       moisDebut: moisCourant,
       moisFin: moisCourant,
-      datePaiement: this.jourIso(new Date()),
+      datePaiement: `${moisCourant}-${JOUR_PAIEMENT}`,
     });
   }
 
@@ -163,11 +167,6 @@ export class QuittanceModalComponent implements OnInit {
   /** `<input type="month">` attend « AAAA-MM ». */
   private moisIso(date: Date): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-  }
-
-  /** `<input type="date">` attend « AAAA-MM-JJ », en heure locale. */
-  private jourIso(date: Date): string {
-    return `${this.moisIso(date)}-${String(date.getDate()).padStart(2, '0')}`;
   }
 }
 
