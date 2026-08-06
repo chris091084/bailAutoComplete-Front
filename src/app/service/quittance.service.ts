@@ -8,6 +8,7 @@ import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import {
   codePostalVilleDepuisAdresse,
+  nomBailleur,
   rueDepuisAdresse,
   villeDepuisAdresse,
 } from './adresse.util';
@@ -211,7 +212,7 @@ export class QuittanceService {
       date_to: this.finPeriode(options.moisFin),
       // Le bailleur n'est saisi que par un nom complet : il alimente le nom, et
       // le prénom du modèle reste vide plutôt que d'être découpé au hasard.
-      nom_bailleur: appartement.bailleur?.name ?? '',
+      nom_bailleur: nomBailleur(appartement.bailleur?.name),
       prenom_bailleur: '',
       adresse_bailleur: rueDepuisAdresse(adresseBailleur),
       cp_ville_bailleur: codePostalVilleDepuisAdresse(adresseBailleur),
