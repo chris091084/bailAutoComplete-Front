@@ -5,12 +5,6 @@
       Un locataire est créé uniquement lors de la génération d'un bail.
     </p>
   </div>
-  <div *ngIf="messageSucces" class="alert alert-success" role="alert">
-    {{ messageSucces }}
-  </div>
-  <div *ngIf="messageErreur" class="alert alert-danger" role="alert">
-    {{ messageErreur }}
-  </div>
   <!-- Un locataire ne se supprime pas : il sort du logement et bascule dans le
        second onglet, d'où il peut être réintégré. -->
   <ul class="nav nav-tabs mb-3">
@@ -39,200 +33,21 @@
       </button>
     </li>
   </ul>
-  <div class="table-responsive" *ngIf="ongletActif === 'actifs'">
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Nom</th>
-          <th scope="col">Prénom</th>
-          <th scope="col">Téléphone</th>
-          <th scope="col">Email</th>
-          <th scope="col">Appartement</th>
-          <th scope="col">Résiliation</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let locataire of locataires">
-          <td>{{ locataire.nom }}</td>
-          <td>{{ locataire.prenom }}</td>
-          <td>{{ locataire.telephone }}</td>
-          <td>{{ locataire.email }}</td>
-          <td>{{ locataire.appartementNom }}</td>
-          <td>
-            <span
-              *ngIf="locataire.resiliationEnvoyeeLe as envoiLe; else pasDeResiliation"
-              class="badge text-bg-success"
-              [title]="
-                'Lettre envoyée le ' +
-                (envoiLe | date: 'dd/MM/yyyy') +
-                ' à ' +
-                (envoiLe | date: 'HH:mm')
-              "
-            >
-              Envoyée le {{ envoiLe | date: 'dd/MM/yyyy' }}
-            </span>
-            <ng-template #pasDeResiliation>
-              <span class="text-muted">—</span>
-            </ng-template>
-          </td>
-          <td>
-            <button
-              class="btn btn-primary btn-sm me-2"
-              (click)="openEditModal(locataire)"
-            >
-              Modifier
-            </button>
-            <button
-              class="btn btn-danger btn-sm me-2"
-              [disabled]="sortieEnCours !== null"
-              title="Enregistrer la sortie du logement"
-              (click)="demanderSortie(locataire)"
-            >
-              <span
-                *ngIf="sortieEnCours === locataire.id"
-                class="spinner-border spinner-border-sm me-1"
-                aria-hidden="true"
-              ></span>
-              Sortir
-            </button>
-            <button
-              class="btn btn-success btn-sm me-2"
-              [disabled]="quittanceEnCours !== null"
-              title="Générer une quittance de loyer"
-              (click)="demanderQuittance(locataire)"
-            >
-              <span
-                *ngIf="quittanceEnCours === locataire.id"
-                class="spinner-border spinner-border-sm me-1"
-                aria-hidden="true"
-              ></span>
-              Quittance
-            </button>
-            <button
-              class="btn btn-warning btn-sm"
-              [disabled]="!locataire.email || envoiEnCours !== null"
-              [title]="
-                locataire.email
-                  ? 'Envoyer la lettre de résiliation par mail'
-                  : 'Aucune adresse email renseignée'
-              "
-              (click)="demanderResiliation(locataire)"
-            >
-              <span
-                *ngIf="envoiEnCours === locataire.id"
-                class="spinner-border spinner-border-sm me-1"
-                aria-hidden="true"
-              ></span>
-              {{ locataire.resiliationEnvoyeeLe ? 'Résiliation à renvoyer' : 'Résiliation' }}
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="locataires.length === 0">
-          <td colspan="7" class="text-center text-muted">
-            Aucun locataire enregistré.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="table-responsive" *ngIf="ongletActif === 'sortis'">
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Nom</th>
-          <th scope="col">Prénom</th>
-          <th scope="col">Téléphone</th>
-          <th scope="col">Email</th>
-          <th scope="col">Appartement</th>
-          <th scope="col">Date de sortie</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let locataire of locatairesSortis">
-          <td>{{ locataire.nom }}</td>
-          <td>{{ locataire.prenom }}</td>
-          <td>{{ locataire.telephone }}</td>
-          <td>{{ locataire.email }}</td>
-          <td>{{ locataire.appartementNom }}</td>
-          <td>
-            <span class="badge text-bg-secondary">
-              {{ locataire.sortie | date: 'dd/MM/yyyy' }}
-            </span>
-          </td>
-          <td>
-            <button
-              class="btn btn-outline-primary btn-sm"
-              [disabled]="sortieEnCours !== null"
-              title="Remettre ce locataire dans la liste des locataires"
-              (click)="reintegrerLocataire(locataire)"
-            >
-              <span
-                *ngIf="sortieEnCours === locataire.id"
-                class="spinner-border spinner-border-sm me-1"
-                aria-hidden="true"
-              ></span>
-              Réintégrer
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="locatairesSortis.length === 0">
-          <td colspan="7" class="text-center text-muted">
-            Aucun locataire sorti.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <app-locataire-modal
-    *ngIf="showModal"
-    [locataire]="selectedLocataire"
-    (save)="onSave($event)"
-    (cancel)="closeModal()"
+  <app-locataires-table
+    *ngIf="ongletActif === 'actifs'"
+    [locataires]="locataires"
+    [appartements]="appartements"
+    mode="actifs"
+    (rafraichir)="rechargerLocataires()"
   >
-  </app-locataire-modal>
-  <app-sortie-modal
-    *ngIf="locataireASortir"
-    [locataire]="locataireASortir"
-    [traitementEnCours]="sortieEnCours !== null"
-    (confirm)="confirmerSortie($event)"
-    (cancel)="annulerSortie()"
+  </app-locataires-table>
+  <app-locataires-table
+    *ngIf="ongletActif === 'sortis'"
+    [locataires]="locatairesSortis"
+    [appartements]="appartements"
+    mode="sortis"
+    messageListeVide="Aucun locataire sorti."
+    (rafraichir)="rechargerLocataires()"
   >
-  </app-sortie-modal>
-  <app-confirmation-envoi-modal
-    *ngIf="locataireAResilier"
-    [locataire]="locataireAResilier"
-    titre="Envoi d'une lettre de résiliation"
-    document="une lettre de résiliation"
-    libelleConfirmer="Envoyer la lettre"
-    [rappelerEnvoiPrecedent]="true"
-    [envoiEnCours]="envoiEnCours !== null"
-    (confirm)="confirmerResiliation($event)"
-    (cancel)="annulerResiliation()"
-  >
-  </app-confirmation-envoi-modal>
-  <app-quittance-modal
-    *ngIf="locataireAQuittancer"
-    [locataire]="locataireAQuittancer"
-    [traitementEnCours]="quittanceEnCours !== null"
-    (telecharger)="telechargerQuittance($event)"
-    (envoyer)="demanderEnvoiQuittance($event)"
-    (cancel)="annulerQuittance()"
-  >
-  </app-quittance-modal>
-  <!-- Montée par-dessus la modale de quittance, qui reste ouverte derrière : un
-       renoncement rend le formulaire tel qu'il a été rempli. -->
-  <app-confirmation-envoi-modal
-    *ngIf="quittanceAConfirmer"
-    [locataire]="locataireAQuittancer"
-    titre="Envoi d'une quittance de loyer"
-    [document]="documentAConfirmer"
-    libelleConfirmer="Envoyer la quittance"
-    classeConfirmer="btn-primary"
-    [envoiEnCours]="quittanceEnCours !== null"
-    (confirm)="confirmerEnvoiQuittance()"
-    (cancel)="annulerEnvoiQuittance()"
-  >
-  </app-confirmation-envoi-modal>
+  </app-locataires-table>
 </div>
