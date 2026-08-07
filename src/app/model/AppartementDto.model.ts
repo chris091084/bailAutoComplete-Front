@@ -25,6 +25,8 @@ export interface AppartementDto {
   tIrl: string;
   energieWater: string;
   energieHeating: string;
-  formName: string;
+  prefixeAnnexe: string;
+  aLoggia: boolean;
+  aGaragePoubelle: boolean;
   etage: string;
 }
