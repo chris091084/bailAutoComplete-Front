@@ -64,16 +64,14 @@ export class DocGeneratorService {
           locataireTelephone: resultForm.telephone,
           adressLogement: resultForm.appartement?.adress,
           constructionPeriod: appartementSelected?.constructionPeriod,
-          isLogiaFillature:
-            resultForm.appartement?.name === 'Filature' ? ',logia' : '',
+          isLogiaFillature: resultForm.appartement?.aLoggia ? ',logia' : '',
           appartementEnergieHeating: appartementSelected?.energieHeating,
           appartementEnergieWater: appartementSelected?.energieWater,
           appartementSuface: appartementSelected?.surface,
           caracteristiquesAppartement:
             appartementSelected?.caracteristiques?.map((c) => c.description),
           hasAccessToGarageAndPoubelle:
-            resultForm.appartement?.name === 'Filature' ||
-            resultForm.appartement?.name === 'Chateau Gaillard',
+            resultForm.appartement?.aGaragePoubelle ?? false,
           dateFrom: resultForm?.getFormattedFromDate(),
           dateTo: resultForm?.getFormattedToDate(),
           isMobilite: resultForm?.bailType === BailTypeEnum.MOBILITE,
@@ -99,19 +97,17 @@ export class DocGeneratorService {
             resultForm.priceNoCharge - (resultForm.appartement?.rentRefMaj ?? 0)
           ).toFixed(2),
           isFilature4D:
-            resultForm.appartement?.formName ===
-            AppartementNameEnum.FILATURE_4D,
+            resultForm.appartement?.name === AppartementNameEnum.FILATURE_4D,
           isFilature3G:
-            resultForm.appartement?.formName ===
-            AppartementNameEnum.FILATURE_3G,
+            resultForm.appartement?.name === AppartementNameEnum.FILATURE_3G,
           isChateauGaillard17B:
-            resultForm.appartement?.formName ===
+            resultForm.appartement?.name ===
             AppartementNameEnum.CHATEAU_GAILLARD_17B,
           isChateauGaillard53A:
-            resultForm.appartement?.formName ===
+            resultForm.appartement?.name ===
             AppartementNameEnum.CHATEAU_GAILLARD_53A,
           isRueRene:
-            resultForm.appartement?.formName === AppartementNameEnum.RUE_RENE,
+            resultForm.appartement?.name === AppartementNameEnum.RUE_RENE,
           rentWithoutCharge: resultForm.priceNoCharge,
           tIrl: resultForm.tIrl,
           valIrl: resultForm.valIrl,
@@ -178,7 +174,7 @@ export class DocGeneratorService {
         // Save generation history
         const generation = new Generation(
           new Date(),
-          resultForm.appartement?.formName ?? '',
+          resultForm.appartement?.name ?? '',
           resultForm.name + ' ' + resultForm.firstname,
           resultForm,
         );
@@ -195,12 +191,14 @@ export class DocGeneratorService {
         });
       });
 
-    const appartementName = appartementSelected?.name.replace(' ', '_');
+    // Les logements d'une même résidence partagent leurs annexes : le préfixe
+    // vient de l'appartement plutôt que de son nom, désormais unique.
+    const prefixeAnnexe = appartementSelected?.prefixeAnnexe;
     const chambreNumber = resultForm.room?.split(' ')[1];
 
     this.http
       .get(
-        'assets/docx/doc-annexe/' + appartementName + chambreNumber + '.docx',
+        'assets/docx/doc-annexe/' + prefixeAnnexe + chambreNumber + '.docx',
         {
           responseType: 'arraybuffer',
         },

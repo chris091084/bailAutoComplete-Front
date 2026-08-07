@@ -18,7 +18,9 @@ export class Appartement {
   rentRef: number = 0;
   rentRefMaj: number = 0;
   maxConsoElec: string = '';
-  formName: string = '';
+  prefixeAnnexe: string = '';
+  aLoggia: boolean = false;
+  aGaragePoubelle: boolean = false;
   etage: string = '';
   constructor(
     id: string,
@@ -36,7 +38,9 @@ export class Appartement {
     rentRef: number,
     rentMaj: number,
     maxConsoElec: string,
-    formName: string,
+    prefixeAnnexe: string,
+    aLoggia: boolean,
+    aGaragePoubelle: boolean,
     etage: string,
   ) {
     this.id = id;
@@ -54,7 +58,9 @@ export class Appartement {
     this.rentRef = rentRef;
     this.rentRefMaj = rentMaj;
     this.maxConsoElec = maxConsoElec;
-    this.formName = formName;
+    this.prefixeAnnexe = prefixeAnnexe;
+    this.aLoggia = aLoggia;
+    this.aGaragePoubelle = aGaragePoubelle;
     this.etage = etage;
   }
 }
