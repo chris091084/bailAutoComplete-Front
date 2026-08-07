@@ -37,7 +37,7 @@
           <span>{{ app.rentRef }}</span>
           <span>{{ app.rentRefMaj }}</span>
           <span>
-            <span class="badge text-bg-secondary">
+            <span class="badge" [ngClass]="classeBadgeLocataires(app)">
               {{ locatairesDe(app).length }}
             </span>
           </span>

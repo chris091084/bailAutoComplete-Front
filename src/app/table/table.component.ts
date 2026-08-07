@@ -78,6 +78,19 @@ export class TableComponent implements OnInit {
     return this.locatairesParAppartement.get(Number(app.id)) ?? this.aucunLocataire;
   }
 
+  /**
+   * Code couleur du compteur : un logement plein est au vert, un logement à
+   * moitié vide au rouge. Le seuil haut est ouvert, un appartement peut loger
+   * plus de quatre personnes.
+   */
+  classeBadgeLocataires(app: AppartementDto): string {
+    const nombre = this.locatairesDe(app).length;
+    if (nombre >= 4) {
+      return 'text-bg-success';
+    }
+    return nombre === 3 ? 'text-bg-warning' : 'text-bg-danger';
+  }
+
   estOuvert(app: AppartementDto): boolean {
     return this.appartementsOuverts.has(app.id);
   }
