@@ -25,4 +25,8 @@ export interface LocataireDto {
   // partie. Renseignée par l'API, jamais renvoyée au serveur : elle se met à
   // jour par POST /locataire/:id/resiliation.
   resiliationEnvoyeeLe?: string | null;
+  // Date de sortie du logement au format « AAAA-MM-JJ », `null` tant que le
+  // locataire est en place. Renseignée par l'API, jamais renvoyée au serveur :
+  // elle se met à jour par POST/DELETE /locataire/:id/sortie.
+  sortie?: string | null;
 }

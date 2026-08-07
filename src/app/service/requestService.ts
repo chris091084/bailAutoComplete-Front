@@ -63,8 +63,11 @@ export class RequestService {
     );
   }
 
-  getLocataires(): Observable<LocataireDto[]> {
-    return this.http.get<LocataireDto[]>(`${this.apiUrl}locataire`);
+  /** `sortis` bascule sur les locataires ayant quitté le logement. */
+  getLocataires(sortis = false): Observable<LocataireDto[]> {
+    return this.http.get<LocataireDto[]>(`${this.apiUrl}locataire`, {
+      params: { sortis },
+    });
   }
 
   addLocataire(locataire: LocataireDto): Observable<LocataireDto> {
@@ -78,8 +81,22 @@ export class RequestService {
     );
   }
 
-  deleteLocataire(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}locataire/${id}`);
+  /**
+   * Sort un locataire du logement, à la place d'une suppression : la fiche
+   * quitte la liste principale mais garde son bail et ses quittances.
+   */
+  marquerSortie(id: number, sortie: string): Observable<LocataireDto> {
+    return this.http.post<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/sortie`,
+      { sortie }
+    );
+  }
+
+  /** Annule la sortie : le locataire revient dans la liste principale. */
+  reintegrerLocataire(id: number): Observable<LocataireDto> {
+    return this.http.delete<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/sortie`
+    );
   }
 
   /** Horodate l'envoi de la lettre de congé, une fois le mail parti. */
