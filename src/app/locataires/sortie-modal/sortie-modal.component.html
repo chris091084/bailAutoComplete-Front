@@ -1,0 +1,74 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="sortieModalTitle"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sortieModalTitle">
+          Sortie d'un locataire
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          [disabled]="traitementEnCours"
+          (click)="onCancel()"
+        ></button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="onConfirm()">
+        <div class="modal-body">
+          <p class="mb-3">
+            Indiquez la date à laquelle
+            <strong>{{ nomComplet }}</strong> quitte le logement.
+          </p>
+          <div class="mb-3">
+            <label for="sortie" class="form-label">Date de sortie</label>
+            <input
+              type="date"
+              class="form-control"
+              id="sortie"
+              formControlName="sortie"
+            />
+            <div
+              class="invalid-feedback d-block"
+              *ngIf="form.get('sortie')?.touched && form.get('sortie')?.invalid"
+            >
+              La date de sortie est obligatoire.
+            </div>
+          </div>
+          <p class="text-muted mb-0">
+            La fiche n'est pas supprimée : elle bascule dans l'onglet
+            « Locataires sortis », d'où elle peut être réintégrée.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="traitementEnCours"
+            (click)="onCancel()"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn btn-danger"
+            [disabled]="traitementEnCours"
+          >
+            <span
+              *ngIf="traitementEnCours"
+              class="spinner-border spinner-border-sm me-1"
+              aria-hidden="true"
+            ></span>
+            Sortir le locataire
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

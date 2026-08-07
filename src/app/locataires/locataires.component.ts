@@ -14,6 +14,7 @@ import { LocataireDto } from '../model/LocataireDto.model';
 import { LocataireModalComponent } from './locataire-modal/locataire-modal.component';
 import { ConfirmationEnvoiModalComponent } from './confirmation-envoi-modal/confirmation-envoi-modal.component';
 import { QuittanceModalComponent } from './quittance-modal/quittance-modal.component';
+import { SortieModalComponent } from './sortie-modal/sortie-modal.component';
 
 @Component({
   selector: 'app-locataires',
@@ -23,14 +24,30 @@ import { QuittanceModalComponent } from './quittance-modal/quittance-modal.compo
     LocataireModalComponent,
     ConfirmationEnvoiModalComponent,
     QuittanceModalComponent,
+    SortieModalComponent,
   ],
   templateUrl: './locataires.component.html',
   styleUrls: ['./locataires.component.scss'],
 })
 export class LocatairesComponent implements OnInit {
   locataires: LocataireDto[] = [];
+
+  /**
+   * Les locataires ayant quitté le logement, servis par le même endpoint. Ils
+   * ne se suppriment pas : leur bail, leurs quittances et la trace de leur
+   * lettre de congé restent au dossier de l'appartement.
+   */
+  locatairesSortis: LocataireDto[] = [];
+  ongletActif: 'actifs' | 'sortis' = 'actifs';
+
   showModal = false;
   selectedLocataire: LocataireDto | null = null;
+
+  /** Locataire dont on saisit la date de sortie ; `null` = modale fermée. */
+  locataireASortir: LocataireDto | null = null;
+
+  /** Id du locataire dont la sortie ou la réintégration s'enregistre. */
+  sortieEnCours: number | null = null;
 
   /** Locataire soumis à la confirmation d'envoi ; `null` = modale fermée. */
   locataireAResilier: LocataireDto | null = null;
@@ -68,6 +85,7 @@ export class LocatairesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLocataires();
+    this.loadLocatairesSortis();
     this.loadAppartements();
   }
 
@@ -81,6 +99,13 @@ export class LocatairesComponent implements OnInit {
         }
       },
       error: (err) => console.error('Error fetching locataires', err),
+    });
+  }
+
+  loadLocatairesSortis() {
+    this.requestService.getLocataires(true).subscribe({
+      next: (data) => (this.locatairesSortis = data ?? []),
+      error: (err) => console.error('Error fetching locataires sortis', err),
     });
   }
 
@@ -113,16 +138,90 @@ export class LocatairesComponent implements OnInit {
     });
   }
 
-  deleteLocataire(id?: number) {
-    if (id == null) {
+  /**
+   * Un locataire ne se supprime pas, il sort : le clic ouvre la saisie de la
+   * date de départ, qui bascule la fiche dans l'onglet des sortis.
+   */
+  demanderSortie(locataire: LocataireDto) {
+    if (locataire.id == null) {
       return;
     }
 
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce locataire ?')) {
-      this.requestService.deleteLocataire(id).subscribe(() => {
-        this.loadLocataires();
-      });
+    this.locataireASortir = locataire;
+  }
+
+  annulerSortie() {
+    this.locataireASortir = null;
+  }
+
+  confirmerSortie(sortie: string) {
+    const locataire = this.locataireASortir;
+    if (!locataire || locataire.id == null) {
+      return;
     }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.sortieEnCours = locataire.id;
+
+    this.requestService.marquerSortie(locataire.id, sortie).subscribe({
+      next: () => {
+        this.sortieEnCours = null;
+        this.locataireASortir = null;
+        // Les deux listes bougent d'un coup : la fiche quitte l'une pour
+        // l'autre.
+        this.loadLocataires();
+        this.loadLocatairesSortis();
+        this.afficherSucces(
+          `${locataire.prenom} ${locataire.nom} est sorti du logement.`,
+        );
+      },
+      error: (err) => {
+        this.sortieEnCours = null;
+        this.locataireASortir = null;
+        console.error('Erreur lors de la sortie du locataire', err);
+        this.afficherErreur(
+          err?.error?.message ?? "La sortie du locataire n'a pas pu être enregistrée.",
+        );
+      },
+    });
+  }
+
+  /** Seule action offerte sur un locataire sorti : le remettre en place. */
+  reintegrerLocataire(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    if (
+      !confirm(
+        `Réintégrer ${locataire.prenom} ${locataire.nom} dans la liste des locataires ?`,
+      )
+    ) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.sortieEnCours = locataire.id;
+
+    this.requestService.reintegrerLocataire(locataire.id).subscribe({
+      next: () => {
+        this.sortieEnCours = null;
+        this.loadLocataires();
+        this.loadLocatairesSortis();
+        this.afficherSucces(
+          `${locataire.prenom} ${locataire.nom} est de nouveau dans la liste des locataires.`,
+        );
+      },
+      error: (err) => {
+        this.sortieEnCours = null;
+        console.error('Erreur lors de la réintégration du locataire', err);
+        this.afficherErreur(
+          err?.error?.message ?? "La réintégration du locataire a échoué.",
+        );
+      },
+    });
   }
 
   /**
