@@ -57,6 +57,36 @@
               />
             </div>
           </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="anneeNaissance" class="form-label">
+                Année de naissance
+                <span class="text-muted">(facultatif)</span>
+              </label>
+              <input
+                type="number"
+                class="form-control"
+                id="anneeNaissance"
+                formControlName="anneeNaissance"
+                [min]="anneeNaissanceMin"
+                [max]="anneeCourante"
+                placeholder="1998"
+              />
+              <div class="form-text">Sert à afficher l'âge dans la liste.</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="entree" class="form-label">Date d'entrée</label>
+              <input
+                type="date"
+                class="form-control"
+                id="entree"
+                formControlName="entree"
+              />
+              <div class="form-text">
+                Reprise de la date de prise d'effet du bail.
+              </div>
+            </div>
+          </div>
           <div class="mb-3">
             <label for="appartementId" class="form-label">Appartement</label>
             <select

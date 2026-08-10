@@ -10,9 +10,11 @@
       <tr>
         <th scope="col">Nom</th>
         <th scope="col">Prénom</th>
+        <th scope="col">Âge</th>
         <th scope="col">Téléphone</th>
         <th scope="col">Email</th>
         <th scope="col" *ngIf="afficherColonneAppartement">Appartement</th>
+        <th scope="col">Date d'entrée</th>
         <th scope="col">
           {{ mode === 'actifs' ? 'Résiliation' : 'Date de sortie' }}
         </th>
@@ -23,9 +25,19 @@
       <tr *ngFor="let locataire of locataires">
         <td>{{ locataire.nom }}</td>
         <td>{{ locataire.prenom }}</td>
+        <td>
+          <span *ngIf="age(locataire) as age; else pasDAge">{{ age }} ans</span>
+          <ng-template #pasDAge><span class="text-muted">—</span></ng-template>
+        </td>
         <td>{{ locataire.telephone }}</td>
         <td>{{ locataire.email }}</td>
         <td *ngIf="afficherColonneAppartement">{{ locataire.appartementNom }}</td>
+        <td>
+          <span *ngIf="locataire.entree; else pasDEntree">
+            {{ locataire.entree | date: 'dd/MM/yyyy' }}
+          </span>
+          <ng-template #pasDEntree><span class="text-muted">—</span></ng-template>
+        </td>
         <td *ngIf="mode === 'actifs'">
           <span
             *ngIf="locataire.resiliationEnvoyeeLe as envoiLe; else pasDeResiliation"

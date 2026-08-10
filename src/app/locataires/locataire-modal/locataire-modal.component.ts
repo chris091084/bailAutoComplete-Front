@@ -31,6 +31,10 @@ export class LocataireModalComponent implements OnInit {
   // les noms d'appartement et de locataire.
   resultFormsOptions: { id: number; label: string }[] = [];
 
+  /** Bornes de l'année de naissance, alignées sur celles que l'API vérifie. */
+  readonly anneeNaissanceMin = 1900;
+  readonly anneeCourante = new Date().getFullYear();
+
   form: FormGroup;
 
   constructor(
@@ -42,6 +46,14 @@ export class LocataireModalComponent implements OnInit {
       prenom: ['', Validators.required],
       telephone: [''],
       email: ['', Validators.email],
+      anneeNaissance: [
+        null,
+        [
+          Validators.min(this.anneeNaissanceMin),
+          Validators.max(this.anneeCourante),
+        ],
+      ],
+      entree: [null],
       appartementId: [null, Validators.required],
       resultFormId: [null],
     });
@@ -98,6 +110,12 @@ export class LocataireModalComponent implements OnInit {
         prenom: formValue.prenom,
         telephone: formValue.telephone || null,
         email: formValue.email || null,
+        // Champ vidé : `null` explicite, l'API distingue « effacer » de
+        // « ne pas toucher au champ ».
+        anneeNaissance: formValue.anneeNaissance
+          ? Number(formValue.anneeNaissance)
+          : null,
+        entree: formValue.entree || null,
         appartementId: Number(formValue.appartementId),
         // `null` explicite plutôt qu'omis : l'API distingue « détacher » de
         // « ne pas toucher à la liaison ».

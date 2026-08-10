@@ -99,7 +99,18 @@ export class LocatairesTableComponent {
   ) {}
 
   get nombreColonnes(): number {
-    return this.afficherColonneAppartement ? 7 : 6;
+    return this.afficherColonneAppartement ? 9 : 8;
+  }
+
+  /**
+   * L'âge affiché dans la liste. La fiche ne porte que l'année de naissance :
+   * l'âge est donc celui atteint dans l'année, à quelques mois près, ce qui
+   * suffit à situer un locataire. `null` tant que l'année n'est pas saisie.
+   */
+  age(locataire: LocataireDto): number | null {
+    return locataire.anneeNaissance
+      ? new Date().getFullYear() - locataire.anneeNaissance
+      : null;
   }
 
   openEditModal(locataire: LocataireDto) {
