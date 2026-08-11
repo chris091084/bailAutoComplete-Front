@@ -18,6 +18,8 @@ import { Bailleur } from '../../model/bailleur.model';
 })
 export class AppartementModalComponent implements OnInit {
   @Input() appartement: AppartementDto | null = null;
+  /** Message d'échec du parent : la modale reste ouverte, la saisie est conservée. */
+  @Input() erreur: string | null = null;
   @Output() save = new EventEmitter<AppartementDto>();
   @Output() cancel = new EventEmitter<void>();
 

@@ -78,6 +78,36 @@
 <div class="row">
   <div class="col">
     <div class="form-group">
+      <label for="dateNaissance">
+        Date de naissance <span class="text-muted">(facultatif)</span>
+      </label>
+      <input
+        id="dateNaissance"
+        class="form-control"
+        type="date"
+        formControlName="dateNaissance"
+        [min]="dateNaissanceMin"
+        [max]="dateNaissanceMax"
+        [class.is-invalid]="isInvalid('dateNaissance')"
+      />
+      <app-error-messages
+        [control]="formDoc.get('dateNaissance')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+      <div class="form-text">
+        <ng-container *ngIf="age !== null; else aQuoiSertLAge"
+          >{{ age }} ans.</ng-container
+        >
+        <ng-template #aQuoiSertLAge
+          >Sert à afficher l'âge sur la fiche du locataire.</ng-template
+        >
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="form-group">
       <label for="from"> date de début</label>
       <input
         id="from"

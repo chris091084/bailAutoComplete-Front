@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { Appartement } from '../model/appartement.model';
@@ -18,6 +20,30 @@ import { ErrorMessagesComponent } from '../error-messages/error-messages.compone
 import { CommonModule } from '@angular/common';
 import { DocGeneratorService } from '../service/doc-generator.service';
 import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.component';
+
+/** Année la plus ancienne acceptée par l'API pour une naissance. */
+const ANNEE_NAISSANCE_MIN = 1900;
+
+/**
+ * Refuse une naissance à venir ou antérieure à ce que l'API accepte. Le champ
+ * reste facultatif : une valeur vide n'est pas une erreur.
+ */
+function dateNaissanceValide(
+  control: AbstractControl,
+): ValidationErrors | null {
+  if (!control.value) {
+    return null;
+  }
+  const naissance = new Date(control.value);
+  if (
+    Number.isNaN(naissance.getTime()) ||
+    naissance > new Date() ||
+    naissance.getFullYear() < ANNEE_NAISSANCE_MIN
+  ) {
+    return { dateNaissance: true };
+  }
+  return null;
+}
 
 @Component({
   standalone: true,
@@ -59,6 +85,9 @@ export class FormDocComponent {
     adress: new FormControl('', Validators.required),
     email: new FormControl('', Validators.required),
     telephone: new FormControl(''),
+    // Facultative : un bail se génère sans. Elle sert à l'âge affiché sur la
+    // fiche du locataire créé juste après, dont l'API ne retient que l'année.
+    dateNaissance: new FormControl<string | null>(null, dateNaissanceValide),
     from: new FormControl('', Validators.required),
     to: new FormControl({ value: '', disabled: true }),
     motif: new FormControl(
@@ -226,10 +255,7 @@ export class FormDocComponent {
             });
           },
           error: (err) =>
-            console.error(
-              'Bail non enregistré, locataire non créé',
-              err,
-            ),
+            console.error('Bail non enregistré, locataire non créé', err),
         });
       this.isLoading = false;
     }
@@ -243,12 +269,10 @@ export class FormDocComponent {
    */
   private saveLocataire(resultFormId?: number) {
     const appartement = this.formDoc.get('appartement')?.value as
-      | AppartementDto
-      | null
-      | undefined;
+      AppartementDto | null | undefined;
 
     if (!appartement?.id) {
-      console.error("Aucun appartement sélectionné, locataire non enregistré");
+      console.error('Aucun appartement sélectionné, locataire non enregistré');
       return;
     }
 
@@ -265,6 +289,10 @@ export class FormDocComponent {
       prenom: this.formDoc.get('firstname')?.value ?? '',
       telephone: this.formDoc.get('telephone')?.value || null,
       email: this.formDoc.get('email')?.value || null,
+      // L'API ne stocke que l'année de naissance : le jour et le mois saisis
+      // ne servent qu'à l'âge affiché pendant la saisie. Champ laissé vide :
+      // `null` explicite, l'API distingue « effacer » de « ne pas toucher ».
+      anneeNaissance: this.anneeDeNaissance(),
       appartementId: Number(appartement.id),
       resultFormId: Number(resultFormId),
     };
@@ -274,6 +302,15 @@ export class FormDocComponent {
       error: (err) =>
         console.error("Erreur lors de l'enregistrement du locataire", err),
     });
+  }
+
+  /** Année de la date saisie, `null` si le champ est vide ou invalide. */
+  private anneeDeNaissance(): number | null {
+    const dateNaissance = this.formDoc.get('dateNaissance');
+    if (!dateNaissance?.value || dateNaissance.invalid) {
+      return null;
+    }
+    return new Date(dateNaissance.value).getFullYear();
   }
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {

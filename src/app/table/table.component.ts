@@ -18,6 +18,9 @@ export class TableComponent implements OnInit {
   showModal = false;
   selectedAppartement: AppartementDto | null = null;
 
+  /** Affichée dans la modale ; remise à zéro à chaque ouverture. */
+  erreurEnregistrement: string | null = null;
+
   /**
    * Les locataires en place, rangés par `appartement_id` : chaque ligne du
    * tableau s'ouvre sur les siens. Une seule requête pour toute la liste, on ne
@@ -103,31 +106,42 @@ export class TableComponent implements OnInit {
 
   openAddModal() {
     this.selectedAppartement = null;
+    this.erreurEnregistrement = null;
     this.showModal = true;
   }
 
   openEditModal(app: AppartementDto) {
     this.selectedAppartement = { ...app }; // Copy to avoid direct mutation
+    this.erreurEnregistrement = null;
     this.showModal = true;
   }
 
   closeModal() {
     this.showModal = false;
     this.selectedAppartement = null;
+    this.erreurEnregistrement = null;
   }
 
+  /**
+   * L'échec laisse la modale ouverte avec la saisie : refermer sur une erreur
+   * ferait croire à un enregistrement réussi.
+   */
   onSave(app: AppartementDto) {
-    if (app.id) {
-      this.requestService.updateAppartement(app).subscribe(() => {
+    const requete = app.id
+      ? this.requestService.updateAppartement(app)
+      : this.requestService.addAppartement(app);
+
+    requete.subscribe({
+      next: () => {
         this.loadAppartements();
         this.closeModal();
-      });
-    } else {
-      this.requestService.addAppartement(app).subscribe(() => {
-        this.loadAppartements();
-        this.closeModal();
-      });
-    }
+      },
+      error: (err) => {
+        console.error('Error saving appartement', err);
+        this.erreurEnregistrement =
+          "L'enregistrement a échoué. Vérifiez la saisie et réessayez.";
+      },
+    });
   }
 
   deleteAppartement(id: string) {

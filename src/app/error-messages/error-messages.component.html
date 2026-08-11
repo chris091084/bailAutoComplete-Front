@@ -9,4 +9,7 @@
   <div *ngIf="control?.errors?.['email']">
     Ce champ doit être un email valide.
   </div>
+  <div *ngIf="control?.errors?.['dateNaissance']">
+    Ce champ doit être une date passée, à partir du 01/01/1900.
+  </div>
 </div>

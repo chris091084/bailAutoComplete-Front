@@ -81,6 +81,7 @@
   <app-appartement-modal
     *ngIf="showModal"
     [appartement]="selectedAppartement"
+    [erreur]="erreurEnregistrement"
     (save)="onSave($event)"
     (cancel)="closeModal()"
   >

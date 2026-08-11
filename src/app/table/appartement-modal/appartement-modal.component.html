@@ -19,6 +19,9 @@
       </div>
       <div class="modal-body">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div *ngIf="erreur" class="alert alert-danger" role="alert">
+            {{ erreur }}
+          </div>
           <div class="mb-3">
             <label for="name" class="form-label">Nom</label>
             <input
@@ -50,7 +53,8 @@
             <div class="col-md-4 mb-3">
               <label for="surface" class="form-label">Surface</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 class="form-control"
                 id="surface"
                 formControlName="surface"
