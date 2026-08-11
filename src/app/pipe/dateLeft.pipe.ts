@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'dateLeft',
+  standalone: true,
 })
 export class DateLeft implements PipeTransform {
   transform(dateInput: Date): number {
