@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
@@ -15,11 +15,11 @@ import { LocataireDto } from '../../model/LocataireDto.model';
  * c'est elle qui range la fiche dans l'onglet des locataires sortis.
  */
 @Component({
-  selector: 'app-sortie-modal',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './sortie-modal.component.html',
-  styleUrls: ['./sortie-modal.component.scss'],
+    selector: 'app-sortie-modal',
+    imports: [ReactiveFormsModule],
+    templateUrl: './sortie-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./sortie-modal.component.scss']
 })
 export class SortieModalComponent implements OnInit {
   @Input() locataire: LocataireDto | null = null;

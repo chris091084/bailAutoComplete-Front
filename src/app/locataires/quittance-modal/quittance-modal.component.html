@@ -5,7 +5,7 @@
   aria-modal="true"
   aria-labelledby="quittanceModalTitle"
   style="background: rgba(0, 0, 0, 0.5)"
->
+  >
   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -30,7 +30,7 @@
                 class="form-control"
                 id="moisDebut"
                 formControlName="moisDebut"
-              />
+                />
             </div>
             <div class="col-md-6 mb-3">
               <label for="moisFin" class="form-label">Au mois de</label>
@@ -39,68 +39,82 @@
                 class="form-control"
                 id="moisFin"
                 formControlName="moisFin"
-              />
+                />
             </div>
           </div>
-          <div
-            class="alert alert-danger py-2"
-            role="alert"
-            *ngIf="form.hasError('periodeInversee')"
-          >
-            Le mois de fin doit être postérieur ou égal au mois de début.
-          </div>
-          <div
-            class="alert alert-danger py-2"
-            role="alert"
-            *ngIf="form.hasError('periodeTropLongue')"
-          >
-            La période ne peut pas dépasser {{ maxMois }} mois, soit
-            {{ maxMois }} quittances en un envoi.
-          </div>
+          @if (form.hasError('periodeInversee')) {
+            <div
+              class="alert alert-danger py-2"
+              role="alert"
+              >
+              Le mois de fin doit être postérieur ou égal au mois de début.
+            </div>
+          }
+          @if (form.hasError('periodeTropLongue')) {
+            <div
+              class="alert alert-danger py-2"
+              role="alert"
+              >
+              La période ne peut pas dépasser {{ maxMois }} mois, soit
+              {{ maxMois }} quittances en un envoi.
+            </div>
+          }
 
-          <ng-container *ngIf="moisCouverts as mois">
-            <p class="text-muted mb-1" *ngIf="mois.length">
-              <ng-container *ngIf="mois.length === 1"
-                >Une quittance sera générée :</ng-container
-              >
-              <ng-container *ngIf="mois.length > 1"
-                >{{ mois.length }} quittances seront générées, une par
-                mois :</ng-container
-              >
+          @if (moisCouverts; as mois) {
+            @if (mois.length) {
+              <p class="text-muted mb-1">
+                @if (mois.length === 1) {
+                  Une quittance sera générée :
+                }
+                @if (mois.length > 1) {
+                  {{ mois.length }} quittances seront générées, une par
+                  mois :
+                }
+              </p>
+            }
+            @if (mois.length) {
+              <ul class="text-muted small mb-3">
+                @for (m of mois; track m) {
+                  <li>
+                    {{ libelleMois(m) }} — {{ periodeDuMois(m) }}
+                  </li>
+                }
+              </ul>
+            }
+          }
+
+          @if (montantsConnus) {
+            <table class="table table-sm mb-1">
+              <tbody>
+                <tr>
+                  <td>Loyer hors charges</td>
+                  <td class="text-end">
+                    {{ loyerHorsCharges | number: '1.0-2' }} €
+                  </td>
+                </tr>
+                <tr>
+                  <td>Forfait charges</td>
+                  <td class="text-end">{{ charges | number: '1.0-2' }} €</td>
+                </tr>
+                <tr class="fw-bold">
+                  <td>Total</td>
+                  <td class="text-end">{{ total | number: '1.0-2' }} €</td>
+                </tr>
+              </tbody>
+            </table>
+          }
+          @if (montantsConnus) {
+            <p class="form-text mt-0 mb-3">
+              Montants repris du bail signé, reportés à l'identique sur chaque
+              quittance mensuelle.
             </p>
-            <ul class="text-muted small mb-3" *ngIf="mois.length">
-              <li *ngFor="let m of mois">
-                {{ libelleMois(m) }} — {{ periodeDuMois(m) }}
-              </li>
-            </ul>
-          </ng-container>
-
-          <table class="table table-sm mb-1" *ngIf="montantsConnus">
-            <tbody>
-              <tr>
-                <td>Loyer hors charges</td>
-                <td class="text-end">
-                  {{ loyerHorsCharges | number: '1.0-2' }} €
-                </td>
-              </tr>
-              <tr>
-                <td>Forfait charges</td>
-                <td class="text-end">{{ charges | number: '1.0-2' }} €</td>
-              </tr>
-              <tr class="fw-bold">
-                <td>Total</td>
-                <td class="text-end">{{ total | number: '1.0-2' }} €</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="form-text mt-0 mb-3" *ngIf="montantsConnus">
-            Montants repris du bail signé, reportés à l'identique sur chaque
-            quittance mensuelle.
-          </p>
-          <div class="alert alert-danger" *ngIf="!montantsConnus">
-            Aucun montant sur le bail de ce locataire : rattachez-lui un bail
-            d'origine depuis « Modifier » pour pouvoir éditer sa quittance.
-          </div>
+          }
+          @if (!montantsConnus) {
+            <div class="alert alert-danger">
+              Aucun montant sur le bail de ce locataire : rattachez-lui un bail
+              d'origine depuis « Modifier » pour pouvoir éditer sa quittance.
+            </div>
+          }
 
           <div class="mb-3">
             <label for="datePaiement" class="form-label">
@@ -111,17 +125,19 @@
               class="form-control"
               id="datePaiement"
               formControlName="datePaiement"
-            />
+              />
             <div class="form-text">
               Reportée telle quelle sur la quittance, avec le mode de paiement
               « virement bancaire ».
             </div>
           </div>
 
-          <div class="alert alert-warning mb-0" *ngIf="!peutEnvoyer">
-            Aucune adresse email renseignée pour ce locataire : la quittance ne
-            peut être que téléchargée.
-          </div>
+          @if (!peutEnvoyer) {
+            <div class="alert alert-warning mb-0">
+              Aucune adresse email renseignée pour ce locataire : la quittance ne
+              peut être que téléchargée.
+            </div>
+          }
         </form>
       </div>
       <div class="modal-footer">
@@ -130,7 +146,7 @@
           class="btn btn-secondary"
           [disabled]="traitementEnCours"
           (click)="onCancel()"
-        >
+          >
           Annuler
         </button>
         <button
@@ -138,7 +154,7 @@
           class="btn btn-outline-primary"
           [disabled]="form.invalid || traitementEnCours || !montantsConnus"
           (click)="onTelecharger()"
-        >
+          >
           Télécharger
         </button>
         <button
@@ -153,12 +169,13 @@
               : 'Aucune adresse email renseignée'
           "
           (click)="onEnvoyer()"
-        >
-          <span
-            *ngIf="traitementEnCours"
-            class="spinner-border spinner-border-sm me-1"
-            aria-hidden="true"
-          ></span>
+          >
+          @if (traitementEnCours) {
+            <span
+              class="spinner-border spinner-border-sm me-1"
+              aria-hidden="true"
+            ></span>
+          }
           Envoyer par mail
         </button>
       </div>

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
@@ -10,11 +10,11 @@ import { LocataireDto } from '../../model/LocataireDto.model';
 import { RequestService } from '../../service/requestService';
 
 @Component({
-  selector: 'app-locataire-modal',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './locataire-modal.component.html',
-  styleUrls: ['./locataire-modal.component.scss'],
+    selector: 'app-locataire-modal',
+    imports: [ReactiveFormsModule],
+    templateUrl: './locataire-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./locataire-modal.component.scss']
 })
 export class LocataireModalComponent implements OnInit {
   @Input() locataire: LocataireDto | null = null;

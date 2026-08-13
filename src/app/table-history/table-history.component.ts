@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RequestService } from '../service/requestService';
 import { Generation } from '../model/Generation.model';
 
 @Component({
-  selector: 'app-table-history',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './table-history.component.html',
-  styleUrls: ['./table-history.component.scss'],
+    selector: 'app-table-history',
+    imports: [CommonModule],
+    templateUrl: './table-history.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./table-history.component.scss']
 })
 export class TableHistoryComponent implements OnInit {
   generations: Generation[] = [];

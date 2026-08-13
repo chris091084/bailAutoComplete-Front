@@ -3,11 +3,11 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
-import { importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgxPrintModule } from 'ngx-print';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 
 import { authInterceptor } from './app/service/auth.interceptor';
 
@@ -18,7 +18,7 @@ import { authInterceptor } from './app/service/auth.interceptor';
 // restoreSession() et déclenche la navigation initiale.
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideZoneChangeDetection(),provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
     importProvidersFrom(AppRoutingModule, ReactiveFormsModule, NgxPrintModule),
   ],
 }).catch((err) => console.error(err));

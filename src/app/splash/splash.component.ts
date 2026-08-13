@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, ChangeDetectionStrategy } from '@angular/core';
 
 import { BackendReadinessService } from '../service/backend-readiness.service';
 
@@ -10,6 +10,7 @@ import { BackendReadinessService } from '../service/backend-readiness.service';
   standalone: true,
   selector: 'app-splash',
   templateUrl: './splash.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./splash.component.scss'],
 })
 export class SplashComponent {

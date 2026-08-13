@@ -1,9 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { readFile } from 'node:fs/promises';
 import { firstValueFrom } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
@@ -16,7 +17,7 @@ describe('QuittanceService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     service = TestBed.inject(QuittanceService);
     http = TestBed.inject(HttpTestingController);
@@ -64,9 +65,13 @@ describe('QuittanceService', () => {
   it('remplit le modèle Word par mois et fait convertir chacun en PDF', async () => {
     // Le vrai modèle : docxtemplater refuserait un contenu inventé, et c'est
     // précisément le remplissage du document du bailleur qu'on veut couvrir.
-    const modele = await fetch('assets/docx/Quittance_de_loyer.docx').then(
-      (reponse) => reponse.arrayBuffer(),
-    );
+    // Lu sur le disque : sous Vitest il n'y a pas de serveur de fichiers, et
+    // `fetch` en environnement Node refuse une URL relative. On recopie dans
+    // un ArrayBuffer du realm de test, sinon le Buffer de Node echoue au
+    // `instanceof` du backend HTTP de test.
+    const octets = await readFile('src/assets/docx/Quittance_de_loyer.docx');
+    const modele = new ArrayBuffer(octets.byteLength);
+    new Uint8Array(modele).set(octets);
 
     const locataire = {
       nom: 'DUPONT',

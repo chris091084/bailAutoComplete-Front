@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { RequestService } from '../service/requestService';
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { LocatairesTableComponent } from './locataires-table/locataires-table.component';
 
 @Component({
-  selector: 'app-locataires',
-  standalone: true,
-  imports: [CommonModule, LocatairesTableComponent],
-  templateUrl: './locataires.component.html',
-  styleUrls: ['./locataires.component.scss'],
+    selector: 'app-locataires',
+    imports: [LocatairesTableComponent],
+    templateUrl: './locataires.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./locataires.component.scss']
 })
 export class LocatairesComponent implements OnInit {
   locataires: LocataireDto[] = [];

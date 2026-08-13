@@ -3,7 +3,7 @@
   tabindex="-1"
   role="dialog"
   style="background: rgba(0, 0, 0, 0.5)"
->
+  >
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -25,7 +25,7 @@
                 class="form-control"
                 id="nom"
                 formControlName="nom"
-              />
+                />
             </div>
             <div class="col-md-6 mb-3">
               <label for="prenom" class="form-label">Prénom</label>
@@ -34,7 +34,7 @@
                 class="form-control"
                 id="prenom"
                 formControlName="prenom"
-              />
+                />
             </div>
           </div>
           <div class="row">
@@ -45,7 +45,7 @@
                 class="form-control"
                 id="telephone"
                 formControlName="telephone"
-              />
+                />
             </div>
             <div class="col-md-6 mb-3">
               <label for="email" class="form-label">Email</label>
@@ -54,7 +54,7 @@
                 class="form-control"
                 id="email"
                 formControlName="email"
-              />
+                />
             </div>
           </div>
           <div class="row">
@@ -71,7 +71,7 @@
                 [min]="anneeNaissanceMin"
                 [max]="anneeCourante"
                 placeholder="1998"
-              />
+                />
               <div class="form-text">Sert à afficher l'âge dans la liste.</div>
             </div>
             <div class="col-md-6 mb-3">
@@ -81,7 +81,7 @@
                 class="form-control"
                 id="entree"
                 formControlName="entree"
-              />
+                />
               <div class="form-text">
                 Reprise de la date de prise d'effet du bail.
               </div>
@@ -93,16 +93,17 @@
               class="form-select"
               id="appartementId"
               formControlName="appartementId"
-            >
+              >
               <option [ngValue]="null" disabled>
                 Sélectionner un appartement
               </option>
-              <option
-                *ngFor="let appartement of appartementsOptions"
-                [ngValue]="appartement.id"
-              >
-                {{ appartement.label }}
-              </option>
+              @for (appartement of appartementsOptions; track appartement.id) {
+                <option
+                  [ngValue]="appartement.id"
+                  >
+                  {{ appartement.label }}
+                </option>
+              }
             </select>
           </div>
           <div class="mb-3">
@@ -113,14 +114,15 @@
               class="form-select"
               id="resultFormId"
               formControlName="resultFormId"
-            >
-              <option [ngValue]="null">Aucun</option>
-              <option
-                *ngFor="let resultForm of resultFormsOptions"
-                [ngValue]="resultForm.id"
               >
-                {{ resultForm.label }}
-              </option>
+              <option [ngValue]="null">Aucun</option>
+              @for (resultForm of resultFormsOptions; track resultForm.id) {
+                <option
+                  [ngValue]="resultForm.id"
+                  >
+                  {{ resultForm.label }}
+                </option>
+              }
             </select>
             <div class="form-text">
               Fournit la date de signature du bail reprise dans la lettre de
@@ -133,14 +135,14 @@
               type="button"
               class="btn btn-secondary"
               (click)="onCancel()"
-            >
+              >
               Annuler
             </button>
             <button
               type="submit"
               class="btn btn-primary"
               [disabled]="form.invalid"
-            >
+              >
               Enregistrer
             </button>
           </div>

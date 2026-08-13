@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LocataireDto } from '../../model/LocataireDto.model';
 
@@ -9,11 +9,11 @@ import { LocataireDto } from '../../model/LocataireDto.model';
  * pour la résiliation, signaler qu'une lettre est déjà partie.
  */
 @Component({
-  selector: 'app-confirmation-envoi-modal',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './confirmation-envoi-modal.component.html',
-  styleUrls: ['./confirmation-envoi-modal.component.scss'],
+    selector: 'app-confirmation-envoi-modal',
+    imports: [CommonModule],
+    templateUrl: './confirmation-envoi-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./confirmation-envoi-modal.component.scss']
 })
 export class ConfirmationEnvoiModalComponent {
   @Input() locataire: LocataireDto | null = null;

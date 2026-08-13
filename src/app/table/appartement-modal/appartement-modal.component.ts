@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
@@ -10,11 +10,11 @@ import { AppartementDto } from '../../model/AppartementDto.model';
 import { Bailleur } from '../../model/bailleur.model';
 
 @Component({
-  selector: 'app-appartement-modal',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './appartement-modal.component.html',
-  styleUrls: ['./appartement-modal.component.scss'],
+    selector: 'app-appartement-modal',
+    imports: [ReactiveFormsModule],
+    templateUrl: './appartement-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./appartement-modal.component.scss']
 })
 export class AppartementModalComponent implements OnInit {
   @Input() appartement: AppartementDto | null = null;
