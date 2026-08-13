@@ -64,3 +64,23 @@
 .accordion-appartements .accordion-body {
   background-color: var(--bs-body-bg);
 }
+
+/* Mobile : seuls le nom, le nombre de locataires et les actions restent
+   affichés, la largeur ne permet pas les colonnes de détail. */
+@media (max-width: 767.98px) {
+  .colonne-secondaire {
+    display: none;
+  }
+
+  .ligne-appartement {
+    grid-template-columns: minmax(0, 1fr) 4.5rem;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  /* Même base que l'en-tête pour que les deux grilles restent alignées. */
+  .actions-appartement {
+    flex-basis: 10.5rem;
+    padding: 0.5rem;
+  }
+}

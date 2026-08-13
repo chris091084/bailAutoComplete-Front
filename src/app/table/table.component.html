@@ -8,11 +8,11 @@
   <div class="entete-appartements d-flex text-muted small fw-bold">
     <div class="ligne-appartement">
       <span>Nom</span>
-      <span>Propriétaire</span>
-      <span>Ville</span>
-      <span>Surface</span>
-      <span>Loyer Ref</span>
-      <span>Loyer Maj</span>
+      <span class="colonne-secondaire">Propriétaire</span>
+      <span class="colonne-secondaire">Ville</span>
+      <span class="colonne-secondaire">Surface</span>
+      <span class="colonne-secondaire">Loyer Ref</span>
+      <span class="colonne-secondaire">Loyer Maj</span>
       <span>Locataires</span>
     </div>
     <div class="actions-appartement">Actions</div>
@@ -32,11 +32,11 @@
               <i class="bi bi-chevron-right chevron"></i>
               {{ app.name }}
             </span>
-            <span>{{ app.bailleur.name }}</span>
-            <span>{{ app.adress }}</span>
-            <span>{{ app.surface }}</span>
-            <span>{{ app.rentRef }}</span>
-            <span>{{ app.rentRefMaj }}</span>
+            <span class="colonne-secondaire">{{ app.bailleur.name }}</span>
+            <span class="colonne-secondaire">{{ app.adress }}</span>
+            <span class="colonne-secondaire">{{ app.surface }}</span>
+            <span class="colonne-secondaire">{{ app.rentRef }}</span>
+            <span class="colonne-secondaire">{{ app.rentRefMaj }}</span>
             <span>
               <span class="badge" [ngClass]="classeBadgeLocataires(app)">
                 {{ locatairesDe(app).length }}
