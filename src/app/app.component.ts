@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { switchMap, timer } from 'rxjs';
@@ -17,11 +17,11 @@ const SPLASH_DELAY_MS = 400;
 const SPLASH_FADE_MS = 300;
 
 @Component({
-  standalone: true,
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, SplashComponent],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterOutlet, RouterLink, RouterLinkActive, SplashComponent]
 })
 export class AppComponent implements OnInit {
   private readonly auth = inject(AuthService);

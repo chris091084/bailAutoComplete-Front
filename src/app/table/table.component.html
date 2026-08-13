@@ -4,7 +4,7 @@
     <button class="btn btn-success" (click)="openAddModal()">Ajouter</button>
   </div>
   <!-- Chaque ligne se déplie sur les locataires du logement, avec les mêmes
-       actions que la liste des locataires. -->
+  actions que la liste des locataires. -->
   <div class="entete-appartements d-flex text-muted small fw-bold">
     <div class="ligne-appartement">
       <span>Nom</span>
@@ -18,71 +18,75 @@
     <div class="actions-appartement">Actions</div>
   </div>
   <div class="accordion accordion-appartements">
-    <div class="accordion-item" *ngFor="let app of appartements">
-      <div class="accordion-header d-flex align-items-stretch">
-        <button
-          type="button"
-          class="ligne-appartement bouton-appartement"
-          [class.ouvert]="estOuvert(app)"
-          [attr.aria-expanded]="estOuvert(app)"
-          (click)="basculer(app)"
-        >
-          <span class="cellule-nom">
-            <i class="bi bi-chevron-right chevron"></i>
-            {{ app.name }}
-          </span>
-          <span>{{ app.bailleur.name }}</span>
-          <span>{{ app.adress }}</span>
-          <span>{{ app.surface }}</span>
-          <span>{{ app.rentRef }}</span>
-          <span>{{ app.rentRefMaj }}</span>
-          <span>
-            <span class="badge" [ngClass]="classeBadgeLocataires(app)">
-              {{ locatairesDe(app).length }}
+    @for (app of appartements; track app) {
+      <div class="accordion-item">
+        <div class="accordion-header d-flex align-items-stretch">
+          <button
+            type="button"
+            class="ligne-appartement bouton-appartement"
+            [class.ouvert]="estOuvert(app)"
+            [attr.aria-expanded]="estOuvert(app)"
+            (click)="basculer(app)"
+            >
+            <span class="cellule-nom">
+              <i class="bi bi-chevron-right chevron"></i>
+              {{ app.name }}
             </span>
-          </span>
-        </button>
-        <div class="actions-appartement d-flex align-items-center">
-          <button
-            class="btn btn-primary btn-sm me-2"
-            (click)="openEditModal(app)"
-          >
-            Modifier
+            <span>{{ app.bailleur.name }}</span>
+            <span>{{ app.adress }}</span>
+            <span>{{ app.surface }}</span>
+            <span>{{ app.rentRef }}</span>
+            <span>{{ app.rentRefMaj }}</span>
+            <span>
+              <span class="badge" [ngClass]="classeBadgeLocataires(app)">
+                {{ locatairesDe(app).length }}
+              </span>
+            </span>
           </button>
-          <button
-            class="btn btn-danger btn-sm"
-            (click)="deleteAppartement(app.id)"
-          >
-            Supprimer
-          </button>
+          <div class="actions-appartement d-flex align-items-center">
+            <button
+              class="btn btn-primary btn-sm me-2"
+              (click)="openEditModal(app)"
+              >
+              Modifier
+            </button>
+            <button
+              class="btn btn-danger btn-sm"
+              (click)="deleteAppartement(app.id)"
+              >
+              Supprimer
+            </button>
+          </div>
+        </div>
+        <div class="accordion-collapse collapse" [class.show]="estOuvert(app)">
+          <div class="accordion-body">
+            <app-locataires-table
+              [locataires]="locatairesDe(app)"
+              [appartements]="appartements"
+              mode="actifs"
+              [afficherColonneAppartement]="false"
+              messageListeVide="Aucun locataire dans cet appartement."
+              (rafraichir)="loadLocataires()"
+              >
+            </app-locataires-table>
+          </div>
         </div>
       </div>
-      <div class="accordion-collapse collapse" [class.show]="estOuvert(app)">
-        <div class="accordion-body">
-          <app-locataires-table
-            [locataires]="locatairesDe(app)"
-            [appartements]="appartements"
-            mode="actifs"
-            [afficherColonneAppartement]="false"
-            messageListeVide="Aucun locataire dans cet appartement."
-            (rafraichir)="loadLocataires()"
-          >
-          </app-locataires-table>
-        </div>
+    }
+    @if (appartements.length === 0) {
+      <div
+        class="text-center text-muted border rounded py-3"
+        >
+        Aucun appartement enregistré.
       </div>
-    </div>
-    <div
-      *ngIf="appartements.length === 0"
-      class="text-center text-muted border rounded py-3"
-    >
-      Aucun appartement enregistré.
-    </div>
+    }
   </div>
-  <app-appartement-modal
-    *ngIf="showModal"
-    [appartement]="selectedAppartement"
-    (save)="onSave($event)"
-    (cancel)="closeModal()"
-  >
-  </app-appartement-modal>
+  @if (showModal) {
+    <app-appartement-modal
+      [appartement]="selectedAppartement"
+      (save)="onSave($event)"
+      (cancel)="closeModal()"
+      >
+    </app-appartement-modal>
+  }
 </div>

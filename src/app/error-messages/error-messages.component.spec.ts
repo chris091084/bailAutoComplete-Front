@@ -7,7 +7,7 @@ describe('ErrorMessagesComponentComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ErrorMessagesComponent],
+      imports: [ErrorMessagesComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ErrorMessagesComponent);

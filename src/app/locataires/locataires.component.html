@@ -6,7 +6,7 @@
     </p>
   </div>
   <!-- Un locataire ne se supprime pas : il sort du logement et bascule dans le
-       second onglet, d'où il peut être réintégré. -->
+  second onglet, d'où il peut être réintégré. -->
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
       <button
@@ -14,7 +14,7 @@
         class="nav-link"
         [class.active]="ongletActif === 'actifs'"
         (click)="ongletActif = 'actifs'"
-      >
+        >
         Locataires
         <span class="badge text-bg-secondary ms-1">{{ locataires.length }}</span>
       </button>
@@ -25,7 +25,7 @@
         class="nav-link"
         [class.active]="ongletActif === 'sortis'"
         (click)="ongletActif = 'sortis'"
-      >
+        >
         Locataires sortis
         <span class="badge text-bg-secondary ms-1">
           {{ locatairesSortis.length }}
@@ -33,21 +33,23 @@
       </button>
     </li>
   </ul>
-  <app-locataires-table
-    *ngIf="ongletActif === 'actifs'"
-    [locataires]="locataires"
-    [appartements]="appartements"
-    mode="actifs"
-    (rafraichir)="rechargerLocataires()"
-  >
-  </app-locataires-table>
-  <app-locataires-table
-    *ngIf="ongletActif === 'sortis'"
-    [locataires]="locatairesSortis"
-    [appartements]="appartements"
-    mode="sortis"
-    messageListeVide="Aucun locataire sorti."
-    (rafraichir)="rechargerLocataires()"
-  >
-  </app-locataires-table>
+  @if (ongletActif === 'actifs') {
+    <app-locataires-table
+      [locataires]="locataires"
+      [appartements]="appartements"
+      mode="actifs"
+      (rafraichir)="rechargerLocataires()"
+      >
+    </app-locataires-table>
+  }
+  @if (ongletActif === 'sortis') {
+    <app-locataires-table
+      [locataires]="locatairesSortis"
+      [appartements]="appartements"
+      mode="sortis"
+      messageListeVide="Aucun locataire sorti."
+      (rafraichir)="rechargerLocataires()"
+      >
+    </app-locataires-table>
+  }
 </div>

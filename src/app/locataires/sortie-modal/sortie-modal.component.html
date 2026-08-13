@@ -5,7 +5,7 @@
   aria-modal="true"
   aria-labelledby="sortieModalTitle"
   style="background: rgba(0, 0, 0, 0.5)"
->
+  >
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -33,13 +33,14 @@
               class="form-control"
               id="sortie"
               formControlName="sortie"
-            />
-            <div
-              class="invalid-feedback d-block"
-              *ngIf="form.get('sortie')?.touched && form.get('sortie')?.invalid"
-            >
-              La date de sortie est obligatoire.
-            </div>
+              />
+            @if (form.get('sortie')?.touched && form.get('sortie')?.invalid) {
+              <div
+                class="invalid-feedback d-block"
+                >
+                La date de sortie est obligatoire.
+              </div>
+            }
           </div>
           <p class="text-muted mb-0">
             La fiche n'est pas supprimée : elle bascule dans l'onglet
@@ -52,19 +53,20 @@
             class="btn btn-secondary"
             [disabled]="traitementEnCours"
             (click)="onCancel()"
-          >
+            >
             Annuler
           </button>
           <button
             type="submit"
             class="btn btn-danger"
             [disabled]="traitementEnCours"
-          >
-            <span
-              *ngIf="traitementEnCours"
-              class="spinner-border spinner-border-sm me-1"
-              aria-hidden="true"
-            ></span>
+            >
+            @if (traitementEnCours) {
+              <span
+                class="spinner-border spinner-border-sm me-1"
+                aria-hidden="true"
+              ></span>
+            }
             Sortir le locataire
           </button>
         </div>

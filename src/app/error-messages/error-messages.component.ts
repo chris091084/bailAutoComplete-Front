@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 @Component({
-  standalone: true,
-  selector: 'app-error-messages',
-  templateUrl: './error-messages.component.html',
-  styleUrls: ['./error-messages.component.scss'],
-  imports: [CommonModule],
+    selector: 'app-error-messages',
+    templateUrl: './error-messages.component.html',
+    styleUrls: ['./error-messages.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: []
 })
 export class ErrorMessagesComponent {
   @Input() control: AbstractControl | null = null;

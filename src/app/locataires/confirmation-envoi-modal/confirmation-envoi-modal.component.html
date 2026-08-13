@@ -5,7 +5,7 @@
   aria-modal="true"
   aria-labelledby="confirmationEnvoiModalTitle"
   style="background: rgba(0, 0, 0, 0.5)"
->
+  >
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -25,21 +25,24 @@
           Êtes-vous sûr de bien vouloir envoyer {{ document }} à
           <strong>{{ nomComplet }}</strong> ?
         </p>
-        <p class="text-muted mb-0" *ngIf="locataire?.email">
-          Le courrier partira à l'adresse {{ locataire?.email }}.
-        </p>
-        <div
-          class="alert alert-warning mt-3 mb-0"
-          role="alert"
-          *ngIf="
-            rappelerEnvoiPrecedent &&
-            locataire?.resiliationEnvoyeeLe as envoiPrecedent
-          "
-        >
-          Une lettre de résiliation a déjà été envoyée le
-          {{ envoiPrecedent | date: 'dd/MM/yyyy' }} à
-          {{ envoiPrecedent | date: 'HH:mm' }}.
-        </div>
+        @if (locataire?.email) {
+          <p class="text-muted mb-0">
+            Le courrier partira à l'adresse {{ locataire?.email }}.
+          </p>
+        }
+        @if (
+          rappelerEnvoiPrecedent &&
+          locataire?.resiliationEnvoyeeLe; as envoiPrecedent
+          ) {
+          <div
+            class="alert alert-warning mt-3 mb-0"
+            role="alert"
+            >
+            Une lettre de résiliation a déjà été envoyée le
+            {{ envoiPrecedent | date: 'dd/MM/yyyy' }} à
+            {{ envoiPrecedent | date: 'HH:mm' }}.
+          </div>
+        }
       </div>
       <div class="modal-footer">
         <button
@@ -47,7 +50,7 @@
           class="btn btn-secondary"
           [disabled]="envoiEnCours"
           (click)="onCancel()"
-        >
+          >
           Annuler
         </button>
         <button
@@ -56,12 +59,13 @@
           [ngClass]="classeConfirmer"
           [disabled]="envoiEnCours"
           (click)="onConfirm()"
-        >
-          <span
-            *ngIf="envoiEnCours"
-            class="spinner-border spinner-border-sm me-1"
-            aria-hidden="true"
-          ></span>
+          >
+          @if (envoiEnCours) {
+            <span
+              class="spinner-border spinner-border-sm me-1"
+              aria-hidden="true"
+            ></span>
+          }
           {{ libelleConfirmer }}
         </button>
       </div>

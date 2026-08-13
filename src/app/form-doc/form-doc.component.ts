@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   FormControl,
@@ -15,21 +15,20 @@ import { HttpClient } from '@angular/common/http';
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { ErrorMessagesComponent } from '../error-messages/error-messages.component';
-import { CommonModule } from '@angular/common';
+
 import { DocGeneratorService } from '../service/doc-generator.service';
 import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.component';
 
 @Component({
-  standalone: true,
-  selector: 'app-form-doc',
-  templateUrl: './form-doc.component.html',
-  styleUrls: ['./form-doc.component.scss'],
-  imports: [
+    selector: 'app-form-doc',
+    templateUrl: './form-doc.component.html',
+    styleUrls: ['./form-doc.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [
     ErrorMessagesComponent,
-    CommonModule,
     ReactiveFormsModule,
-    LacataireFieldsComponent,
-  ],
+    LacataireFieldsComponent
+]
 })
 export class FormDocComponent {
   //APPARTEMENT

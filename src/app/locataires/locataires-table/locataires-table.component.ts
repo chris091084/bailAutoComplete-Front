@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import saveAs from 'file-saver';
 import { catchError, map, of, switchMap } from 'rxjs';
@@ -26,17 +26,17 @@ import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
  * réussie émet `rafraichir`, à charge du parent de recharger ses listes.
  */
 @Component({
-  selector: 'app-locataires-table',
-  standalone: true,
-  imports: [
-    CommonModule,
-    LocataireModalComponent,
-    ConfirmationEnvoiModalComponent,
-    QuittanceModalComponent,
-    SortieModalComponent,
-  ],
-  templateUrl: './locataires-table.component.html',
-  styleUrls: ['./locataires-table.component.scss'],
+    selector: 'app-locataires-table',
+    imports: [
+        CommonModule,
+        LocataireModalComponent,
+        ConfirmationEnvoiModalComponent,
+        QuittanceModalComponent,
+        SortieModalComponent,
+    ],
+    templateUrl: './locataires-table.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./locataires-table.component.scss']
 })
 export class LocatairesTableComponent {
   @Input() locataires: LocataireDto[] = [];

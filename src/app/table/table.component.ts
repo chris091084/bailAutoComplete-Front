@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RequestService } from '../service/requestService';
 import { AppartementDto } from '../model/AppartementDto.model';
@@ -7,11 +7,11 @@ import { AppartementModalComponent } from './appartement-modal/appartement-modal
 import { LocatairesTableComponent } from '../locataires/locataires-table/locataires-table.component';
 
 @Component({
-  selector: 'app-table',
-  standalone: true,
-  imports: [CommonModule, AppartementModalComponent, LocatairesTableComponent],
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.scss'],
+    selector: 'app-table',
+    imports: [CommonModule, AppartementModalComponent, LocatairesTableComponent],
+    templateUrl: './table.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./table.component.scss']
 })
 export class TableComponent implements OnInit {
   appartements: AppartementDto[] = [];

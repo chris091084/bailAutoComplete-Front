@@ -1,12 +1,17 @@
-<div
-  class="invalid-error"
-  *ngIf="
-    (control?.invalid && this.isSubmit) ||
-    (control?.invalid && control?.touched)
-  "
->
-  <div *ngIf="control?.errors?.['required']">Ce champ est requis.</div>
-  <div *ngIf="control?.errors?.['email']">
-    Ce champ doit être un email valide.
+@if (
+  (control?.invalid && this.isSubmit) ||
+  (control?.invalid && control?.touched)
+  ) {
+  <div
+    class="invalid-error"
+    >
+    @if (control?.errors?.['required']) {
+      <div>Ce champ est requis.</div>
+    }
+    @if (control?.errors?.['email']) {
+      <div>
+        Ce champ doit être un email valide.
+      </div>
+    }
   </div>
-</div>
+}

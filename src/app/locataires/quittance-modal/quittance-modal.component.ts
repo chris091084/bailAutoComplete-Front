@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -28,11 +28,11 @@ const JOUR_PAIEMENT = '05';
  * période de plusieurs mois produit autant de quittances distinctes.
  */
 @Component({
-  selector: 'app-quittance-modal',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './quittance-modal.component.html',
-  styleUrls: ['./quittance-modal.component.scss'],
+    selector: 'app-quittance-modal',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './quittance-modal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./quittance-modal.component.scss']
 })
 export class QuittanceModalComponent implements OnInit {
   @Input() locataire: LocataireDto | null = null;
