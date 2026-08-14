@@ -1,0 +1,92 @@
+/* Sur grand écran la ligne montre tout : la bascule n'a rien à déplier. */
+.bascule-actions {
+  display: none;
+}
+
+/* Mobile : le téléphone, l'email et l'âge sont masqués — ce sont les colonnes
+   les plus larges, et elles restent consultables via la modale de modification.
+   La résiliation part avec elles : son badge est large et l'information n'est
+   utile qu'au moment d'envoyer la lettre, depuis les actions dépliées. La date
+   de sortie, elle, reste : c'est la seule date qui distingue les fiches sorties.
+   Les actions, elles, passent sous la ligne et ne s'affichent qu'au dépliage. */
+@media (max-width: 767.98px) {
+  .colonne-secondaire,
+  .colonne-resiliation {
+    display: none;
+  }
+
+  /* Sans cela le tableau garde sa mise en page « table » : les lignes flex
+     n'ont pas de largeur définie, la cellule des actions ne revient jamais à la
+     ligne et le tableau déborde en largeur. */
+  .table,
+  .table > thead,
+  .table > tbody {
+    display: block;
+    width: 100%;
+  }
+
+  /* Les cellules partagent la largeur à parts égales : le même nombre de
+     cellules par ligne suffit à garder les colonnes alignées avec l'en-tête. */
+  .table thead tr,
+  .table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom-width: var(--bs-border-width);
+  }
+
+  .table th,
+  .table td {
+    flex: 1 1 0;
+    min-width: 0;
+    border-bottom-width: 0;
+  }
+
+  .table tbody tr {
+    cursor: pointer;
+  }
+
+  /* Bootstrap interdit le retour à la ligne dans un badge : « Envoyée le
+     jj/mm/aaaa » déborderait de sa colonne et ferait défiler tout le tableau. */
+  .table td .badge {
+    white-space: normal;
+  }
+
+  /* L'en-tête « Actions » n'annonce plus de colonne. */
+  th.cellule-actions {
+    display: none;
+  }
+
+  /* Repliée par défaut ; ouverte, elle occupe toute la largeur sous la ligne. */
+  td.cellule-actions {
+    display: none;
+  }
+
+  tr.ouverte td.cellule-actions {
+    display: block;
+    flex: 1 0 100%;
+    padding-top: 0;
+  }
+
+  td.cellule-actions .btn {
+    margin-bottom: 0.25rem;
+  }
+
+  .bascule-actions {
+    display: inline-flex;
+    align-items: center;
+    border: 0;
+    padding: 0;
+    margin-right: 0.4rem;
+    background: none;
+    color: inherit;
+  }
+
+  .bascule-actions .chevron {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  tr.ouverte .bascule-actions .chevron {
+    transform: rotate(90deg);
+  }
+}

@@ -14,33 +14,52 @@
       <tr>
         <th scope="col">Nom</th>
         <th scope="col">Prénom</th>
-        <th scope="col">Âge</th>
-        <th scope="col">Téléphone</th>
-        <th scope="col">Email</th>
+        <th scope="col" class="colonne-secondaire">Âge</th>
+        <th scope="col" class="colonne-secondaire">Téléphone</th>
+        <th scope="col" class="colonne-secondaire">Email</th>
         @if (afficherColonneAppartement) {
           <th scope="col">Appartement</th>
         }
         <th scope="col">Date d'entrée</th>
-        <th scope="col">
-          {{ mode === 'actifs' ? 'Résiliation' : 'Date de sortie' }}
-        </th>
-        <th scope="col">Actions</th>
+        <th scope="col">Loyer CC</th>
+        @if (mode === 'actifs') {
+          <th scope="col" class="colonne-resiliation">Résiliation</th>
+        }
+        @if (mode === 'sortis') {
+          <th scope="col">Date de sortie</th>
+        }
+        <th scope="col" class="cellule-actions">Actions</th>
       </tr>
     </thead>
     <tbody>
       @for (locataire of locataires; track locataire) {
-        <tr>
-          <td>{{ locataire.nom }}</td>
-          <td>{{ locataire.prenom }}</td>
+        <tr [class.ouverte]="estOuverte(locataire)" (click)="basculerLigne(locataire)">
           <td>
+            <!-- Le chevron porte la bascule au clavier : la ligne entière n'est
+            cliquable qu'à la souris et au doigt. -->
+            <button
+              type="button"
+              class="bascule-actions"
+              [attr.aria-expanded]="estOuverte(locataire)"
+              [attr.aria-label]="
+                'Actions de ' + locataire.prenom + ' ' + locataire.nom
+              "
+              (click)="$event.stopPropagation(); basculerLigne(locataire)"
+              >
+              <i class="bi bi-chevron-right chevron"></i>
+            </button>
+            {{ locataire.nom }}
+          </td>
+          <td>{{ locataire.prenom }}</td>
+          <td class="colonne-secondaire">
             @if (age(locataire); as age) {
               <span>{{ age }} ans</span>
             } @else {
               <span class="text-muted">—</span>
             }
           </td>
-          <td>{{ locataire.telephone }}</td>
-          <td>{{ locataire.email }}</td>
+          <td class="colonne-secondaire">{{ locataire.telephone }}</td>
+          <td class="colonne-secondaire">{{ locataire.email }}</td>
           @if (afficherColonneAppartement) {
             <td>{{ locataire.appartementNom }}</td>
           }
@@ -53,8 +72,16 @@
               <span class="text-muted">—</span>
             }
           </td>
+          <td>
+            @let loyer = loyerCharges(locataire);
+            @if (loyer !== null) {
+              <span>{{ loyer | number: '1.0-2' }} €</span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
           @if (mode === 'actifs') {
-            <td>
+            <td class="colonne-resiliation">
               @if (locataire.resiliationEnvoyeeLe; as envoiLe) {
                 <span
                   class="badge text-bg-success"
@@ -80,7 +107,8 @@
             </td>
           }
           @if (mode === 'actifs') {
-            <td>
+            <!-- Le clic sur un bouton ne doit pas refermer la ligne. -->
+            <td class="cellule-actions" (click)="$event.stopPropagation()">
               <button
                 class="btn btn-primary btn-sm me-2"
                 (click)="openEditModal(locataire)"
@@ -136,7 +164,7 @@
             </td>
           }
           @if (mode === 'sortis') {
-            <td>
+            <td class="cellule-actions" (click)="$event.stopPropagation()">
               <button
                 class="btn btn-outline-primary btn-sm"
                 [disabled]="sortieEnCours !== null"

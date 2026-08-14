@@ -92,6 +92,13 @@ export class LocatairesTableComponent {
   messageSucces: string | null = null;
   messageErreur: string | null = null;
 
+  /**
+   * Ids des locataires dépliés. En mobile la ligne n'a pas la place de porter
+   * ses boutons : elle s'ouvre dessous, comme l'accordéon des appartements. Sur
+   * grand écran les actions restent dans leur colonne et cet état ne sert pas.
+   */
+  private lignesOuvertes = new Set<number>();
+
   constructor(
     private requestService: RequestService,
     private resiliationService: ResiliationService,
@@ -99,7 +106,20 @@ export class LocatairesTableComponent {
   ) {}
 
   get nombreColonnes(): number {
-    return this.afficherColonneAppartement ? 9 : 8;
+    return this.afficherColonneAppartement ? 10 : 9;
+  }
+
+  /**
+   * Le loyer charges comprises, celui-là même que porte la quittance. `null`
+   * pour les fiches sans result_form rattaché, qui n'ont aucun montant : mieux
+   * vaut un tiret qu'un 0 € qu'on prendrait pour un loyer gratuit.
+   */
+  loyerCharges(locataire: LocataireDto): number | null {
+    if (locataire.loyerHorsCharges == null && locataire.charges == null) {
+      return null;
+    }
+
+    return (locataire.loyerHorsCharges ?? 0) + (locataire.charges ?? 0);
   }
 
   /**
@@ -111,6 +131,20 @@ export class LocatairesTableComponent {
     return locataire.anneeNaissance
       ? new Date().getFullYear() - locataire.anneeNaissance
       : null;
+  }
+
+  estOuverte(locataire: LocataireDto): boolean {
+    return locataire.id != null && this.lignesOuvertes.has(locataire.id);
+  }
+
+  basculerLigne(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    if (!this.lignesOuvertes.delete(locataire.id)) {
+      this.lignesOuvertes.add(locataire.id);
+    }
   }
 
   openEditModal(locataire: LocataireDto) {
