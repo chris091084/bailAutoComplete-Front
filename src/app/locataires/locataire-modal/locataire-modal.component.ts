@@ -31,9 +31,9 @@ export class LocataireModalComponent implements OnInit {
   // les noms d'appartement et de locataire.
   resultFormsOptions: { id: number; label: string }[] = [];
 
-  /** Bornes de l'année de naissance, alignées sur celles que l'API vérifie. */
-  readonly anneeNaissanceMin = 1900;
-  readonly anneeCourante = new Date().getFullYear();
+  /** Bornes de la date de naissance, alignées sur celles que l'API vérifie. */
+  readonly dateNaissanceMin = '1900-01-01';
+  readonly aujourdhui = new Date().toISOString().slice(0, 10);
 
   form: FormGroup;
 
@@ -46,13 +46,8 @@ export class LocataireModalComponent implements OnInit {
       prenom: ['', Validators.required],
       telephone: [''],
       email: ['', Validators.email],
-      anneeNaissance: [
-        null,
-        [
-          Validators.min(this.anneeNaissanceMin),
-          Validators.max(this.anneeCourante),
-        ],
-      ],
+      dateNaissance: [null],
+      profession: [''],
       entree: [null],
       appartementId: [null, Validators.required],
       resultFormId: [null],
@@ -112,9 +107,8 @@ export class LocataireModalComponent implements OnInit {
         email: formValue.email || null,
         // Champ vidé : `null` explicite, l'API distingue « effacer » de
         // « ne pas toucher au champ ».
-        anneeNaissance: formValue.anneeNaissance
-          ? Number(formValue.anneeNaissance)
-          : null,
+        dateNaissance: formValue.dateNaissance || null,
+        profession: formValue.profession || null,
         entree: formValue.entree || null,
         appartementId: Number(formValue.appartementId),
         // `null` explicite plutôt qu'omis : l'API distingue « détacher » de

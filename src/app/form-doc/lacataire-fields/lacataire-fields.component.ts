@@ -31,4 +31,8 @@ export class LacataireFieldsComponent {
   @Input() modifyValIrl!: boolean | undefined;
   @Input() appartementSelected!: AppartementDto;
   @Input() pieces: string[] = [];
+
+  /** Bornes de la date de naissance, alignées sur celles que l'API vérifie. */
+  readonly dateNaissanceMin = '1900-01-01';
+  readonly aujourdhui = new Date().toISOString().slice(0, 10);
 }

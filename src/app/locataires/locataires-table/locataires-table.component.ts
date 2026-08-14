@@ -123,14 +123,28 @@ export class LocatairesTableComponent {
   }
 
   /**
-   * L'âge affiché dans la liste. La fiche ne porte que l'année de naissance :
-   * l'âge est donc celui atteint dans l'année, à quelques mois près, ce qui
-   * suffit à situer un locataire. `null` tant que l'année n'est pas saisie.
+   * L'âge affiché dans la liste : celui atteint au dernier anniversaire, la
+   * fiche portant la date de naissance complète. `null` tant qu'elle n'est pas
+   * saisie.
+   *
+   * La date est découpée à la main plutôt que passée à `new Date` : la chaîne
+   * « AAAA-MM-JJ » y serait lue en UTC et pourrait décaler d'un jour, donc
+   * d'un an la veille d'un anniversaire.
    */
   age(locataire: LocataireDto): number | null {
-    return locataire.anneeNaissance
-      ? new Date().getFullYear() - locataire.anneeNaissance
-      : null;
+    const parties = locataire.dateNaissance?.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!parties) {
+      return null;
+    }
+
+    const [annee, mois, jour] = parties.slice(1).map(Number);
+    const aujourdhui = new Date();
+    const age = aujourdhui.getFullYear() - annee;
+    const anniversairePasse =
+      aujourdhui.getMonth() + 1 > mois ||
+      (aujourdhui.getMonth() + 1 === mois && aujourdhui.getDate() >= jour);
+
+    return anniversairePasse ? age : age - 1;
   }
 
   estOuverte(locataire: LocataireDto): boolean {
