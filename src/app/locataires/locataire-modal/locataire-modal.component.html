@@ -59,18 +59,17 @@
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="anneeNaissance" class="form-label">
-                Année de naissance
+              <label for="dateNaissance" class="form-label">
+                Date de naissance
                 <span class="text-muted">(facultatif)</span>
               </label>
               <input
-                type="number"
+                type="date"
                 class="form-control"
-                id="anneeNaissance"
-                formControlName="anneeNaissance"
-                [min]="anneeNaissanceMin"
-                [max]="anneeCourante"
-                placeholder="1998"
+                id="dateNaissance"
+                formControlName="dateNaissance"
+                [min]="dateNaissanceMin"
+                [max]="aujourdhui"
                 />
               <div class="form-text">Sert à afficher l'âge dans la liste.</div>
             </div>
@@ -86,6 +85,18 @@
                 Reprise de la date de prise d'effet du bail.
               </div>
             </div>
+          </div>
+          <div class="mb-3">
+            <label for="profession" class="form-label">
+              Profession
+              <span class="text-muted">(facultatif)</span>
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="profession"
+              formControlName="profession"
+              />
           </div>
           <div class="mb-3">
             <label for="appartementId" class="form-label">Appartement</label>

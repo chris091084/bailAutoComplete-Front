@@ -6,9 +6,12 @@ export interface LocataireDto {
   prenom: string;
   telephone: string | null;
   email: string | null;
-  // Année de naissance, dont la liste tire l'âge affiché. Facultative : rien ne
-  // la demande à la génération du bail, elle se saisit depuis la fiche.
-  anneeNaissance?: number | null;
+  // Date de naissance au format « AAAA-MM-JJ », dont la liste tire l'âge
+  // affiché. Facultative : rien ne la demande à la génération du bail, elle se
+  // saisit depuis la fiche.
+  dateNaissance?: string | null;
+  // Profession, saisie au formulaire de bail ou sur la fiche. Facultative.
+  profession?: string | null;
   // Date d'entrée dans le logement au format « AAAA-MM-JJ ». Reprise par l'API
   // de `result_form.date_from` à la création, modifiable ensuite.
   entree?: string | null;

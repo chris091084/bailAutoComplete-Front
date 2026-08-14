@@ -58,6 +58,11 @@ export class FormDocComponent {
     adress: new FormControl('', Validators.required),
     email: new FormControl('', Validators.required),
     telephone: new FormControl(''),
+    // Ni l'un ni l'autre n'entre dans les documents générés : ils ne servent
+    // qu'à renseigner la fiche locataire, d'où l'absence de `required`, qui
+    // bloquerait la génération d'un bail pour un champ qu'elle n'utilise pas.
+    dateNaissance: new FormControl(''),
+    profession: new FormControl(''),
     from: new FormControl('', Validators.required),
     to: new FormControl({ value: '', disabled: true }),
     motif: new FormControl(
@@ -264,6 +269,8 @@ export class FormDocComponent {
       prenom: this.formDoc.get('firstname')?.value ?? '',
       telephone: this.formDoc.get('telephone')?.value || null,
       email: this.formDoc.get('email')?.value || null,
+      dateNaissance: this.formDoc.get('dateNaissance')?.value || null,
+      profession: this.formDoc.get('profession')?.value || null,
       appartementId: Number(appartement.id),
       resultFormId: Number(resultFormId),
     };

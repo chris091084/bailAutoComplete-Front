@@ -78,6 +78,42 @@
 <div class="row">
   <div class="col">
     <div class="form-group">
+      <label for="dateNaissance"> Date de naissance </label>
+      <input
+        id="dateNaissance"
+        class="form-control"
+        type="date"
+        formControlName="dateNaissance"
+        [min]="dateNaissanceMin"
+        [max]="aujourdhui"
+        [class.is-invalid]="isInvalid('dateNaissance')"
+        />
+      <app-error-messages
+        [control]="formDoc.get('dateNaissance')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <label for="profession"> Profession </label>
+      <input
+        id="profession"
+        class="form-control"
+        type="text"
+        formControlName="profession"
+        [class.is-invalid]="isInvalid('profession')"
+        />
+      <app-error-messages
+        [control]="formDoc.get('profession')"
+        [isSubmit]="isSubmit"
+      ></app-error-messages>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="form-group">
       <label for="from"> date de début</label>
       <input
         id="from"

@@ -52,8 +52,12 @@
           </td>
           <td>{{ locataire.prenom }}</td>
           <td class="colonne-secondaire">
-            @if (age(locataire); as age) {
-              <span>{{ age }} ans</span>
+            <!-- `@let` et non `@if (…; as age)` : la forme `as` teste la valeur,
+            et un âge de 0 an, faux au sens de JavaScript, afficherait un tiret
+            comme une date de naissance absente. -->
+            @let ageLocataire = age(locataire);
+            @if (ageLocataire !== null) {
+              <span>{{ ageLocataire }} an{{ ageLocataire > 1 ? 's' : '' }}</span>
             } @else {
               <span class="text-muted">—</span>
             }
