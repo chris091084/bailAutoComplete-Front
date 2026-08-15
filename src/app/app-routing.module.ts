@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormDocComponent } from './form-doc/form-doc.component';
-import { TableComponent } from './table/table.component';
 import { LoginComponent } from './login/login.component';
 import { authGuard } from './guard/auth.guard';
+import { AppartementComponent } from './appartement/appartement.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', component: FormDocComponent, canActivate: [authGuard] },
-  { path: 'table', component: TableComponent, canActivate: [authGuard] },
+  { path: 'table', component: AppartementComponent, canActivate: [authGuard] },
   {
     path: 'locataires',
     canActivate: [authGuard],

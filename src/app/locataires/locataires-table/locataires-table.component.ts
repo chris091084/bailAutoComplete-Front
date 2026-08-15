@@ -105,8 +105,9 @@ export class LocatairesTableComponent {
     private quittanceService: QuittanceService,
   ) {}
 
+  /** Le colspan de la ligne « aucun locataire » : à tenir à jour avec l'en-tête. */
   get nombreColonnes(): number {
-    return this.afficherColonneAppartement ? 10 : 9;
+    return this.afficherColonneAppartement ? 12 : 11;
   }
 
   /**
