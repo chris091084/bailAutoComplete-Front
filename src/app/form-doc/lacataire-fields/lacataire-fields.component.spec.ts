@@ -31,6 +31,8 @@ class HostComponent {
     email: new FormControl(''),
     telephone: new FormControl(''),
     adress: new FormControl(''),
+    dateNaissance: new FormControl(''),
+    profession: new FormControl(''),
     room: new FormControl(''),
     motif: new FormControl(''),
     from: new FormControl(''),
