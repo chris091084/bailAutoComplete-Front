@@ -14,19 +14,21 @@
       <tr>
         <th scope="col">Nom</th>
         <th scope="col">Prénom</th>
+        <th scope="col" class="colonne-secondaire">Date de naissance</th>
         <th scope="col" class="colonne-secondaire">Âge</th>
+        <th scope="col" class="colonne-secondaire">Profession</th>
         <th scope="col" class="colonne-secondaire">Téléphone</th>
         <th scope="col" class="colonne-secondaire">Email</th>
         @if (afficherColonneAppartement) {
           <th scope="col">Appartement</th>
         }
-        <th scope="col">Date d'entrée</th>
-        <th scope="col">Loyer CC</th>
+        <th scope="col" class="colonne-date">Date d'entrée</th>
+        <th scope="col" class="colonne-loyer">Loyer CC</th>
         @if (mode === 'actifs') {
           <th scope="col" class="colonne-resiliation">Résiliation</th>
         }
         @if (mode === 'sortis') {
-          <th scope="col">Date de sortie</th>
+          <th scope="col" class="colonne-date">Date de sortie</th>
         }
         <th scope="col" class="cellule-actions">Actions</th>
       </tr>
@@ -35,8 +37,10 @@
       @for (locataire of locataires; track locataire) {
         <tr [class.ouverte]="estOuverte(locataire)" (click)="basculerLigne(locataire)">
           <td>
-            <!-- Le chevron porte la bascule au clavier : la ligne entière n'est
-            cliquable qu'à la souris et au doigt. -->
+            <!-- Le nom porte la bascule au clavier : la ligne entière n'est
+            cliquable qu'à la souris et au doigt. Il est rendu deux fois car sur
+            grand écran la ligne montre déjà tout — un bouton y serait une
+            tabulation de plus sans effet, le nom y redevient un simple texte. -->
             <button
               type="button"
               class="bascule-actions"
@@ -46,11 +50,18 @@
               "
               (click)="$event.stopPropagation(); basculerLigne(locataire)"
               >
-              <i class="bi bi-chevron-right chevron"></i>
+              {{ locataire.nom }}
             </button>
-            {{ locataire.nom }}
+            <span class="nom-locataire">{{ locataire.nom }}</span>
           </td>
           <td>{{ locataire.prenom }}</td>
+          <td class="colonne-secondaire">
+            @if (locataire.dateNaissance) {
+              <span>{{ locataire.dateNaissance | date: 'dd/MM/yyyy' }}</span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
           <td class="colonne-secondaire">
             <!-- `@let` et non `@if (…; as age)` : la forme `as` teste la valeur,
             et un âge de 0 an, faux au sens de JavaScript, afficherait un tiret
@@ -62,12 +73,19 @@
               <span class="text-muted">—</span>
             }
           </td>
+          <td class="colonne-secondaire">
+            @if (locataire.profession) {
+              <span>{{ locataire.profession }}</span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
           <td class="colonne-secondaire">{{ locataire.telephone }}</td>
           <td class="colonne-secondaire">{{ locataire.email }}</td>
           @if (afficherColonneAppartement) {
             <td>{{ locataire.appartementNom }}</td>
           }
-          <td>
+          <td class="colonne-date">
             @if (locataire.entree) {
               <span>
                 {{ locataire.entree | date: 'dd/MM/yyyy' }}
@@ -76,7 +94,7 @@
               <span class="text-muted">—</span>
             }
           </td>
-          <td>
+          <td class="colonne-loyer">
             @let loyer = loyerCharges(locataire);
             @if (loyer !== null) {
               <span>{{ loyer | number: '1.0-2' }} €</span>
@@ -104,7 +122,7 @@
             </td>
           }
           @if (mode === 'sortis') {
-            <td>
+            <td class="colonne-date">
               <span class="badge text-bg-secondary">
                 {{ locataire.sortie | date: 'dd/MM/yyyy' }}
               </span>
@@ -113,58 +131,60 @@
           @if (mode === 'actifs') {
             <!-- Le clic sur un bouton ne doit pas refermer la ligne. -->
             <td class="cellule-actions" (click)="$event.stopPropagation()">
-              <button
-                class="btn btn-primary btn-sm me-2"
-                (click)="openEditModal(locataire)"
-                >
-                Modifier
-              </button>
-              <button
-                class="btn btn-danger btn-sm me-2"
-                [disabled]="sortieEnCours !== null"
-                title="Enregistrer la sortie du logement"
-                (click)="demanderSortie(locataire)"
-                >
-                @if (sortieEnCours === locataire.id) {
-                  <span
-                    class="spinner-border spinner-border-sm me-1"
-                    aria-hidden="true"
-                  ></span>
-                }
-                Sortir
-              </button>
-              <button
-                class="btn btn-success btn-sm me-2"
-                [disabled]="quittanceEnCours !== null"
-                title="Générer une quittance de loyer"
-                (click)="demanderQuittance(locataire)"
-                >
-                @if (quittanceEnCours === locataire.id) {
-                  <span
-                    class="spinner-border spinner-border-sm me-1"
-                    aria-hidden="true"
-                  ></span>
-                }
-                Quittance
-              </button>
-              <button
-                class="btn btn-warning btn-sm"
-                [disabled]="!locataire.email || envoiEnCours !== null"
-            [title]="
-              locataire.email
-                ? 'Envoyer la lettre de résiliation par mail'
-                : 'Aucune adresse email renseignée'
-            "
-                (click)="demanderResiliation(locataire)"
-                >
-                @if (envoiEnCours === locataire.id) {
-                  <span
-                    class="spinner-border spinner-border-sm me-1"
-                    aria-hidden="true"
-                  ></span>
-                }
-                {{ locataire.resiliationEnvoyeeLe ? 'Résiliation à renvoyer' : 'Résiliation' }}
-              </button>
+              <div class="actions-locataire">
+                <button
+                  class="btn btn-primary btn-sm"
+                  (click)="openEditModal(locataire)"
+                  >
+                  Modifier
+                </button>
+                <button
+                  class="btn btn-danger btn-sm"
+                  [disabled]="sortieEnCours !== null"
+                  title="Enregistrer la sortie du logement"
+                  (click)="demanderSortie(locataire)"
+                  >
+                  @if (sortieEnCours === locataire.id) {
+                    <span
+                      class="spinner-border spinner-border-sm me-1"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  Sortir
+                </button>
+                <button
+                  class="btn btn-success btn-sm"
+                  [disabled]="quittanceEnCours !== null"
+                  title="Générer une quittance de loyer"
+                  (click)="demanderQuittance(locataire)"
+                  >
+                  @if (quittanceEnCours === locataire.id) {
+                    <span
+                      class="spinner-border spinner-border-sm me-1"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  Quittance
+                </button>
+                <button
+                  class="btn btn-warning btn-sm"
+                  [disabled]="!locataire.email || envoiEnCours !== null"
+                  [title]="
+                    locataire.email
+                      ? 'Envoyer la lettre de résiliation par mail'
+                      : 'Aucune adresse email renseignée'
+                  "
+                  (click)="demanderResiliation(locataire)"
+                  >
+                  @if (envoiEnCours === locataire.id) {
+                    <span
+                      class="spinner-border spinner-border-sm me-1"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  {{ locataire.resiliationEnvoyeeLe ? 'Résiliation à renvoyer' : 'Résiliation' }}
+                </button>
+              </div>
             </td>
           }
           @if (mode === 'sortis') {

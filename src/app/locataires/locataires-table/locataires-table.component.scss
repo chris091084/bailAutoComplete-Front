@@ -3,6 +3,18 @@
   display: none;
 }
 
+/* Les quatre actions se rangent en deux colonnes : à la file elles feraient de
+   la colonne la plus large du tableau, empilées elles étireraient chaque ligne
+   sur quatre hauteurs de bouton. Les colonnes sont dimensionnées sur leur
+   contenu, et `justify-content` empêche la grille de s'étaler sur toute la
+   largeur de la cellule. */
+.actions-locataire {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: start;
+  gap: 0.25rem;
+}
+
 /* Mobile : le téléphone, l'email et l'âge sont masqués — ce sont les colonnes
    les plus larges, et elles restent consultables via la modale de modification.
    La résiliation part avec elles : son badge est large et l'information n'est
@@ -10,8 +22,10 @@
    de sortie, elle, reste : c'est la seule date qui distingue les fiches sorties.
    Les actions, elles, passent sous la ligne et ne s'affichent qu'au dépliage. */
 @media (max-width: 767.98px) {
-  .colonne-secondaire,
-  .colonne-resiliation {
+  /* Qualifiées par `.table` : sans cela le `display: flex` posé plus bas sur
+     toutes les cellules, plus spécifique, les ferait réapparaître. */
+  .table .colonne-secondaire,
+  .table .colonne-resiliation {
     display: none;
   }
 
@@ -26,20 +40,58 @@
   }
 
   /* Les cellules partagent la largeur à parts égales : le même nombre de
-     cellules par ligne suffit à garder les colonnes alignées avec l'en-tête. */
+     cellules par ligne suffit à garder les colonnes alignées avec l'en-tête.
+     Pas d'`align-items: center` ici : les cellules doivent s'étirer sur toute la
+     hauteur de la ligne, sans quoi le fond du zébrage — que Bootstrap peint sur
+     les cellules et non sur la ligne — dessine des pavés gris de hauteurs
+     inégales. Les cellules, elles, restent en flux normal — en faire des boîtes
+     flex ferait de leur texte un élément flex, qui refuse de descendre sous sa
+     largeur de mot et déborderait sur la colonne voisine. */
   .table thead tr,
   .table tbody tr {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
     border-bottom-width: var(--bs-border-width);
   }
 
   .table th,
   .table td {
+    display: block;
     flex: 1 1 0;
     min-width: 0;
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8125rem;
+    /* Un nom d'un seul tenant déborderait de sa colonne ; `break-word` ne le
+       coupe qu'en dernier recours, quand aucun espace ne fait l'affaire. */
+    overflow-wrap: break-word;
     border-bottom-width: 0;
+  }
+
+  /* Un cran plus petit que les valeurs : « Appartement » tient alors dans sa
+     colonne sans être coupé au milieu. */
+  .table th {
+    font-size: 0.75rem;
+  }
+
+  /* Une date et un montant sont insécables : à parts égales ils déborderaient
+     sur la colonne voisine. On leur réserve leur largeur, le reste se partage
+     entre les colonnes de texte, qui, elles, savent revenir à la ligne. La base
+     couvre la plus longue valeur possible — « 12/08/2026 », « 24 444 € » — pour
+     que `nowrap` ne provoque jamais de débordement. Les en-têtes, eux, gardent
+     le retour à la ligne : « Date d'entrée » ne tient pas sur une ligne et
+     empiéterait sur l'en-tête voisin. */
+  .table td.colonne-date,
+  .table td.colonne-loyer {
+    white-space: nowrap;
+  }
+
+  .table .colonne-date {
+    flex: 0 0 5.25rem;
+  }
+
+  .table .colonne-loyer {
+    flex: 0 0 4.5rem;
+    text-align: right;
   }
 
   .table tbody tr {
@@ -53,40 +105,44 @@
   }
 
   /* L'en-tête « Actions » n'annonce plus de colonne. */
-  th.cellule-actions {
+  .table th.cellule-actions {
     display: none;
   }
 
   /* Repliée par défaut ; ouverte, elle occupe toute la largeur sous la ligne. */
-  td.cellule-actions {
+  .table td.cellule-actions {
     display: none;
   }
 
-  tr.ouverte td.cellule-actions {
+  .table tr.ouverte td.cellule-actions {
     display: block;
     flex: 1 0 100%;
     padding-top: 0;
   }
 
-  td.cellule-actions .btn {
-    margin-bottom: 0.25rem;
+  /* Dépliées sous la ligne, les actions ont toute la largeur : elles se suivent
+     et reviennent à la ligne quand la place manque, plutôt que de tenir deux
+     colonnes fixes trop étroites pour « Résiliation à renvoyer ». */
+  .actions-locataire {
+    display: flex;
+    flex-wrap: wrap;
   }
 
+  .nom-locataire {
+    display: none;
+  }
+
+  /* Le bouton ne doit se distinguer en rien d'un nom écrit en clair : ni décor,
+     ni marqueur de dépliage. Seul le focus le signale, et le dépliage se voit à
+     l'apparition des actions sous la ligne. */
   .bascule-actions {
-    display: inline-flex;
-    align-items: center;
+    display: block;
+    width: 100%;
     border: 0;
     padding: 0;
-    margin-right: 0.4rem;
     background: none;
     color: inherit;
-  }
-
-  .bascule-actions .chevron {
-    transition: transform 0.2s ease-in-out;
-  }
-
-  tr.ouverte .bascule-actions .chevron {
-    transform: rotate(90deg);
+    font: inherit;
+    text-align: left;
   }
 }

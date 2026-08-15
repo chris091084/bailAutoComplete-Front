@@ -7,13 +7,13 @@ import { AppartementModalComponent } from './appartement-modal/appartement-modal
 import { LocatairesTableComponent } from '../locataires/locataires-table/locataires-table.component';
 
 @Component({
-    selector: 'app-table',
+    selector: 'appartement-table',
     imports: [CommonModule, AppartementModalComponent, LocatairesTableComponent],
-    templateUrl: './table.component.html',
+    templateUrl: './appartement.component.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./table.component.scss']
+    styleUrls: ['./appartement.component.scss']
 })
-export class TableComponent implements OnInit {
+export class AppartementComponent implements OnInit {
   appartements: AppartementDto[] = [];
   showModal = false;
   selectedAppartement: AppartementDto | null = null;
