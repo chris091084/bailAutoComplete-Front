@@ -1,11 +1,75 @@
 <div class="container mt-4">
-  <h2>Historique des Générations</h2>
-
   @if (messageSucces) {
     <div class="alert alert-success" role="alert">
       {{ messageSucces }}
     </div>
   }
+
+  @if (messageAvertissement) {
+    <div class="alert alert-warning" role="alert">
+      {{ messageAvertissement }}
+    </div>
+  }
+
+  @if (messageErreur) {
+    <div class="alert alert-danger" role="alert">
+      {{ messageErreur }}
+    </div>
+  }
+
+  <h2>Saisies en cours</h2>
+  <p class="text-muted">
+    Bails enregistrés sans avoir été générés : ni document ni fiche locataire
+    n'en est encore issu.
+  </p>
+
+  @if (isLoadingBrouillons) {
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  } @else if (brouillons.length === 0) {
+    <div class="alert alert-info">Aucune saisie en cours.</div>
+  } @else {
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Nom de l'appartement</th>
+          <th scope="col">Chambre</th>
+          <th scope="col">Noms du locataire</th>
+          <th scope="col">Date de début</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (brouillon of brouillons; track brouillon.id) {
+          <tr>
+            <td>{{ brouillon.appartement?.name || "—" }}</td>
+            <td>{{ brouillon.room || "—" }}</td>
+            <td>{{ nomLocataire(brouillon) }}</td>
+            <td>{{ brouillon.from ? (brouillon.from | date : "dd/MM/yyyy") : "—" }}</td>
+            <td>
+              <button
+                class="btn btn-primary btn-sm me-2"
+                (click)="reprendreBrouillon(brouillon)"
+              >
+                Reprendre la saisie
+              </button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                (click)="supprimerBrouillon(brouillon)"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <h2 class="mt-5">Historique des Générations</h2>
 
   @if (isLoading) {
     <div class="text-center">

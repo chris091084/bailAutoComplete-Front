@@ -224,13 +224,50 @@
               formControlName="clauseLess6Month"
               />
           </div>
-          <div class="mt-4">
+          @if (messageErreur) {
+            <div class="alert alert-danger mt-4" role="alert">
+              {{ messageErreur }}
+            </div>
+          }
+          @if (messageSucces) {
+            <div class="alert alert-success mt-4" role="alert">
+              {{ messageSucces }}
+            </div>
+          }
+
+          <div class="mt-4 d-flex flex-wrap gap-2">
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="formDoc.invalid"
+              [disabled]="isGenerating || isSaving"
               >
+              @if (isGenerating) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              }
               Générer le fichier Word
+            </button>
+            <!-- Enregistre la saisie seule : ni document, ni fiche locataire.
+                 Toujours cliquable, un bail se met de côté avant d'être fini. -->
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              (click)="onSave()"
+              [disabled]="isGenerating || isSaving"
+              >
+              @if (isSaving) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              } @else {
+                <i class="bi bi-floppy-fill me-1"></i>
+              }
+              Enregistrer la saisie
             </button>
           </div>
         </form>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
+import { Brouillon, BrouillonPayload } from '../model/Brouillon.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { SendMailPayload } from '../model/SendMail.model';
 import { environment } from 'environments/environment';
@@ -105,6 +106,34 @@ export class RequestService {
       `${this.apiUrl}locataire/${id}/resiliation`,
       {}
     );
+  }
+
+  /**
+   * Les saisies de bail mises de côté : celles qu'aucune génération ne
+   * référence encore.
+   */
+  getBrouillons(): Observable<Brouillon[]> {
+    return this.http.get<Brouillon[]>(`${this.apiUrl}result-form/brouillons`);
+  }
+
+  /** Enregistre une saisie sans produire de document ni de fiche locataire. */
+  creerBrouillon(brouillon: BrouillonPayload): Observable<Brouillon> {
+    return this.http.post<Brouillon>(`${this.apiUrl}result-form`, brouillon);
+  }
+
+  /** Réenregistre une saisie reprise, à la place de la dupliquer. */
+  majBrouillon(
+    id: number,
+    brouillon: BrouillonPayload
+  ): Observable<Brouillon> {
+    return this.http.put<Brouillon>(
+      `${this.apiUrl}result-form/${id}`,
+      brouillon
+    );
+  }
+
+  supprimerBrouillon(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}result-form/${id}`);
   }
 
   getGenerations(): Observable<any[]> {

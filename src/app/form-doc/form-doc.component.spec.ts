@@ -39,4 +39,46 @@ describe('FormDocComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('dit ce qui manque plutot que de rester muet sur un formulaire incomplet', () => {
+    component.onSubmit();
+
+    expect(component.messageErreur).toContain('Nom');
+    expect(component.isGenerating).toBe(false);
+  });
+
+  it('enregistre la saisie sans generer de document', () => {
+    component.formDoc.patchValue({ name: 'Dupont' });
+
+    component.onSave();
+
+    const requete = httpMock.expectOne((r) => r.url.endsWith('/result-form'));
+    expect(requete.request.method).toBe('POST');
+    expect(requete.request.body.name).toBe('Dupont');
+
+    requete.flush({ id: 12 });
+    expect(component.brouillonId).toBe(12);
+    expect(component.messageSucces).toBeTruthy();
+  });
+
+  it('reenregistre une saisie reprise au lieu de la dupliquer', () => {
+    component.brouillonId = 12;
+
+    component.onSave();
+
+    const requete = httpMock.expectOne((r) => r.url.endsWith('/result-form/12'));
+    expect(requete.request.method).toBe('PUT');
+    requete.flush({ id: 12 });
+  });
+
+  it("signale l'echec d'un enregistrement", () => {
+    component.onSave();
+
+    httpMock
+      .expectOne((r) => r.url.endsWith('/result-form'))
+      .flush({ message: 'Base indisponible' }, { status: 500, statusText: 'Server Error' });
+
+    expect(component.messageErreur).toContain('Base indisponible');
+    expect(component.isSaving).toBe(false);
+  });
 });
