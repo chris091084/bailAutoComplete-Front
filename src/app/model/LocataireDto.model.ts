@@ -38,4 +38,8 @@ export interface LocataireDto {
   // locataire est en place. Renseignée par l'API, jamais renvoyée au serveur :
   // elle se met à jour par POST/DELETE /locataire/:id/sortie.
   sortie?: string | null;
+  // Chambre occupée dans l'appartement, issue du result_form rattaché.
+  chambre?: string | null;
+  // Code couleur CSS (#RRGGBB) de la chambre, `null` si non renseigné.
+  chambreCouleur?: string | null;
 }

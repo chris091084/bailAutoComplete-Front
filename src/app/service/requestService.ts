@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { Brouillon, BrouillonPayload } from '../model/Brouillon.model';
+import { Chambre } from '../model/Chambre.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { SendMailPayload } from '../model/SendMail.model';
 import { environment } from 'environments/environment';
@@ -142,6 +143,10 @@ export class RequestService {
 
   saveGeneration(generation: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}generation`, generation);
+  }
+
+  updateChambreCouleur(id: number, couleur: string | null): Observable<Chambre> {
+    return this.http.put<Chambre>(`${this.apiUrl}chambre/${id}`, { couleur });
   }
 
   sendMail(payload: SendMailPayload): Observable<void> {

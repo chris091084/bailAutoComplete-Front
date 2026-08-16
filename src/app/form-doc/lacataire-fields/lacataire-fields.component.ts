@@ -8,6 +8,7 @@ import {
 } from '@angular/forms';
 import { ErrorMessagesComponent } from 'src/app/error-messages/error-messages.component';
 import { AppartementDto } from 'src/app/model/AppartementDto.model';
+import { Chambre } from 'src/app/model/Chambre.model';
 
 @Component({
     selector: 'app-lacataire-fields',
@@ -31,6 +32,7 @@ export class LacataireFieldsComponent {
   @Input() modifyValIrl!: boolean | undefined;
   @Input() appartementSelected!: AppartementDto;
   @Input() pieces: string[] = [];
+  @Input() chambres: Chambre[] = [];
 
   /** Bornes de la date de naissance, alignées sur celles que l'API vérifie. */
   readonly dateNaissanceMin = '1900-01-01';

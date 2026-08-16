@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import saveAs from 'file-saver';
 import { catchError, map, of, switchMap } from 'rxjs';
@@ -26,17 +32,17 @@ import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
  * réussie émet `rafraichir`, à charge du parent de recharger ses listes.
  */
 @Component({
-    selector: 'app-locataires-table',
-    imports: [
-        CommonModule,
-        LocataireModalComponent,
-        ConfirmationEnvoiModalComponent,
-        QuittanceModalComponent,
-        SortieModalComponent,
-    ],
-    templateUrl: './locataires-table.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./locataires-table.component.scss']
+  selector: 'app-locataires-table',
+  imports: [
+    CommonModule,
+    LocataireModalComponent,
+    ConfirmationEnvoiModalComponent,
+    QuittanceModalComponent,
+    SortieModalComponent,
+  ],
+  templateUrl: './locataires-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./locataires-table.component.scss'],
 })
 export class LocatairesTableComponent {
   @Input() locataires: LocataireDto[] = [];
@@ -148,6 +154,11 @@ export class LocatairesTableComponent {
     return anniversairePasse ? age : age - 1;
   }
 
+  couleurFondLigne(locataire: LocataireDto): string {
+    console.log(locataire.chambreCouleur);
+    return locataire.chambreCouleur ?? '';
+  }
+
   estOuverte(locataire: LocataireDto): boolean {
     return locataire.id != null && this.lignesOuvertes.has(locataire.id);
   }
@@ -231,7 +242,8 @@ export class LocatairesTableComponent {
         this.locataireASortir = null;
         console.error('Erreur lors de la sortie du locataire', err);
         this.afficherErreur(
-          err?.error?.message ?? "La sortie du locataire n'a pas pu être enregistrée.",
+          err?.error?.message ??
+            "La sortie du locataire n'a pas pu être enregistrée.",
         );
       },
     });
@@ -267,7 +279,7 @@ export class LocatairesTableComponent {
         this.sortieEnCours = null;
         console.error('Erreur lors de la réintégration du locataire', err);
         this.afficherErreur(
-          err?.error?.message ?? "La réintégration du locataire a échoué.",
+          err?.error?.message ?? 'La réintégration du locataire a échoué.',
         );
       },
     });
@@ -569,8 +581,7 @@ export class LocatairesTableComponent {
 
   private corpsDuMail(locataire: LocataireDto): string {
     const aCompleter =
-    'Il vous reste à compléter la date de déménagement et votre nouvelle adresse, puis à la dater et la signer.'
-
+      'Il vous reste à compléter la date de déménagement et votre nouvelle adresse, puis à la dater et la signer.';
 
     return [
       `Bonjour ${locataire.prenom},`,
@@ -619,8 +630,7 @@ export class LocatairesTableComponent {
   private toBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () =>
-        resolve(String(reader.result).split(',')[1] ?? '');
+      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(blob);
     });

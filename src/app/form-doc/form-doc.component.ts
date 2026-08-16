@@ -67,6 +67,7 @@ export class FormDocComponent {
 
   typeBails = ['Mobilité', 'Etudiant', 'Indéterminé'];
   pieces: string[] = [];
+  chambres: Chambre[] = [];
   bailleurSelected: any;
   appartementName: string | undefined;
   typeResidences = ['Principale', 'Secondaire'];
@@ -484,6 +485,7 @@ export class FormDocComponent {
 
   switchRooms(rooms: Chambre[], bailleur: any, appartement: AppartementDto) {
     console.log(appartement);
+    this.chambres = rooms;
     this.pieces = rooms.map((chambre) => chambre.piece!);
     this.bailleurSelected = bailleur;
     console.log(bailleur);
