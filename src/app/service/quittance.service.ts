@@ -1,7 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import Docxtemplater from 'docxtemplater';
-import PizZip from 'pizzip';
 import { Observable, firstValueFrom, from, switchMap } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
@@ -12,11 +10,10 @@ import {
   rueDepuisAdresse,
   villeDepuisAdresse,
 } from './adresse.util';
+import { remplirModeleDocx } from './docx.util';
 import { RequestService } from './requestService';
 
 const TEMPLATE_URL = 'assets/docx/Quittance_de_loyer.docx';
-const DOCX_MIME =
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 const MOIS = [
   'janvier',
@@ -113,7 +110,12 @@ export class QuittanceService {
    * mémoire. Quatre conversions simultanées la satureraient.
    */
   private async convertirEnPdf(
-    quittances: { mois: string; libelle: string; nomFichier: string; docx: Blob }[],
+    quittances: {
+      mois: string;
+      libelle: string;
+      nomFichier: string;
+      docx: Promise<Blob>;
+    }[],
   ): Promise<QuittanceGeneree[]> {
     const converties: QuittanceGeneree[] = [];
 
@@ -123,7 +125,7 @@ export class QuittanceService {
         libelle,
         nomFichier,
         fichier: await firstValueFrom(
-          this.requestService.convertirEnPdf(docx, nomFichier),
+          this.requestService.convertirEnPdf(await docx, nomFichier),
         ),
       });
     }
@@ -192,22 +194,16 @@ export class QuittanceService {
     locataire: LocataireDto,
     appartement: AppartementDto,
     options: QuittanceOptions,
-  ): Blob {
-    // `slice()` copie le modèle : le même ArrayBuffer sert à remplir toutes les
-    // quittances de la période, et PizZip ne doit pas travailler dessus en
-    // place au risque d'abîmer les documents suivants.
-    const zip = new PizZip(new Uint8Array(data.slice(0)));
-    const doc = new Docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-    });
-
+  ): Promise<Blob> {
     const adresseLogement = appartement.adress;
     const adresseBailleur = appartement.bailleur?.adress;
     const loyerHorsCharges = locataire.loyerHorsCharges ?? 0;
     const charges = locataire.charges ?? 0;
 
-    doc.render({
+    // `slice()` copie le modèle : le même ArrayBuffer sert à remplir toutes les
+    // quittances de la période, et PizZip ne doit pas travailler dessus en
+    // place au risque d'abîmer les documents suivants.
+    return remplirModeleDocx(data.slice(0), {
       date_from: this.debutPeriode(options.moisDebut),
       date_to: this.finPeriode(options.moisFin),
       // Le bailleur n'est saisi que par un nom complet : il alimente le nom, et
@@ -230,8 +226,6 @@ export class QuittanceService {
       charge_price: this.montant(charges),
       total_price: this.montant(loyerHorsCharges + charges),
     });
-
-    return doc.getZip().generate({ type: 'blob', mimeType: DOCX_MIME });
   }
 
   /** « AAAA-MM » -> [2026, 1]. */

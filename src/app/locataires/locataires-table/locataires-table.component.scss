@@ -3,6 +3,24 @@
   display: none;
 }
 
+/* Le nom et le badge de chambre se suivent, et reviennent à la ligne quand la
+   colonne est trop étroite — sur mobile, où la bascule prend toute la largeur,
+   le badge passe donc sous le nom plutôt que de le comprimer. */
+.cellule-nom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* La couleur de la chambre, autrefois peinte sur toute la ligne. La bordure
+   détache le badge du fond du tableau quand la couleur est très claire, et le
+   texte, lui, est noirci ou blanchi par `couleurTexteSur` selon la teinte. */
+.badge-chambre {
+  border: 1px solid rgb(0 0 0 / 15%);
+  font-weight: 600;
+}
+
 /* Les quatre actions se rangent en deux colonnes : à la file elles feraient de
    la colonne la plus large du tableau, empilées elles étireraient chaque ligne
    sur quatre hauteurs de bouton. Les colonnes sont dimensionnées sur leur

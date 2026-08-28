@@ -6,10 +6,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import saveAs from 'file-saver';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { RequestService } from '../../service/requestService';
 import { ResiliationService } from '../../service/resiliation.service';
+import { couleurTexteSur } from '../../service/couleur.util';
+import { telechargerFichier } from '../../service/telechargement.util';
 import {
   QuittanceGeneree,
   QuittanceOptions,
@@ -20,6 +21,7 @@ import { LocataireDto } from '../../model/LocataireDto.model';
 import { LocataireModalComponent } from '../locataire-modal/locataire-modal.component';
 import { ConfirmationEnvoiModalComponent } from '../confirmation-envoi-modal/confirmation-envoi-modal.component';
 import { QuittanceModalComponent } from '../quittance-modal/quittance-modal.component';
+import { SignatureModalComponent } from '../signature-modal/signature-modal.component';
 import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
 
 /**
@@ -38,6 +40,7 @@ import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
     LocataireModalComponent,
     ConfirmationEnvoiModalComponent,
     QuittanceModalComponent,
+    SignatureModalComponent,
     SortieModalComponent,
   ],
   templateUrl: './locataires-table.component.html',
@@ -48,10 +51,11 @@ export class LocatairesTableComponent {
   @Input() locataires: LocataireDto[] = [];
 
   /**
-   * Un locataire sorti n'a qu'une action, la réintégration : le mode change la
-   * dernière colonne et les boutons offerts.
+   * L'état des fiches affichées, qui change la dernière colonne et les boutons
+   * offerts : un candidat n'a que la signature, un locataire sorti que la
+   * réintégration, un locataire en place toutes les autres actions.
    */
-  @Input() mode: 'actifs' | 'sortis' = 'actifs';
+  @Input() mode: 'candidats' | 'actifs' | 'sortis' = 'actifs';
 
   /**
    * Le locataire ne porte qu'un `appartementId`, or le courrier a besoin de
@@ -70,6 +74,12 @@ export class LocatairesTableComponent {
 
   showModal = false;
   selectedLocataire: LocataireDto | null = null;
+
+  /** Candidat soumis à la confirmation de signature ; `null` = modale fermée. */
+  locataireASigner: LocataireDto | null = null;
+
+  /** Id du candidat dont la signature s'enregistre, pour n'occuper qu'un bouton. */
+  signatureEnCours: number | null = null;
 
   /** Locataire dont on saisit la date de sortie ; `null` = modale fermée. */
   locataireASortir: LocataireDto | null = null;
@@ -111,9 +121,18 @@ export class LocatairesTableComponent {
     private quittanceService: QuittanceService,
   ) {}
 
-  /** Le colspan de la ligne « aucun locataire » : à tenir à jour avec l'en-tête. */
+  /**
+   * Le colspan de la ligne « aucun locataire » : à tenir à jour avec l'en-tête.
+   * Dix colonnes communes, plus l'appartement quand il est affiché, plus celle
+   * propre au mode — la résiliation pour les actifs, la date de sortie pour les
+   * sortis. Les candidats n'en ont aucune des deux.
+   */
   get nombreColonnes(): number {
-    return this.afficherColonneAppartement ? 12 : 11;
+    return (
+      10 +
+      (this.afficherColonneAppartement ? 1 : 0) +
+      (this.mode === 'candidats' ? 0 : 1)
+    );
   }
 
   /**
@@ -154,9 +173,32 @@ export class LocatairesTableComponent {
     return anniversairePasse ? age : age - 1;
   }
 
-  couleurFondLigne(locataire: LocataireDto): string {
-    console.log(locataire.chambreCouleur);
-    return locataire.chambreCouleur ?? '';
+  /**
+   * La couleur de la chambre est portée par un badge accolé au nom, et non
+   * plus par le fond de la ligne : elle y écrasait le zébrage du tableau et
+   * rendait le texte illisible dès que la teinte était soutenue. Le badge, lui,
+   * choisit son texte selon la clarté de la couleur.
+   */
+  couleurTexteBadge(couleur: string | null | undefined): string {
+    return couleurTexteSur(couleur);
+  }
+
+  /**
+   * Ce que le badge annonce : la seule superficie de la chambre. Le libellé
+   * complet — « Chambre 2 : 9.14 m² » — doublerait la largeur de la colonne du
+   * nom, alors que la couleur suffit déjà à distinguer les chambres entre
+   * elles ; reste la superficie, qui, elle, ne se lit nulle part ailleurs.
+   *
+   * Le libellé vient de la base sans garantie de forme : faute de « : », il est
+   * repris tel quel plutôt que rendu vide.
+   */
+  libelleChambre(locataire: LocataireDto): string {
+    const libelle = locataire.chambre?.trim();
+    if (!libelle) {
+      return 'Chambre';
+    }
+
+    return libelle.split(':').pop()?.trim() || libelle;
   }
 
   estOuverte(locataire: LocataireDto): boolean {
@@ -199,6 +241,53 @@ export class LocatairesTableComponent {
     this.requestService.updateLocataire(locataire).subscribe(() => {
       this.rafraichir.emit();
       this.closeModal();
+    });
+  }
+
+  /**
+   * Seule action offerte sur un candidat : déclarer son bail signé. Le clic
+   * n'enregistre rien, il ouvre la confirmation — rien ne ramène ensuite la
+   * fiche à l'état de candidat.
+   */
+  demanderSignature(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    this.locataireASigner = locataire;
+  }
+
+  annulerSignature() {
+    this.locataireASigner = null;
+  }
+
+  confirmerSignature() {
+    const locataire = this.locataireASigner;
+    if (!locataire || locataire.id == null) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.signatureEnCours = locataire.id;
+
+    this.requestService.signerBail(locataire.id).subscribe({
+      next: () => {
+        this.signatureEnCours = null;
+        this.locataireASigner = null;
+        this.rafraichir.emit();
+        this.afficherSucces(
+          `${locataire.prenom} ${locataire.nom} est désormais locataire.`,
+        );
+      },
+      error: (err) => {
+        this.signatureEnCours = null;
+        this.locataireASigner = null;
+        console.error('Erreur lors du passage du candidat en locataire', err);
+        this.afficherErreur(
+          err?.error?.message ?? 'Le passage en locataire a échoué.',
+        );
+      },
     });
   }
 
@@ -461,7 +550,7 @@ export class LocatairesTableComponent {
       .subscribe({
         next: (quittances) => {
           quittances.forEach((quittance) =>
-            saveAs(quittance.fichier, quittance.nomFichier),
+            telechargerFichier(quittance.fichier, quittance.nomFichier),
           );
           this.quittanceEnCours = null;
           this.locataireAQuittancer = null;

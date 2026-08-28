@@ -1,3 +1,5 @@
+import { EtatLocataireEnum } from './enum.model';
+
 export interface LocataireDto {
   // Absent tant que le locataire n'a pas été enregistré : c'est ce qui
   // distingue une création d'une modification côté LocatairesComponent.
@@ -15,6 +17,10 @@ export interface LocataireDto {
   // Date d'entrée dans le logement au format « AAAA-MM-JJ ». Reprise par l'API
   // de `result_form.date_from` à la création, modifiable ensuite.
   entree?: string | null;
+  // L'état de la fiche, qui décide de l'onglet où elle s'affiche et des actions
+  // offertes sur sa ligne. Renseigné par l'API, jamais renvoyé au serveur : il
+  // se met à jour par POST /locataire/:id/signature ou /:id/sortie.
+  etat?: EtatLocataireEnum;
   // Obligatoire : c'est par l'appartement qu'on remonte à son adresse et à son
   // bailleur. La colonne `appartement_id` est NOT NULL et l'API rejette un
   // locataire sans.
