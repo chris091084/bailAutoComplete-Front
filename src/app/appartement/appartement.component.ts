@@ -51,8 +51,10 @@ export class AppartementComponent implements OnInit {
   }
 
   /**
-   * Les locataires sortis ne sont pas repris : l'accordéon montre qui occupe le
-   * logement aujourd'hui, l'historique reste sur l'écran des locataires.
+   * L'appel nu ne sert que les locataires en place : l'accordéon montre qui
+   * occupe le logement aujourd'hui. Les sortis en sont donc absents — leur
+   * historique reste sur l'écran des locataires — et les candidats aussi, un
+   * bail généré n'occupant encore aucune chambre ni aucune place au compteur.
    */
   loadLocataires() {
     this.requestService.getLocataires().subscribe({

@@ -2,12 +2,25 @@
   <div class="mb-3">
     <h2>Liste des Locataires</h2>
     <p class="text-muted mb-0">
-      Un locataire est créé uniquement lors de la génération d'un bail.
+      Une fiche est créée uniquement lors de la génération d'un bail : elle
+      arrive candidate, et devient locataire une fois le bail signé.
     </p>
   </div>
-  <!-- Un locataire ne se supprime pas : il sort du logement et bascule dans le
-  second onglet, d'où il peut être réintégré. -->
+  <!-- Les onglets suivent le cycle de vie de la fiche : candidate à la
+  génération du bail, locataire à la signature, sortie au départ du logement.
+  Un locataire ne se supprime pas, il sort — et peut être réintégré. -->
   <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <button
+        type="button"
+        class="nav-link"
+        [class.active]="ongletActif === 'candidats'"
+        (click)="ongletActif = 'candidats'"
+        >
+        Candidats
+        <span class="badge text-bg-secondary ms-1">{{ candidats.length }}</span>
+      </button>
+    </li>
     <li class="nav-item">
       <button
         type="button"
@@ -33,6 +46,16 @@
       </button>
     </li>
   </ul>
+  @if (ongletActif === 'candidats') {
+    <app-locataires-table
+      [locataires]="candidats"
+      [appartements]="appartements"
+      mode="candidats"
+      messageListeVide="Aucun candidat en attente de signature."
+      (rafraichir)="rechargerLocataires()"
+      >
+    </app-locataires-table>
+  }
   @if (ongletActif === 'actifs') {
     <app-locataires-table
       [locataires]="locataires"

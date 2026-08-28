@@ -1,0 +1,60 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="signatureModalTitle"
+  style="background: rgba(0, 0, 0, 0.5)"
+  >
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signatureModalTitle">
+          Signature du bail
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          [disabled]="traitementEnCours"
+          (click)="onCancel()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">
+          Êtes-vous sûr de vouloir passer ce candidat en locataire ?
+          <br />
+          <strong>{{ nomComplet }}</strong>
+        </p>
+        <p class="text-muted mb-0">
+          La fiche rejoint l'onglet « Locataires » et donne alors accès aux
+          quittances de loyer et à la lettre de résiliation.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="traitementEnCours"
+          (click)="onCancel()"
+          >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          [disabled]="traitementEnCours"
+          (click)="onConfirm()"
+          >
+          @if (traitementEnCours) {
+            <span
+              class="spinner-border spinner-border-sm me-1"
+              aria-hidden="true"
+            ></span>
+          }
+          Passer en locataire
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

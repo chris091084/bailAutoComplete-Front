@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AppartementDto } from '../model/AppartementDto.model';
 import { Brouillon, BrouillonPayload } from '../model/Brouillon.model';
 import { Chambre } from '../model/Chambre.model';
+import { EtatLocataireEnum } from '../model/enum.model';
 import { LocataireDto } from '../model/LocataireDto.model';
 import { SendMailPayload } from '../model/SendMail.model';
 import { environment } from 'environments/environment';
@@ -65,10 +66,15 @@ export class RequestService {
     );
   }
 
-  /** `sortis` bascule sur les locataires ayant quitté le logement. */
-  getLocataires(sortis = false): Observable<LocataireDto[]> {
+  /**
+   * La liste d'un état : candidats, locataires en place ou sortis. Le défaut
+   * sert les locataires en place, ce qu'attendent les appels nus.
+   */
+  getLocataires(
+    etat: EtatLocataireEnum = EtatLocataireEnum.LOCATAIRE
+  ): Observable<LocataireDto[]> {
     return this.http.get<LocataireDto[]>(`${this.apiUrl}locataire`, {
-      params: { sortis },
+      params: { etat },
     });
   }
 
@@ -98,6 +104,17 @@ export class RequestService {
   reintegrerLocataire(id: number): Observable<LocataireDto> {
     return this.http.delete<LocataireDto>(
       `${this.apiUrl}locataire/${id}/sortie`
+    );
+  }
+
+  /**
+   * Le bail est signé : le candidat devient locataire et rejoint la liste
+   * principale, avec les quittances et le congé qu'elle donne.
+   */
+  signerBail(id: number): Observable<LocataireDto> {
+    return this.http.post<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/signature`,
+      {}
     );
   }
 

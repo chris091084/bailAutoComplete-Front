@@ -134,6 +134,29 @@
               </span>
             </td>
           }
+          @if (mode === "candidats") {
+            <!-- Tant que le bail n'est pas signé, il n'y a rien à quittancer,
+            rien à résilier et rien dont sortir : la ligne n'offre que la
+            signature. -->
+            <td class="cellule-actions" (click)="$event.stopPropagation()">
+              <div class="actions-locataire">
+                <button
+                  class="btn btn-success btn-sm"
+                  [disabled]="signatureEnCours !== null"
+                  title="Déclarer le bail signé et passer ce candidat en locataire"
+                  (click)="demanderSignature(locataire)"
+                >
+                  @if (signatureEnCours === locataire.id) {
+                    <span
+                      class="spinner-border spinner-border-sm me-1"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  Signer
+                </button>
+              </div>
+            </td>
+          }
           @if (mode === "actifs") {
             <!-- Le clic sur un bouton ne doit pas refermer la ligne. -->
             <td class="cellule-actions" (click)="$event.stopPropagation()">
@@ -234,6 +257,15 @@
     (cancel)="closeModal()"
   >
   </app-locataire-modal>
+}
+@if (locataireASigner) {
+  <app-signature-modal
+    [locataire]="locataireASigner"
+    [traitementEnCours]="signatureEnCours !== null"
+    (confirm)="confirmerSignature()"
+    (cancel)="annulerSignature()"
+  >
+  </app-signature-modal>
 }
 @if (locataireASortir) {
   <app-sortie-modal
