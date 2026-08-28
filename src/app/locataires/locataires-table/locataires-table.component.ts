@@ -6,10 +6,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import saveAs from 'file-saver';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { RequestService } from '../../service/requestService';
 import { ResiliationService } from '../../service/resiliation.service';
+import { couleurTexteSur } from '../../service/couleur.util';
+import { telechargerFichier } from '../../service/telechargement.util';
 import {
   QuittanceGeneree,
   QuittanceOptions,
@@ -172,9 +173,32 @@ export class LocatairesTableComponent {
     return anniversairePasse ? age : age - 1;
   }
 
-  couleurFondLigne(locataire: LocataireDto): string {
-    console.log(locataire.chambreCouleur);
-    return locataire.chambreCouleur ?? '';
+  /**
+   * La couleur de la chambre est portée par un badge accolé au nom, et non
+   * plus par le fond de la ligne : elle y écrasait le zébrage du tableau et
+   * rendait le texte illisible dès que la teinte était soutenue. Le badge, lui,
+   * choisit son texte selon la clarté de la couleur.
+   */
+  couleurTexteBadge(couleur: string | null | undefined): string {
+    return couleurTexteSur(couleur);
+  }
+
+  /**
+   * Ce que le badge annonce : la seule superficie de la chambre. Le libellé
+   * complet — « Chambre 2 : 9.14 m² » — doublerait la largeur de la colonne du
+   * nom, alors que la couleur suffit déjà à distinguer les chambres entre
+   * elles ; reste la superficie, qui, elle, ne se lit nulle part ailleurs.
+   *
+   * Le libellé vient de la base sans garantie de forme : faute de « : », il est
+   * repris tel quel plutôt que rendu vide.
+   */
+  libelleChambre(locataire: LocataireDto): string {
+    const libelle = locataire.chambre?.trim();
+    if (!libelle) {
+      return 'Chambre';
+    }
+
+    return libelle.split(':').pop()?.trim() || libelle;
   }
 
   estOuverte(locataire: LocataireDto): boolean {
@@ -526,7 +550,7 @@ export class LocatairesTableComponent {
       .subscribe({
         next: (quittances) => {
           quittances.forEach((quittance) =>
-            saveAs(quittance.fichier, quittance.nomFichier),
+            telechargerFichier(quittance.fichier, quittance.nomFichier),
           );
           this.quittanceEnCours = null;
           this.locataireAQuittancer = null;

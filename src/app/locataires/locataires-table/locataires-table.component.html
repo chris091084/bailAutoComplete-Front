@@ -37,26 +37,44 @@
       @for (locataire of locataires; track locataire) {
         <tr
           [class.ouverte]="estOuverte(locataire)"
-          [style.background-color]="couleurFondLigne(locataire)"
           (click)="basculerLigne(locataire)"
         >
           <td>
-            <!-- Le nom porte la bascule au clavier : la ligne entière n'est
-            cliquable qu'à la souris et au doigt. Il est rendu deux fois car sur
-            grand écran la ligne montre déjà tout — un bouton y serait une
-            tabulation de plus sans effet, le nom y redevient un simple texte. -->
-            <button
-              type="button"
-              class="bascule-actions"
-              [attr.aria-expanded]="estOuverte(locataire)"
-              [attr.aria-label]="
-                'Actions de ' + locataire.prenom + ' ' + locataire.nom
-              "
-              (click)="$event.stopPropagation(); basculerLigne(locataire)"
-            >
-              {{ locataire.nom }}
-            </button>
-            <span class="nom-locataire">{{ locataire.nom }}</span>
+            <div class="cellule-nom">
+              <!-- Le nom porte la bascule au clavier : la ligne entière n'est
+              cliquable qu'à la souris et au doigt. Il est rendu deux fois car
+              sur grand écran la ligne montre déjà tout — un bouton y serait une
+              tabulation de plus sans effet, le nom y redevient un simple
+              texte. -->
+              <button
+                type="button"
+                class="bascule-actions"
+                [attr.aria-expanded]="estOuverte(locataire)"
+                [attr.aria-label]="
+                  'Actions de ' + locataire.prenom + ' ' + locataire.nom
+                "
+                (click)="$event.stopPropagation(); basculerLigne(locataire)"
+              >
+                {{ locataire.nom }}
+              </button>
+              <span class="nom-locataire">{{ locataire.nom }}</span>
+              <!-- La couleur de la chambre, accolée au nom plutôt qu'étalée sur
+              toute la ligne. Rien à afficher sans couleur : le nom reste seul,
+              comme pour un locataire dont la chambre n'est pas connue. Le badge
+              n'affiche que la superficie ; le numéro de chambre reste au
+              survol, pour qui a besoin de l'identifier autrement que par sa
+              couleur. -->
+              @if (locataire.chambreCouleur) {
+                <span
+                  class="badge badge-chambre"
+                  [style.background-color]="locataire.chambreCouleur"
+                  [style.color]="couleurTexteBadge(locataire.chambreCouleur)"
+                  [title]="locataire.chambre"
+                >
+                  {{ libelleChambre(locataire) }}
+                </span>
+              }
+            </div>
           </td>
           <td>{{ locataire.prenom }}</td>
           <td class="colonne-secondaire">

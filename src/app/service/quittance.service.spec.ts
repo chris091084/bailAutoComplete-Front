@@ -84,6 +84,12 @@ describe('QuittanceService', () => {
       bailleur: { name: 'S. BODIN', adress: '3 place du Marché, 44100 Nantes' },
     } as AppartementDto;
 
+    // docxtemplater et PizZip ne sont plus importés statiquement : le service
+    // les charge à la demande pour les tenir hors du bundle initial. On résout
+    // ce chargement ici, avant de lancer la génération, pour que le service
+    // n'ait plus que des microtâches à franchir — ce que `tick()` suppose.
+    await Promise.all([import('docxtemplater'), import('pizzip')]);
+
     const promesse = firstValueFrom(
       service.genererQuittances(
         locataire,

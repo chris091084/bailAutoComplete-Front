@@ -1,8 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import Docxtemplater from 'docxtemplater';
-import PizZip from 'pizzip';
-import { Observable, map } from 'rxjs';
+import { Observable, from, switchMap } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
@@ -11,10 +9,9 @@ import {
   rueDepuisAdresse,
   villeDepuisAdresse,
 } from './adresse.util';
+import { remplirModeleDocx } from './docx.util';
 
 const TEMPLATE_URL = 'assets/docx/resiliation.docx';
-const DOCX_MIME =
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 @Injectable({
   providedIn: 'root',
@@ -38,12 +35,14 @@ export class ResiliationService {
     return this.http
       .get(TEMPLATE_URL, { responseType: 'arraybuffer' })
       .pipe(
-        map((data) =>
-          this.remplirModele(
-            data,
-            locataire,
-            appartement,
-            dateSignatureContrat,
+        switchMap((data) =>
+          from(
+            this.remplirModele(
+              data,
+              locataire,
+              appartement,
+              dateSignatureContrat,
+            ),
           ),
         ),
       );
@@ -58,14 +57,8 @@ export class ResiliationService {
     locataire: LocataireDto,
     appartement: AppartementDto,
     dateSignatureContrat?: string | Date | null,
-  ): Blob {
-    const zip = new PizZip(new Uint8Array(data));
-    const doc = new Docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-    });
-
-    doc.render({
+  ): Promise<Blob> {
+    return remplirModeleDocx(data, {
       locataireNomPrenom: capitaliser(`${locataire.prenom} ${locataire.nom}`),
       locataireAdresse: rueDepuisAdresse(appartement.adress),
       proprietaireNomPrenom: appartement.bailleur?.name ?? '',
@@ -74,8 +67,6 @@ export class ResiliationService {
       dateSignatureContrat: this.formaterDate(dateSignatureContrat),
       dateDuJour: this.dateDuJour(),
     });
-
-    return doc.getZip().generate({ type: 'blob', mimeType: DOCX_MIME });
   }
 
   /**

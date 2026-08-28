@@ -1,18 +1,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import PizZip from 'pizzip';
-import Docxtemplater from 'docxtemplater';
 import { ResultForm } from '../model/resultForm.model';
 import { AppartementDto } from '../model/AppartementDto.model';
-import saveAs from 'file-saver';
+import { remplirModeleDocx } from './docx.util';
+import { telechargerFichier } from './telechargement.util';
 import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
 import { Generation } from '../model/Generation.model';
 import { RequestService } from './requestService';
-import { Observable, catchError, concatMap, forkJoin, map, of, tap } from 'rxjs';
-
-const MIME_DOCX =
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+import {
+  Observable,
+  catchError,
+  concatMap,
+  forkJoin,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 /** Ce que l'appelant doit savoir une fois la génération terminée. */
 export interface ResultatGeneration {
@@ -76,14 +82,16 @@ export class DocGeneratorService {
     return this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .pipe(
-        map((modele) =>
-          this.remplirModele(
-            modele,
-            this.champsBail(resultForm, appartementSelected),
+        switchMap((modele) =>
+          from(
+            remplirModeleDocx(
+              modele,
+              this.champsBail(resultForm, appartementSelected),
+            ),
           ),
         ),
         tap((document) =>
-          saveAs(document, 'Projet_bail_' + resultForm.name + '.docx'),
+          telechargerFichier(document, 'Projet_bail_' + resultForm.name + '.docx'),
         ),
         concatMap(() =>
           this.requestService.saveGeneration(
@@ -112,38 +120,25 @@ export class DocGeneratorService {
         responseType: 'arraybuffer',
       })
       .pipe(
-        map((modele) =>
-          this.remplirModele(modele, {
-            locataireName: resultForm.name + ' ' + resultForm.firstname,
-            locataireAdress: resultForm.adress,
-            locataireEmail: resultForm.email,
-            locataireTelephone: resultForm.telephone,
-            adressLogement: resultForm.appartement?.adress ?? '',
-            dateFrom: resultForm?.getFormattedFromDate(),
-          }),
+        switchMap((modele) =>
+          from(
+            remplirModeleDocx(modele, {
+              locataireName: resultForm.name + ' ' + resultForm.firstname,
+              locataireAdress: resultForm.adress,
+              locataireEmail: resultForm.email,
+              locataireTelephone: resultForm.telephone,
+              adressLogement: resultForm.appartement?.adress ?? '',
+              dateFrom: resultForm?.getFormattedFromDate(),
+            }),
+          ),
         ),
         map((document) => {
-          saveAs(document, 'Annexe_1_Etat_des_lieux_' + resultForm.name + '.docx');
+          telechargerFichier(
+            document,
+            'Annexe_1_Etat_des_lieux_' + resultForm.name + '.docx',
+          );
         }),
       );
-  }
-
-  /**
-   * Remplit un modèle Word. `render()` lève dès qu'une balise du modèle n'a pas
-   * son champ : l'exception traverse l'observable, plutôt que de rester dans
-   * une souscription où personne ne l'attendait.
-   */
-  private remplirModele(
-    modele: ArrayBuffer,
-    champs: Record<string, unknown>,
-  ): Blob {
-    const doc = new Docxtemplater(new PizZip(new Uint8Array(modele)), {
-      paragraphLoop: true,
-      linebreaks: true,
-    });
-    doc.render(champs);
-
-    return doc.getZip().generate({ type: 'blob', mimeType: MIME_DOCX });
   }
 
   private champsBail(
