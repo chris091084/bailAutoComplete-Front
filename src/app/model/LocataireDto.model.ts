@@ -36,6 +36,10 @@ export interface LocataireDto {
   // la quittance de loyer. `null` pour les fiches sans result_form rattaché.
   loyerHorsCharges?: number | null;
   charges?: number | null;
+  // Date ISO du dernier envoi du projet de bail, `null` si aucun n'est parti.
+  // Renseignée par l'API, jamais renvoyée au serveur : elle se met à jour par
+  // POST /locataire/:id/bail.
+  bailEnvoyeLe?: string | null;
   // Date ISO du dernier envoi de la lettre de congé, `null` si aucune n'est
   // partie. Renseignée par l'API, jamais renvoyée au serveur : elle se met à
   // jour par POST /locataire/:id/resiliation.

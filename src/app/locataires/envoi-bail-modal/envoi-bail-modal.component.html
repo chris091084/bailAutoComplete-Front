@@ -1,0 +1,119 @@
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="envoiBailModalTitle"
+  style="background: rgba(0, 0, 0, 0.5)"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="envoiBailModalTitle">
+          Envoi du bail à {{ nomComplet }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+          [disabled]="envoiEnCours"
+          (click)="onCancel()"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        @if (locataire?.bailEnvoyeLe; as envoiPrecedent) {
+          <div class="alert alert-warning" role="alert">
+            Un bail a déjà été envoyé le
+            {{ envoiPrecedent | date: "dd/MM/yyyy" }} à
+            {{ envoiPrecedent | date: "HH:mm" }}.
+          </div>
+        }
+
+        @if (locataire?.email) {
+          <p>
+            Déposez le bail que vous venez de relire dans Word. Il partira à
+            l'adresse <strong>{{ locataire?.email }}</strong
+            >, converti en PDF.
+          </p>
+        } @else {
+          <div class="alert alert-danger" role="alert">
+            Aucune adresse email n'est renseignée pour ce candidat : renseignez-la
+            sur sa fiche avant de pouvoir lui envoyer son bail.
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="fichiersBail">
+            Bail et annexe (.docx ou .pdf)
+          </label>
+          <input
+            class="form-control"
+            type="file"
+            id="fichiersBail"
+            multiple
+            accept=".docx,.pdf"
+            [disabled]="envoiEnCours || !locataire?.email"
+            (change)="onFichiersChoisis($event)"
+          />
+        </div>
+
+        @if (fichiers.length > 0) {
+          <ul class="list-group mb-3">
+            @for (fichier of fichiers; track fichier.name) {
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <span>
+                  <i class="bi bi-file-earmark-text me-1"></i>
+                  {{ fichier.name }}
+                </span>
+                <small class="text-muted">
+                  {{ taille(fichier.size) }}
+                  @if (seraConverti(fichier)) {
+                    · converti en PDF
+                  }
+                </small>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (fichiersRefuses.length > 0) {
+          <div class="alert alert-danger" role="alert">
+            <ul class="mb-0">
+              @for (refus of fichiersRefuses; track refus) {
+                <li>{{ refus }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="envoiEnCours"
+          (click)="onCancel()"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-warning"
+          [disabled]="!peutEnvoyer"
+          (click)="onEnvoyer()"
+        >
+          @if (envoiEnCours) {
+            <span
+              class="spinner-border spinner-border-sm me-1"
+              aria-hidden="true"
+            ></span>
+          }
+          Envoyer le bail
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
