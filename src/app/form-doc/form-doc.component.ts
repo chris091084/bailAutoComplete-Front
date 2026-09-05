@@ -20,8 +20,12 @@ import { messageErreurHttp } from '../service/http-error.util';
 
 import {
   DocGeneratorService,
+  DocumentGenere,
   ResultatGeneration,
 } from '../service/doc-generator.service';
+import { BailEnvoiService } from '../service/bail-envoi.service';
+import { telechargerFichier } from '../service/telechargement.util';
+import { ApercuBailModalComponent } from '../documents/apercu-bail-modal/apercu-bail-modal.component';
 import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.component';
 
 /**
@@ -57,6 +61,7 @@ const LIBELLES_CHAMPS: Record<string, string> = {
     imports: [
     ErrorMessagesComponent,
     ReactiveFormsModule,
+    ApercuBailModalComponent,
     LacataireFieldsComponent
 ]
 })
@@ -83,6 +88,17 @@ export class FormDocComponent {
   isLoading: boolean = false;
   isGenerating: boolean = false;
   isSaving: boolean = false;
+
+  /**
+   * Le bail produit, en attente de ce que l'utilisateur en décidera : envoi,
+   * téléchargement, ou rien. Non nul tant que la modale de relecture est
+   * ouverte, ce qui suffit à l'afficher.
+   */
+  resultatGeneration: ResultatGeneration | null = null;
+  /** Le bail converti, tel qu'il est montré et tel qu'il partira. */
+  apercuBail: Blob | null = null;
+  /** Un envoi en cours verrouille la modale sans la fermer. */
+  envoiEnCours = false;
 
   /** Ce que l'écran a à dire à l'utilisateur après une action. */
   messageErreur: string | null = null;
@@ -133,6 +149,7 @@ export class FormDocComponent {
   constructor(
     private requestService: RequestService,
     private docGeneratorService: DocGeneratorService,
+    private bailEnvoiService: BailEnvoiService,
     private router: Router,
   ) {
     this.loadAppartements();
@@ -234,7 +251,7 @@ export class FormDocComponent {
     this.docGeneratorService
       .generateDoc(this.resultForm, this.appartementSelected)
       .subscribe({
-        next: (resultat) => this.apresGeneration(resultat),
+        next: (resultat) => this.ouvrirRelecture(resultat),
         error: (err) => {
           console.error('Bail non généré', err);
           this.isGenerating = false;
@@ -244,6 +261,137 @@ export class FormDocComponent {
           );
         },
       });
+  }
+
+  /**
+   * Le bail est produit : il passe par la relecture avant toute chose. Rien
+   * n'est encore téléchargé ni envoyé, c'est la modale qui en décidera.
+   *
+   * L'aperçu demande une conversion en PDF à l'API. Si elle échoue, la
+   * génération n'en est pas moins réussie : la modale s'ouvre sans aperçu, avec
+   * de quoi télécharger le `.docx` et le relire dans Word.
+   */
+  private ouvrirRelecture(resultat: ResultatGeneration) {
+    this.requestService
+      .convertirEnPdf(resultat.bail.fichier, resultat.bail.nomFichier)
+      .subscribe({
+        next: (pdf) => this.afficherRelecture(resultat, pdf),
+        error: (err) => {
+          console.error('Aperçu du bail non disponible', err);
+          this.afficherRelecture(resultat, null);
+        },
+      });
+  }
+
+  /**
+   * La modale ne s'ouvre qu'une fois la conversion tranchée, réussie ou non :
+   * l'ouvrir avant afficherait « aperçu indisponible » le temps de la
+   * conversion, alors qu'elle est simplement en cours.
+   */
+  private afficherRelecture(resultat: ResultatGeneration, pdf: Blob | null) {
+    this.apercuBail = pdf;
+    this.resultatGeneration = resultat;
+    this.isGenerating = false;
+  }
+
+  /** Le destinataire du bail, tel que la modale de relecture le nomme. */
+  get nomLocataireSaisi(): string {
+    return [
+      this.formDoc.get('firstname')?.value,
+      this.formDoc.get('name')?.value,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  get emailLocataireSaisi(): string | null {
+    return this.formDoc.get('email')?.value || null;
+  }
+
+  /**
+   * Envoi du bail au locataire, puis suite du parcours. L'ordre compte : le
+   * mail part d'abord, la fiche locataire ensuite, et l'horodatage en dernier —
+   * il a besoin de l'id que la création vient de rendre.
+   */
+  envoyerBail() {
+    const resultat = this.resultatGeneration;
+    const email = this.emailLocataireSaisi;
+    if (!resultat || !email) {
+      return;
+    }
+
+    // Un nouvel essai repart d'un écran propre : l'échec précédent ne doit pas
+    // rester affiché au-dessus d'un envoi qui, cette fois, aboutit.
+    this.messageErreur = null;
+    this.envoiEnCours = true;
+
+    this.bailEnvoiService
+      .envoyerBail(
+        { email, prenom: this.formDoc.get('firstname')?.value ?? '' },
+        this.documentsAEnvoyer(resultat),
+      )
+      .subscribe({
+        next: () => {
+          this.envoiEnCours = false;
+          this.fermerRelecture();
+          this.apresGeneration(resultat, `Le bail a été envoyé à ${email}.`);
+        },
+        error: (err) => {
+          console.error("Erreur lors de l'envoi du bail", err);
+          this.envoiEnCours = false;
+          // Le bail est généré et enregistré : l'échec du mail ne doit pas
+          // annuler le reste. La modale reste ouverte, l'envoi se retente ou se
+          // remplace par un téléchargement.
+          this.messageErreur = messageErreurHttp(
+            err,
+            "L'envoi du bail a échoué. Le bail est généré : téléchargez-le ou réessayez",
+          );
+        },
+      });
+  }
+
+  /** Le bail et son annexe, quand elle a pu être produite. */
+  private documentsAEnvoyer(resultat: ResultatGeneration): DocumentGenere[] {
+    return resultat.annexe
+      ? [resultat.bail, resultat.annexe]
+      : [resultat.bail];
+  }
+
+  /**
+   * Le comportement d'avant l'envoi par mail : les `.docx` produits partent au
+   * navigateur — le bail, et l'annexe quand elle a pu être générée.
+   */
+  telechargerBail() {
+    const resultat = this.resultatGeneration;
+    if (!resultat) {
+      return;
+    }
+
+    for (const document of this.documentsAEnvoyer(resultat)) {
+      telechargerFichier(document.fichier, document.nomFichier);
+    }
+
+    this.fermerRelecture();
+    this.apresGeneration(resultat);
+  }
+
+  /**
+   * Ni envoi ni téléchargement : le bail reste dans l'historique et la fiche
+   * candidat offre de l'envoyer plus tard, une fois relu dans Word.
+   */
+  abandonnerRelecture() {
+    const resultat = this.resultatGeneration;
+    if (!resultat) {
+      return;
+    }
+
+    this.fermerRelecture();
+    this.apresGeneration(resultat);
+  }
+
+  private fermerRelecture() {
+    this.resultatGeneration = null;
+    this.apercuBail = null;
   }
 
   /**
@@ -384,22 +532,31 @@ export class FormDocComponent {
    * puis le retour à l'historique. La navigation attend la fiche, c'est le
    * dernier moment où son échec peut encore être signalé.
    */
-  private apresGeneration(resultat: ResultatGeneration) {
+  private apresGeneration(
+    resultat: ResultatGeneration,
+    messageEnvoi: string | null = null,
+  ) {
     this.oublierBrouillonGenere();
     this.saveLocataire(
       resultat.generation?.resultForm?.id,
       resultat.avertissementAnnexe,
+      messageEnvoi,
     );
   }
 
   /**
    * Enregistre le locataire saisi, rattaché à l'appartement sélectionné et au
-   * bail qui vient d'être généré. Son échec n'annule rien — les documents sont
-   * téléchargés — mais il est rapporté : la fiche est à créer à la main.
+   * bail qui vient d'être généré. Son échec n'annule rien — le bail est produit,
+   * et parfois déjà envoyé — mais il est rapporté : la fiche est à créer à la
+   * main.
+   *
+   * `messageEnvoi` dit que le mail est parti : la fiche qui naît ici porte alors
+   * la date d'envoi, qui a besoin de l'id que la création vient de rendre.
    */
   private saveLocataire(
     resultFormId: number | undefined,
     avertissementAnnexe: string | null,
+    messageEnvoi: string | null = null,
   ) {
     const appartement = this.formDoc.get('appartement')?.value as
       | AppartementDto
@@ -409,6 +566,7 @@ export class FormDocComponent {
     if (!appartement?.id) {
       console.error('Aucun appartement sélectionné, locataire non enregistré');
       this.retourHistorique(
+        messageEnvoi,
         avertissementAnnexe,
         "Aucun appartement n'était sélectionné : la fiche locataire n'a pas été créée.",
       );
@@ -421,6 +579,7 @@ export class FormDocComponent {
         'Aucun bail enregistré pour cette génération, locataire non enregistré',
       );
       this.retourHistorique(
+        messageEnvoi,
         avertissementAnnexe,
         "Le bail n'a pas été rattaché à l'historique : la fiche locataire n'a pas été créée.",
       );
@@ -439,10 +598,18 @@ export class FormDocComponent {
     };
 
     this.requestService.addLocataire(locataire).subscribe({
-      next: () => this.retourHistorique(avertissementAnnexe),
+      next: (cree) => {
+        if (messageEnvoi && cree.id != null) {
+          this.horodaterEnvoi(cree.id, messageEnvoi, avertissementAnnexe);
+          return;
+        }
+
+        this.retourHistorique(messageEnvoi, avertissementAnnexe);
+      },
       error: (err) => {
         console.error("Erreur lors de l'enregistrement du locataire", err);
         this.retourHistorique(
+          messageEnvoi,
           avertissementAnnexe,
           messageErreurHttp(err, "La fiche locataire n'a pas pu être créée"),
         );
@@ -451,16 +618,47 @@ export class FormDocComponent {
   }
 
   /**
+   * Pose la date d'envoi sur la fiche qui vient de naître. Le mail est déjà
+   * parti : son échec d'horodatage ne doit pas se présenter comme un échec
+   * d'envoi, on le signale à part — même partage que la résiliation.
+   */
+  private horodaterEnvoi(
+    locataireId: number,
+    messageEnvoi: string,
+    avertissementAnnexe: string | null,
+  ) {
+    this.requestService.marquerBailEnvoye(locataireId).subscribe({
+      next: () => this.retourHistorique(messageEnvoi, avertissementAnnexe),
+      error: (err) => {
+        console.error('Bail envoyé mais non horodaté', err);
+        this.retourHistorique(
+          messageEnvoi,
+          avertissementAnnexe,
+          "L'envoi n'a pas pu être enregistré : la fiche du candidat ne l'affichera pas.",
+        );
+      },
+    });
+  }
+
+  /**
    * La génération est déjà écrite dans l'historique quand on arrive ici : la
    * liste affichée contiendra donc ce bail, avec ce qui a échoué autour.
+   *
+   * `messageEnvoi` prolonge le succès plutôt que de le remplacer : le bail a
+   * bien été généré, et en plus il est parti.
    */
-  private retourHistorique(...avertissements: (string | null)[]) {
+  private retourHistorique(
+    messageEnvoi: string | null,
+    ...avertissements: (string | null)[]
+  ) {
     this.isGenerating = false;
     const messageAvertissement = avertissements.filter(Boolean).join(' ');
 
     this.router.navigate(['/history'], {
       state: {
-        messageSucces: 'Le bail a bien été généré.',
+        messageSucces: ['Le bail a bien été généré.', messageEnvoi]
+          .filter(Boolean)
+          .join(' '),
         messageAvertissement: messageAvertissement || null,
       },
     });
