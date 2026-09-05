@@ -274,3 +274,24 @@
         </form>
       </div>
     </div>
+
+<!-- Le bail est produit mais rien n'est encore parti : la relecture décide de
+son sort. Elle s'ouvre dès la génération terminée, aperçu ou non — l'aperçu
+manque quand la conversion en PDF a échoué, ce qui n'empêche pas de télécharger
+le document pour le relire dans Word. -->
+@if (resultatGeneration) {
+  <app-apercu-bail-modal
+    [pdf]="apercuBail"
+    [nomFichier]="resultatGeneration.bail.nomFichier"
+    [anomalies]="resultatGeneration.anomalies"
+    [avertissementAnnexe]="resultatGeneration.avertissementAnnexe"
+    [destinataireNom]="nomLocataireSaisi"
+    [destinataireEmail]="emailLocataireSaisi"
+    [traitementEnCours]="envoiEnCours"
+    [messageErreur]="messageErreur"
+    (envoyer)="envoyerBail()"
+    (telechargerSeulement)="telechargerBail()"
+    (annuler)="abandonnerRelecture()"
+  >
+  </app-apercu-bail-modal>
+}

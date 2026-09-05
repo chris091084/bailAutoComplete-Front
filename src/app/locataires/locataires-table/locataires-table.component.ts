@@ -9,7 +9,9 @@ import { CommonModule } from '@angular/common';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { RequestService } from '../../service/requestService';
 import { ResiliationService } from '../../service/resiliation.service';
+import { BailEnvoiService } from '../../service/bail-envoi.service';
 import { couleurTexteSur } from '../../service/couleur.util';
+import { enBase64 } from '../../service/fichier.util';
 import { telechargerFichier } from '../../service/telechargement.util';
 import {
   QuittanceGeneree,
@@ -20,6 +22,7 @@ import { AppartementDto } from '../../model/AppartementDto.model';
 import { LocataireDto } from '../../model/LocataireDto.model';
 import { LocataireModalComponent } from '../locataire-modal/locataire-modal.component';
 import { ConfirmationEnvoiModalComponent } from '../confirmation-envoi-modal/confirmation-envoi-modal.component';
+import { EnvoiBailModalComponent } from '../envoi-bail-modal/envoi-bail-modal.component';
 import { QuittanceModalComponent } from '../quittance-modal/quittance-modal.component';
 import { SignatureModalComponent } from '../signature-modal/signature-modal.component';
 import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
@@ -39,6 +42,7 @@ import { SortieModalComponent } from '../sortie-modal/sortie-modal.component';
     CommonModule,
     LocataireModalComponent,
     ConfirmationEnvoiModalComponent,
+    EnvoiBailModalComponent,
     QuittanceModalComponent,
     SignatureModalComponent,
     SortieModalComponent,
@@ -81,6 +85,12 @@ export class LocatairesTableComponent {
   /** Id du candidat dont la signature s'enregistre, pour n'occuper qu'un bouton. */
   signatureEnCours: number | null = null;
 
+  /** Candidat dont on prépare l'envoi du bail ; `null` = modale fermée. */
+  locataireAEnvoyerBail: LocataireDto | null = null;
+
+  /** Id du candidat dont le bail part, pour n'occuper qu'un bouton. */
+  bailEnvoiEnCours: number | null = null;
+
   /** Locataire dont on saisit la date de sortie ; `null` = modale fermée. */
   locataireASortir: LocataireDto | null = null;
 
@@ -119,20 +129,17 @@ export class LocatairesTableComponent {
     private requestService: RequestService,
     private resiliationService: ResiliationService,
     private quittanceService: QuittanceService,
+    private bailEnvoiService: BailEnvoiService,
   ) {}
 
   /**
    * Le colspan de la ligne « aucun locataire » : à tenir à jour avec l'en-tête.
    * Dix colonnes communes, plus l'appartement quand il est affiché, plus celle
-   * propre au mode — la résiliation pour les actifs, la date de sortie pour les
-   * sortis. Les candidats n'en ont aucune des deux.
+   * propre au mode — l'envoi du bail pour les candidats, la résiliation pour les
+   * actifs, la date de sortie pour les sortis. Chaque mode en a exactement une.
    */
   get nombreColonnes(): number {
-    return (
-      10 +
-      (this.afficherColonneAppartement ? 1 : 0) +
-      (this.mode === 'candidats' ? 0 : 1)
-    );
+    return 11 + (this.afficherColonneAppartement ? 1 : 0);
   }
 
   /**
@@ -292,6 +299,82 @@ export class LocatairesTableComponent {
   }
 
   /**
+   * L'autre action offerte sur un candidat : lui envoyer son bail. Comme la
+   * résiliation, le clic n'envoie rien — il ouvre la modale, qui recueille le
+   * document relu.
+   *
+   * Le bail n'est pas conservé côté serveur : c'est le fichier déposé qui part,
+   * et c'est le but — le bailleur l'a ouvert dans Word, vérifié sa mise en page
+   * et corrigé ce qu'il fallait avant de le remettre ici.
+   */
+  demanderEnvoiBail(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    this.locataireAEnvoyerBail = locataire;
+  }
+
+  annulerEnvoiBail() {
+    this.locataireAEnvoyerBail = null;
+  }
+
+  /**
+   * Envoie les documents déposés, puis horodate. Comme pour la résiliation,
+   * l'échec de l'horodatage ne se présente pas comme un échec d'envoi : le mail
+   * est parti.
+   */
+  confirmerEnvoiBail(fichiers: File[]) {
+    const locataire = this.locataireAEnvoyerBail;
+    if (!locataire?.email || locataire.id == null || fichiers.length === 0) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.bailEnvoiEnCours = locataire.id;
+
+    this.bailEnvoiService
+      .envoyerBail(
+        { email: locataire.email, prenom: locataire.prenom },
+        fichiers.map((fichier) => ({ fichier, nomFichier: fichier.name })),
+      )
+      .pipe(
+        switchMap(() =>
+          this.requestService.marquerBailEnvoye(locataire.id!).pipe(
+            catchError((err) => {
+              console.error('Bail envoyé mais non horodaté', err);
+              return of(null);
+            }),
+          ),
+        ),
+      )
+      .subscribe({
+        next: (misAJour) => {
+          this.bailEnvoiEnCours = null;
+          this.locataireAEnvoyerBail = null;
+
+          if (misAJour) {
+            this.rafraichir.emit();
+            this.afficherSucces(`Bail envoyé à ${locataire.email}.`);
+          } else {
+            this.afficherErreur(
+              `Bail envoyé à ${locataire.email}, mais l'envoi n'a pas pu être enregistré : la liste ne l'affichera pas.`,
+            );
+          }
+        },
+        error: (err) => {
+          this.bailEnvoiEnCours = null;
+          this.locataireAEnvoyerBail = null;
+          console.error("Erreur lors de l’envoi du bail", err);
+          this.afficherErreur(
+            err?.error?.message ?? "L'envoi du bail a échoué.",
+          );
+        },
+      });
+  }
+
+  /**
    * Un locataire ne se supprime pas, il sort : le clic ouvre la saisie de la
    * date de départ, qui bascule la fiche dans l'onglet des sortis.
    */
@@ -415,7 +498,7 @@ export class LocatairesTableComponent {
     this.resiliationService
       .genererCourrier(locataire, appartement, locataire.dateSignatureContrat)
       .pipe(
-        switchMap((blob) => this.toBase64(blob)),
+        switchMap((blob) => enBase64(blob)),
         switchMap((contentBase64) =>
           this.requestService.sendMail({
             to: locataire.email!,
@@ -592,7 +675,7 @@ export class LocatairesTableComponent {
         switchMap((quittances) =>
           Promise.all(
             quittances.map((quittance) =>
-              this.toBase64(quittance.fichier).then((contentBase64) => ({
+              enBase64(quittance.fichier).then((contentBase64) => ({
                 filename: quittance.nomFichier,
                 contentBase64,
               })),
@@ -713,16 +796,6 @@ export class LocatairesTableComponent {
       '',
       'Cordialement,',
     ].join('\n');
-  }
-
-  /** Extrait le base64 de la data URL produite par FileReader. */
-  private toBase64(blob: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
   }
 
   private afficherSucces(message: string) {

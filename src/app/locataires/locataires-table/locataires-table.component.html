@@ -24,6 +24,9 @@
         }
         <th scope="col" class="colonne-date">Date d'entrée</th>
         <th scope="col" class="colonne-loyer">Loyer CC</th>
+        @if (mode === "candidats") {
+          <th scope="col" class="colonne-resiliation">Bail envoyé</th>
+        }
         @if (mode === "actifs") {
           <th scope="col" class="colonne-resiliation">Résiliation</th>
         }
@@ -126,6 +129,25 @@
               <span class="text-muted">—</span>
             }
           </td>
+          @if (mode === "candidats") {
+            <td class="colonne-resiliation">
+              @if (locataire.bailEnvoyeLe; as envoiLe) {
+                <span
+                  class="badge text-bg-success"
+                  [title]="
+                    'Bail envoyé le ' +
+                    (envoiLe | date: 'dd/MM/yyyy') +
+                    ' à ' +
+                    (envoiLe | date: 'HH:mm')
+                  "
+                >
+                  Envoyé le {{ envoiLe | date: "dd/MM/yyyy" }}
+                </span>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+          }
           @if (mode === "actifs") {
             <td class="colonne-resiliation">
               @if (locataire.resiliationEnvoyeeLe; as envoiLe) {
@@ -154,10 +176,28 @@
           }
           @if (mode === "candidats") {
             <!-- Tant que le bail n'est pas signé, il n'y a rien à quittancer,
-            rien à résilier et rien dont sortir : la ligne n'offre que la
-            signature. -->
+            rien à résilier et rien dont sortir : la ligne n'offre que l'envoi
+            du bail et la signature, dans cet ordre — c'est celui du parcours. -->
             <td class="cellule-actions" (click)="$event.stopPropagation()">
               <div class="actions-locataire">
+                <button
+                  class="btn btn-warning btn-sm"
+                  [disabled]="!locataire.email || bailEnvoiEnCours !== null"
+                  [title]="
+                    locataire.email
+                      ? 'Envoyer le projet de bail par mail'
+                      : 'Aucune adresse email renseignée'
+                  "
+                  (click)="demanderEnvoiBail(locataire)"
+                >
+                  @if (bailEnvoiEnCours === locataire.id) {
+                    <span
+                      class="spinner-border spinner-border-sm me-1"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  {{ locataire.bailEnvoyeLe ? "Bail à renvoyer" : "Envoyer le bail" }}
+                </button>
                 <button
                   class="btn btn-success btn-sm"
                   [disabled]="signatureEnCours !== null"
@@ -284,6 +324,15 @@
     (cancel)="annulerSignature()"
   >
   </app-signature-modal>
+}
+@if (locataireAEnvoyerBail) {
+  <app-envoi-bail-modal
+    [locataire]="locataireAEnvoyerBail"
+    [envoiEnCours]="bailEnvoiEnCours !== null"
+    (envoyer)="confirmerEnvoiBail($event)"
+    (cancel)="annulerEnvoiBail()"
+  >
+  </app-envoi-bail-modal>
 }
 @if (locataireASortir) {
   <app-sortie-modal

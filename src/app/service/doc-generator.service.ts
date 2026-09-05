@@ -2,8 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ResultForm } from '../model/resultForm.model';
 import { AppartementDto } from '../model/AppartementDto.model';
-import { remplirModeleDocx } from './docx.util';
-import { telechargerFichier } from './telechargement.util';
+import { remplirModeleDocxControle } from './docx.util';
+import {
+  controlerBalisesVides,
+  controlerChampsBail,
+} from './controle-bail.util';
 import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
 
 import { Generation } from '../model/Generation.model';
@@ -17,8 +20,13 @@ import {
   map,
   of,
   switchMap,
-  tap,
 } from 'rxjs';
+
+/** Un document produit, tant qu'il n'a pas trouvé sa destination. */
+export interface DocumentGenere {
+  fichier: Blob;
+  nomFichier: string;
+}
 
 /** Ce que l'appelant doit savoir une fois la génération terminée. */
 export interface ResultatGeneration {
@@ -27,8 +35,17 @@ export interface ResultatGeneration {
    * result_form, seule origine admise pour créer le locataire.
    */
   generation: any;
+  /**
+   * Le bail produit. Il n'est ni téléchargé ni envoyé ici : le service produit,
+   * l'écran décide — relecture, envoi par mail, téléchargement, ou rien.
+   */
+  bail: DocumentGenere;
+  /** Absente quand sa génération a échoué ; `avertissementAnnexe` le dit. */
+  annexe: DocumentGenere | null;
   /** Renseigné quand seule l'annexe a échoué, le bail étant bien produit. */
   avertissementAnnexe: string | null;
+  /** Ce que le contrôle a relevé sur le bail, à relire avant de l'envoyer. */
+  anomalies: string[];
 }
 
 @Injectable({
@@ -41,67 +58,87 @@ export class DocGeneratorService {
   ) {}
 
   /**
-   * Produit le bail et son annexe, puis émet la génération enregistrée. Tout
-   * échec du bail (modèle introuvable, remplissage impossible, historique non
-   * écrit) sort par le canal d'erreur : l'utilisateur doit l'apprendre, un
-   * message en console ne lui dit rien.
+   * Produit le bail et son annexe, puis émet la génération enregistrée et les
+   * deux documents. Tout échec du bail (modèle introuvable, remplissage
+   * impossible, historique non écrit) sort par le canal d'erreur :
+   * l'utilisateur doit l'apprendre, un message en console ne lui dit rien.
    *
-   * L'annexe, elle, ne fait pas échouer la génération : le bail est déjà
-   * téléchargé quand elle part, son absence se signale sans l'annuler.
+   * L'annexe, elle, ne fait pas échouer la génération : le bail est produit
+   * quand elle part, son absence se signale sans l'annuler.
    */
   generateDoc(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto,
   ): Observable<ResultatGeneration> {
     return forkJoin({
-      generation: this.genererBail(resultForm, appartementSelected),
-      avertissementAnnexe: this.genererAnnexe(
-        resultForm,
-        appartementSelected,
-      ).pipe(
-        map(() => null),
+      bail: this.genererBail(resultForm, appartementSelected),
+      annexe: this.genererAnnexe(resultForm, appartementSelected).pipe(
+        map((annexe) => ({ annexe, avertissement: null as string | null })),
         catchError((err) => {
           console.error('Annexe non générée', err);
-          return of(
-            "L'annexe (état des lieux) n'a pas pu être produite : elle est à générer à la main.",
-          );
+          return of({
+            annexe: null,
+            avertissement:
+              "L'annexe (état des lieux) n'a pas pu être produite : elle est à générer à la main.",
+          });
         }),
       ),
-    });
+    }).pipe(
+      map(({ bail, annexe }) => ({
+        generation: bail.generation,
+        bail: bail.document,
+        annexe: annexe.annexe,
+        avertissementAnnexe: annexe.avertissement,
+        anomalies: bail.anomalies,
+      })),
+    );
   }
 
   /**
-   * Le document est téléchargé avant que l'historique ne soit écrit : c'est le
-   * bail qui compte, la trace vient ensuite. L'ordre inverse laisserait une
-   * ligne d'historique sans document en face.
+   * Le bail est produit, puis l'historique écrit : c'est le document qui
+   * compte, la trace vient ensuite. L'ordre inverse laisserait une ligne
+   * d'historique sans document en face.
+   *
+   * La trace est écrite même si le bail n'est finalement ni téléchargé ni
+   * envoyé : elle est ce qui permettra de le renvoyer plus tard.
    */
   private genererBail(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto,
-  ): Observable<any> {
+  ): Observable<{
+    generation: any;
+    document: DocumentGenere;
+    anomalies: string[];
+  }> {
+    const champs = this.champsBail(resultForm, appartementSelected);
+
     return this.http
       .get('assets/docx/bail.docx', { responseType: 'arraybuffer' })
       .pipe(
-        switchMap((modele) =>
-          from(
-            remplirModeleDocx(
-              modele,
-              this.champsBail(resultForm, appartementSelected),
+        switchMap((modele) => from(remplirModeleDocxControle(modele, champs))),
+        concatMap(({ fichier, balisesVides }) =>
+          this.requestService
+            .saveGeneration(
+              new Generation(
+                new Date(),
+                resultForm.appartement?.name ?? '',
+                resultForm.name + ' ' + resultForm.firstname,
+                resultForm,
+              ),
+            )
+            .pipe(
+              map((generation) => ({
+                generation,
+                document: {
+                  fichier,
+                  nomFichier: 'Projet_bail_' + resultForm.name + '.docx',
+                },
+                anomalies: [
+                  ...controlerChampsBail(champs),
+                  ...controlerBalisesVides(balisesVides),
+                ],
+              })),
             ),
-          ),
-        ),
-        tap((document) =>
-          telechargerFichier(document, 'Projet_bail_' + resultForm.name + '.docx'),
-        ),
-        concatMap(() =>
-          this.requestService.saveGeneration(
-            new Generation(
-              new Date(),
-              resultForm.appartement?.name ?? '',
-              resultForm.name + ' ' + resultForm.firstname,
-              resultForm,
-            ),
-          ),
         ),
       );
   }
@@ -109,7 +146,7 @@ export class DocGeneratorService {
   private genererAnnexe(
     resultForm: ResultForm,
     appartementSelected?: AppartementDto,
-  ): Observable<void> {
+  ): Observable<DocumentGenere> {
     // Les logements d'une même résidence partagent leurs annexes : le préfixe
     // vient de l'appartement plutôt que de son nom, désormais unique.
     const prefixeAnnexe = appartementSelected?.prefixeAnnexe;
@@ -122,7 +159,7 @@ export class DocGeneratorService {
       .pipe(
         switchMap((modele) =>
           from(
-            remplirModeleDocx(modele, {
+            remplirModeleDocxControle(modele, {
               locataireName: resultForm.name + ' ' + resultForm.firstname,
               locataireAdress: resultForm.adress,
               locataireEmail: resultForm.email,
@@ -132,12 +169,10 @@ export class DocGeneratorService {
             }),
           ),
         ),
-        map((document) => {
-          telechargerFichier(
-            document,
-            'Annexe_1_Etat_des_lieux_' + resultForm.name + '.docx',
-          );
-        }),
+        map(({ fichier }) => ({
+          fichier,
+          nomFichier: 'Annexe_1_Etat_des_lieux_' + resultForm.name + '.docx',
+        })),
       );
   }
 

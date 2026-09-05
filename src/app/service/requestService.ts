@@ -118,6 +118,14 @@ export class RequestService {
     );
   }
 
+  /** Horodate l'envoi du projet de bail, une fois le mail parti. */
+  marquerBailEnvoye(id: number): Observable<LocataireDto> {
+    return this.http.post<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/bail`,
+      {}
+    );
+  }
+
   /** Horodate l'envoi de la lettre de congé, une fois le mail parti. */
   marquerResiliationEnvoyee(id: number): Observable<LocataireDto> {
     return this.http.post<LocataireDto>(
