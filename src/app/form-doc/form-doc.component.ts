@@ -23,7 +23,7 @@ import {
   DocumentGenere,
   ResultatGeneration,
 } from '../service/doc-generator.service';
-import { BailEnvoiService } from '../service/bail-envoi.service';
+import { BailEnvoiService, DestinataireBail } from '../service/bail-envoi.service';
 import { telechargerFichier } from '../service/telechargement.util';
 import { ApercuBailModalComponent } from '../documents/apercu-bail-modal/apercu-bail-modal.component';
 import { LacataireFieldsComponent } from './lacataire-fields/lacataire-fields.component';
@@ -51,6 +51,7 @@ const LIBELLES_CHAMPS: Record<string, string> = {
   typeResidence: 'Type de résidence',
   rentRef: 'Loyer de référence',
   rentRefMaj: 'Loyer de référence majoré',
+  garantieType: 'Type de garantie',
 };
 
 @Component({
@@ -76,6 +77,7 @@ export class FormDocComponent {
   bailleurSelected: any;
   appartementName: string | undefined;
   typeResidences = ['Principale', 'Secondaire'];
+  typesGarantie = ['Visale', 'Garant physique'];
   resultForm: ResultForm = new ResultForm();
   appartementSelected?: AppartementDto;
   modifyRentRefMaj: boolean = false;
@@ -97,6 +99,8 @@ export class FormDocComponent {
   resultatGeneration: ResultatGeneration | null = null;
   /** Le bail converti, tel qu'il est montré et tel qu'il partira. */
   apercuBail: Blob | null = null;
+  /** Le mail par défaut, affiché (et modifiable) dans la modale de relecture. */
+  corpsMailPourEnvoi = '';
   /** Un envoi en cours verrouille la modale sans la fermer. */
   envoiEnCours = false;
 
@@ -140,6 +144,7 @@ export class FormDocComponent {
     chargeList: new FormControl(false),
     clauseLess6Month: new FormControl(false),
     typeResidence: new FormControl('', Validators.required),
+    garantieType: new FormControl('', Validators.required),
     rentRef: new FormControl({ value: 0, disabled: true }, Validators.required),
     rentRefMaj: new FormControl(
       { value: 0, disabled: true },
@@ -192,6 +197,7 @@ export class FormDocComponent {
       chargeList: data.chargeList,
       clauseLess6Month: data.clauseLess6Month,
       typeResidence: data.typeResidence,
+      garantieType: data.garantieType,
       rentRef: data.rentRef,
       rentRefMaj: data.rentRefMaj,
     });
@@ -292,6 +298,35 @@ export class FormDocComponent {
     this.apercuBail = pdf;
     this.resultatGeneration = resultat;
     this.isGenerating = false;
+
+    const destinataire = this.destinataireBail();
+    this.corpsMailPourEnvoi = destinataire
+      ? this.bailEnvoiService.corpsMailParDefaut(destinataire)
+      : '';
+  }
+
+  /**
+   * Ce que le mail d'envoi a besoin de connaître, tel que le formulaire l'a
+   * saisi. `null` si l'appartement n'est pas encore choisi : la relecture ne
+   * s'ouvre normalement qu'une fois le bail généré, donc jamais dans ce cas,
+   * mais `envoyerBail` doit rester défensif.
+   */
+  private destinataireBail(): DestinataireBail | null {
+    const email = this.emailLocataireSaisi;
+    if (!email || !this.appartementSelected) {
+      return null;
+    }
+
+    return {
+      email,
+      prenom: this.formDoc.get('firstname')?.value ?? '',
+      appartement: this.appartementSelected,
+      chambre: this.formDoc.get('room')?.value ?? null,
+      dateEntree: this.formDoc.get('from')?.getRawValue() ?? null,
+      loyerHorsCharges: this.formDoc.get('priceNoCharge')?.value ?? 0,
+      charges: this.formDoc.get('chargePrice')?.value ?? 0,
+      garantieType: this.formDoc.get('garantieType')?.value ?? null,
+    };
   }
 
   /** Le destinataire du bail, tel que la modale de relecture le nomme. */
@@ -313,10 +348,11 @@ export class FormDocComponent {
    * mail part d'abord, la fiche locataire ensuite, et l'horodatage en dernier —
    * il a besoin de l'id que la création vient de rendre.
    */
-  envoyerBail() {
+  envoyerBail(corpsMail: string) {
     const resultat = this.resultatGeneration;
+    const destinataire = this.destinataireBail();
     const email = this.emailLocataireSaisi;
-    if (!resultat || !email) {
+    if (!resultat || !email || !destinataire) {
       return;
     }
 
@@ -326,10 +362,7 @@ export class FormDocComponent {
     this.envoiEnCours = true;
 
     this.bailEnvoiService
-      .envoyerBail(
-        { email, prenom: this.formDoc.get('firstname')?.value ?? '' },
-        this.documentsAEnvoyer(resultat),
-      )
+      .envoyerBail(destinataire, this.documentsAEnvoyer(resultat), corpsMail)
       .subscribe({
         next: () => {
           this.envoiEnCours = false;
@@ -486,6 +519,7 @@ export class FormDocComponent {
       this.resultForm.to = new Date(this.formDoc.get('to')?.getRawValue());
     }
     this.resultForm.typeResidence = this.formDoc.get('typeResidence')?.value;
+    this.resultForm.garantieType = this.formDoc.get('garantieType')?.value;
   }
 
   /**
@@ -522,6 +556,7 @@ export class FormDocComponent {
       chargeList: valeurs.chargeList ?? false,
       clauseLess6Month: valeurs.clauseLess6Month ?? false,
       typeResidence: valeurs.typeResidence || null,
+      garantieType: valeurs.garantieType || null,
       rentRef: valeurs.rentRef ?? null,
       rentRefMaj: valeurs.rentRefMaj ?? null,
     };

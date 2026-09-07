@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { LocataireDto } from '../../model/LocataireDto.model';
+import { EditMailModalComponent } from '../../edit-mail-modal/edit-mail-modal.component';
 
 /** Ce que l'API sait convertir ou joindre tel quel. */
 const EXTENSIONS_ACCEPTEES = /\.(docx|pdf)$/i;
@@ -17,6 +18,12 @@ const EXTENSIONS_ACCEPTEES = /\.(docx|pdf)$/i;
  * conversion est refusée. Autant le dire ici plutôt qu'après l'envoi.
  */
 const TAILLE_MAX = 5 * 1024 * 1024;
+
+/** Ce que l'envoi porte : les fichiers déposés, et le mail tel qu'il partira. */
+export interface EnvoiBailPayload {
+  fichiers: File[];
+  corpsMail: string;
+}
 
 /**
  * Envoi du projet de bail à un candidat, depuis sa ligne.
@@ -31,7 +38,7 @@ const TAILLE_MAX = 5 * 1024 * 1024;
  */
 @Component({
   selector: 'app-envoi-bail-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, EditMailModalComponent],
   templateUrl: './envoi-bail-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./envoi-bail-modal.component.scss'],
@@ -40,13 +47,23 @@ export class EnvoiBailModalComponent {
   @Input() locataire: LocataireDto | null = null;
   /** Un envoi en cours verrouille les boutons sans fermer la modale. */
   @Input() envoiEnCours = false;
+  /** Le mail par défaut, calculé par le parent (`BailEnvoiService.corpsMailParDefaut`). */
+  @Input() set corpsMail(html: string) {
+    this.corpsMailActuel = html;
+  }
 
-  @Output() envoyer = new EventEmitter<File[]>();
+  @Output() envoyer = new EventEmitter<EnvoiBailPayload>();
   @Output() cancel = new EventEmitter<void>();
 
   fichiers: File[] = [];
   /** Ce que le dépôt a écarté : extension inconnue, fichier trop lourd. */
   fichiersRefuses: string[] = [];
+  /** Le mail tel qu'il sera envoyé : le défaut reçu, ou la relecture validée. */
+  corpsMailActuel = '';
+  /** `true` dès que le mail a été relu et validé dans l'éditeur. */
+  corpsMailModifie = false;
+  /** Bascule le corps de la modale vers l'éditeur de mail. */
+  modaleMailOuverte = false;
 
   get nomComplet(): string {
     return [this.locataire?.prenom, this.locataire?.nom]
@@ -102,7 +119,10 @@ export class EnvoiBailModalComponent {
 
   onEnvoyer() {
     if (this.peutEnvoyer) {
-      this.envoyer.emit(this.fichiers);
+      this.envoyer.emit({
+        fichiers: this.fichiers,
+        corpsMail: this.corpsMailActuel,
+      });
     }
   }
 
@@ -110,5 +130,19 @@ export class EnvoiBailModalComponent {
     if (!this.envoiEnCours) {
       this.cancel.emit();
     }
+  }
+
+  onModifierMail() {
+    this.modaleMailOuverte = true;
+  }
+
+  onMailModifie(html: string) {
+    this.corpsMailActuel = html;
+    this.corpsMailModifie = true;
+    this.modaleMailOuverte = false;
+  }
+
+  onAnnulerModificationMail() {
+    this.modaleMailOuverte = false;
   }
 }

@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { EditMailModalComponent } from '../../edit-mail-modal/edit-mail-modal.component';
 
 /**
  * Relecture du bail avant son envoi.
@@ -19,7 +20,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
  */
 @Component({
   selector: 'app-apercu-bail-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, EditMailModalComponent],
   templateUrl: './apercu-bail-modal.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./apercu-bail-modal.component.scss'],
@@ -40,6 +41,10 @@ export class ApercuBailModalComponent implements OnDestroy {
   }
 
   @Input() nomFichier = '';
+  /** Le mail par défaut, calculé par le parent (`BailEnvoiService.corpsMailParDefaut`). */
+  @Input() set corpsMail(html: string) {
+    this.corpsMailActuel = html;
+  }
   /** Ce que le contrôle a relevé sur le document ; vide si tout va bien. */
   @Input() anomalies: string[] = [];
   @Input() destinataireNom = '';
@@ -54,11 +59,18 @@ export class ApercuBailModalComponent implements OnDestroy {
    */
   @Input() messageErreur: string | null = null;
 
-  @Output() envoyer = new EventEmitter<void>();
+  /** Émet le mail tel qu'il part réellement : le défaut, ou la version modifiée. */
+  @Output() envoyer = new EventEmitter<string>();
   @Output() telechargerSeulement = new EventEmitter<void>();
   @Output() annuler = new EventEmitter<void>();
 
   urlApercu: SafeResourceUrl | null = null;
+  /** Le mail tel qu'il sera envoyé : le défaut reçu, ou la relecture validée. */
+  corpsMailActuel = '';
+  /** `true` dès que le mail a été relu et validé dans l'éditeur. */
+  corpsMailModifie = false;
+  /** Bascule le corps de la modale vers l'éditeur de mail. */
+  modaleMailOuverte = false;
   /**
    * Cochée par l'utilisateur quand des anomalies sont listées : elles
    * n'interdisent pas l'envoi — un loyer de référence à 0 est parfois exact —
@@ -97,8 +109,22 @@ export class ApercuBailModalComponent implements OnDestroy {
 
   onEnvoyer() {
     if (this.peutEnvoyer) {
-      this.envoyer.emit();
+      this.envoyer.emit(this.corpsMailActuel);
     }
+  }
+
+  onModifierMail() {
+    this.modaleMailOuverte = true;
+  }
+
+  onMailModifie(html: string) {
+    this.corpsMailActuel = html;
+    this.corpsMailModifie = true;
+    this.modaleMailOuverte = false;
+  }
+
+  onAnnulerModificationMail() {
+    this.modaleMailOuverte = false;
   }
 
   onTelecharger() {
