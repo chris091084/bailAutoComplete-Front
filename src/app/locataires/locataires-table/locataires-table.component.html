@@ -329,6 +329,7 @@
   <app-envoi-bail-modal
     [locataire]="locataireAEnvoyerBail"
     [envoiEnCours]="bailEnvoiEnCours !== null"
+    [corpsMail]="corpsMailPourEnvoi"
     (envoyer)="confirmerEnvoiBail($event)"
     (cancel)="annulerEnvoiBail()"
   >

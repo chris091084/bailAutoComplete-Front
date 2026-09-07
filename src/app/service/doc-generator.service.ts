@@ -8,6 +8,7 @@ import {
   controlerChampsBail,
 } from './controle-bail.util';
 import { AppartementNameEnum, BailTypeEnum } from '../model/enum.model';
+import { joursRestantsDansLeMois, nombreDeJoursDuMois } from './prorata.util';
 
 import { Generation } from '../model/Generation.model';
 import { RequestService } from './requestService';
@@ -243,20 +244,20 @@ export class DocGeneratorService {
       lastPriceWithoutCharge: resultForm.lastPriceWithoutCharge,
       etage: appartementSelected?.etage,
       proportionalRent: (
-        (resultForm.priceNoCharge * this.dateLeft(resultForm.from)) /
-        this.numberOfDays(
+        (resultForm.priceNoCharge * joursRestantsDansLeMois(resultForm.from)) /
+        nombreDeJoursDuMois(
           resultForm.from.getMonth() + 1,
           resultForm.from.getFullYear(),
         )
       ).toFixed(2),
-      howDayOfMonth: this.numberOfDays(
+      howDayOfMonth: nombreDeJoursDuMois(
         resultForm.from.getMonth() + 1,
         resultForm.from.getFullYear(),
       ),
-      dayLeft: this.dateLeft(resultForm.from),
+      dayLeft: joursRestantsDansLeMois(resultForm.from),
       chargePriceLeft: (
-        (resultForm.chargePrice * this.dateLeft(resultForm.from)) /
-        this.numberOfDays(
+        (resultForm.chargePrice * joursRestantsDansLeMois(resultForm.from)) /
+        nombreDeJoursDuMois(
           resultForm.from.getMonth() + 1,
           resultForm.from.getFullYear(),
         )
@@ -264,8 +265,8 @@ export class DocGeneratorService {
       totalRentProMonth: resultForm.priceNoCharge + resultForm.chargePrice,
       totalMontNotCompletRent: (
         ((resultForm.priceNoCharge + resultForm.chargePrice) *
-          this.dateLeft(resultForm.from)) /
-        this.numberOfDays(
+          joursRestantsDansLeMois(resultForm.from)) /
+        nombreDeJoursDuMois(
           resultForm.from.getMonth() + 1,
           resultForm.from.getFullYear(),
         )
@@ -286,26 +287,6 @@ export class DocGeneratorService {
       ).toFixed(2),
       isChargeList: resultForm.chargeList,
     };
-  }
-
-  private dateLeft(dateInput: Date) {
-    const date = new Date(
-      dateInput.getFullYear(),
-      dateInput.getMonth(),
-      dateInput.getDate(),
-    );
-
-    const lastDay = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-    ).getDate();
-
-    return lastDay - date.getDate() + 1;
-  }
-
-  private numberOfDays(mois: number, year: number): number {
-    return new Date(year, mois, 0).getDate();
   }
 
   private dateNow(): string {
