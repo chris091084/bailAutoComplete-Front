@@ -52,4 +52,7 @@ export interface LocataireDto {
   chambre?: string | null;
   // Code couleur CSS (#RRGGBB) de la chambre, `null` si non renseigné.
   chambreCouleur?: string | null;
+  // Type de garantie du bail (« Visale », « Garant physique »), issu du
+  // result_form rattaché. `null` si absent ou bail généré avant ce champ.
+  garantieType?: string | null;
 }

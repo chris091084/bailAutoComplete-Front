@@ -11,6 +11,7 @@ import {
   villeDepuisAdresse,
 } from './adresse.util';
 import { remplirModeleDocx } from './docx.util';
+import { formaterMontant } from './montant.util';
 import { RequestService } from './requestService';
 
 const TEMPLATE_URL = 'assets/docx/Quittance_de_loyer.docx';
@@ -222,9 +223,9 @@ export class QuittanceService {
       ville_signature: villeDepuisAdresse(adresseBailleur),
       date_now: this.formaterDate(new Date()),
       date_paiement: this.formaterDate(options.datePaiement),
-      price_no_charge: this.montant(loyerHorsCharges),
-      charge_price: this.montant(charges),
-      total_price: this.montant(loyerHorsCharges + charges),
+      price_no_charge: formaterMontant(loyerHorsCharges),
+      charge_price: formaterMontant(charges),
+      total_price: formaterMontant(loyerHorsCharges + charges),
     });
   }
 
@@ -256,18 +257,4 @@ export class QuittanceService {
     return `${jour}/${mois}/${date.getFullYear()}`;
   }
 
-  /**
-   * 550 -> « 550 ». Les loyers sont des montants ronds : pas de décimales
-   * inutiles sur la quittance. Le modèle porte déjà le « € ».
-   *
-   * Les centimes ne s'écrivent que s'il y en a — un loyer à 550,50 € ne doit pas
-   * s'arrondir — et prennent alors la virgule décimale française.
-   */
-  private montant(valeur: number): string {
-    const montant = Number.isFinite(valeur) ? valeur : 0;
-
-    return Number.isInteger(montant)
-      ? String(montant)
-      : montant.toFixed(2).replace('.', ',');
-  }
 }

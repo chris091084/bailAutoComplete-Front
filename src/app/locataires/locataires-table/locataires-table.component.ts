@@ -9,7 +9,11 @@ import { CommonModule } from '@angular/common';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { RequestService } from '../../service/requestService';
 import { ResiliationService } from '../../service/resiliation.service';
-import { BailEnvoiService } from '../../service/bail-envoi.service';
+import {
+  BailEnvoiService,
+  DestinataireBail,
+} from '../../service/bail-envoi.service';
+import { EnvoiBailPayload } from '../envoi-bail-modal/envoi-bail-modal.component';
 import { couleurTexteSur } from '../../service/couleur.util';
 import { enBase64 } from '../../service/fichier.util';
 import { telechargerFichier } from '../../service/telechargement.util';
@@ -87,6 +91,8 @@ export class LocatairesTableComponent {
 
   /** Candidat dont on prépare l'envoi du bail ; `null` = modale fermée. */
   locataireAEnvoyerBail: LocataireDto | null = null;
+  /** Le mail par défaut, affiché (et modifiable) dans la modale d'envoi. */
+  corpsMailPourEnvoi = '';
 
   /** Id du candidat dont le bail part, pour n'occuper qu'un bouton. */
   bailEnvoiEnCours: number | null = null;
@@ -312,6 +318,17 @@ export class LocatairesTableComponent {
       return;
     }
 
+    const destinataire = this.destinataireBailPour(locataire);
+    if (!destinataire) {
+      this.afficherErreur(
+        `Aucun appartement trouvé pour ${locataire.prenom} ${locataire.nom} : impossible de générer le mail.`,
+      );
+      return;
+    }
+
+    this.corpsMailPourEnvoi = this.bailEnvoiService.corpsMailParDefaut(
+      destinataire,
+    );
     this.locataireAEnvoyerBail = locataire;
   }
 
@@ -324,9 +341,17 @@ export class LocatairesTableComponent {
    * l'échec de l'horodatage ne se présente pas comme un échec d'envoi : le mail
    * est parti.
    */
-  confirmerEnvoiBail(fichiers: File[]) {
+  confirmerEnvoiBail({ fichiers, corpsMail }: EnvoiBailPayload) {
     const locataire = this.locataireAEnvoyerBail;
-    if (!locataire?.email || locataire.id == null || fichiers.length === 0) {
+    const destinataire = locataire
+      ? this.destinataireBailPour(locataire)
+      : null;
+    if (
+      !locataire?.email ||
+      locataire.id == null ||
+      fichiers.length === 0 ||
+      !destinataire
+    ) {
       return;
     }
 
@@ -336,8 +361,9 @@ export class LocatairesTableComponent {
 
     this.bailEnvoiService
       .envoyerBail(
-        { email: locataire.email, prenom: locataire.prenom },
+        destinataire,
         fichiers.map((fichier) => ({ fichier, nomFichier: fichier.name })),
+        corpsMail,
       )
       .pipe(
         switchMap(() =>
@@ -749,6 +775,27 @@ export class LocatairesTableComponent {
     return this.appartements.find(
       (a) => Number(a.id) === locataire.appartementId,
     );
+  }
+
+  /** `null` si l'appartement ou l'email du locataire sont introuvables. */
+  private destinataireBailPour(
+    locataire: LocataireDto,
+  ): DestinataireBail | null {
+    const appartement = this.appartementDe(locataire);
+    if (!locataire.email || !appartement) {
+      return null;
+    }
+
+    return {
+      email: locataire.email,
+      prenom: locataire.prenom,
+      appartement,
+      chambre: locataire.chambre ?? null,
+      dateEntree: locataire.entree ?? null,
+      loyerHorsCharges: locataire.loyerHorsCharges ?? 0,
+      charges: locataire.charges ?? 0,
+      garantieType: locataire.garantieType ?? null,
+    };
   }
 
   private corpsDuMail(locataire: LocataireDto): string {

@@ -1,2 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import "bootstrap/scss/bootstrap";
+@import "quill/dist/quill.snow.css";
+
+/* Hauteur confortable pour éditer un mail : le défaut de Quill (~150px) coupe
+   le corps du mail après quelques lignes. */
+.ql-editor {
+  min-height: 300px;
+}

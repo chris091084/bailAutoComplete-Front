@@ -32,6 +32,7 @@ export interface BrouillonPayload {
   typeResidence?: string | null;
   rentRef?: number | null;
   rentRefMaj?: number | null;
+  garantieType?: string | null;
 }
 
 /**

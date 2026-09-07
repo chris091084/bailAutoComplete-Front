@@ -8,5 +8,7 @@ export interface SendMailPayload {
   to: string;
   subject: string;
   text: string;
+  /** Version mise en forme (HTML) du corps du mail, éditée dans Quill. */
+  html?: string;
   attachments?: MailAttachment[];
 }
