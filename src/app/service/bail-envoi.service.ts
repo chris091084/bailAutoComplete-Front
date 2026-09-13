@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom, from, switchMap } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
+import { AppartementNameEnum } from '../model/enum.model';
 import { MailAttachment } from '../model/SendMail.model';
 import { codePostalVilleDepuisAdresse, rueDepuisAdresse } from './adresse.util';
 import { DocumentGenere } from './doc-generator.service';
@@ -11,6 +12,20 @@ import { joursRestantsDansLeMois, nombreDeJoursDuMois } from './prorata.util';
 import { RequestService } from './requestService';
 
 const EXTENSION_DOCX = /\.docx$/i;
+
+/** Dossier Google Drive des annexes 3, 4 et 5 de chaque logement. */
+const LIENS_ANNEXES: Record<string, string> = {
+  [AppartementNameEnum.RUE_RENE]:
+    'https://drive.google.com/drive/folders/1y62mssvHM2ApEETNDmI6TjYPQksEYCMR?usp=sharing',
+  [AppartementNameEnum.CHATEAU_GAILLARD_17B]:
+    'https://drive.google.com/drive/folders/15blv6iDMPkMooDK0QwRYGRsomUBQmKJv?usp=sharing',
+  [AppartementNameEnum.CHATEAU_GAILLARD_53A]:
+    'https://drive.google.com/drive/folders/1cNpm5ty37qdyE1lSzUjtUIp-96nOovOX?usp=sharing',
+  [AppartementNameEnum.FILATURE_3G]:
+    'https://drive.google.com/drive/folders/1ruj04vodpUSjeD1BA_G18o4qYHLgxonp?usp=sharing',
+  [AppartementNameEnum.FILATURE_4D]:
+    'https://drive.google.com/drive/folders/1Tz2P6peWfw1E-fmpWs-s0CEtfl7wOICw?usp=sharing',
+};
 
 /**
  * À qui le bail part, et de quoi le corps du mail a besoin pour se
@@ -163,7 +178,7 @@ export class BailEnvoiService {
       '<p>Sont annexées et jointes au contrat de location les pièces suivantes :</p>',
       '<ul>',
       "<li>Annexe 1 : L'état des lieux d'entrée et l'inventaire détaillé des meubles et équipements (partie privative et parties communes),</li>",
-      `<li>Annexe 2 : ${this.ligneGarantie(destinataire.garantieType)}</li>`,
+      `<li>Annexe 2 : Garantie ${this.ligneGarantie(destinataire.garantieType)}</li>`,
       "<li>Annexe 3 : Règlement de copropriété concernant la destination de l'immeuble, la jouissance et l'usage des parties privatives et communes,</li>",
       '<li>Annexe 4 : Un dossier de diagnostic technique comprenant',
       '<ul>',
@@ -188,9 +203,17 @@ export class BailEnvoiService {
       `<li>Procéder au règlement de la caution (${formaterMontant(appartement.caution ?? 0)}€)</li>`,
       '</ul>',
       "<p>L'annexe 1 relative à l'état des lieux d'entrée sera signée sur place le jour de l'entrée dans les lieux. Les annexes 3, 4 et 5 sont données à titre d'information et disponible au téléchargement via le lien çi-dessous. Inutile de les signer.</p>",
+      ...this.paragrapheLienAnnexes(appartement),
+      "<p><p>",
       '<p>Je reste évidemment joignable pour toute question</p>',
       '<p>Bonne lecture<br>Sylvain<br>06.13.88.31.01</p>',
     ].join('');
+  }
+
+  /** Le lien vers le dossier des annexes du logement, rien s'il n'en a pas. */
+  private paragrapheLienAnnexes(appartement: AppartementDto): string[] {
+    const lien = LIENS_ANNEXES[appartement.name];
+    return lien ? [`<p><a href="${lien}">${lien}</a></p>`] : [];
   }
 
   private ligneGarantie(garantieType: string | null): string {
