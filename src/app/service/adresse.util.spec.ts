@@ -12,6 +12,17 @@ describe('nomBailleur', () => {
     ).toBe('SCI BZHRO');
   });
 
+  it('réduit une SSCI à sa dénomination', () => {
+    expect(
+      nomBailleur(
+        'SSCI BREIZHSTOCK, Société civile immobilière au capital de 1000 €, ' +
+          "dont le siège est à CHONAS-L'AMBALLAN (38121), 140 impasse le Clos " +
+          'du Buis, identifiée au SIREN sous le numéro 991506817 et ' +
+          'immatriculée au Registre du Commerce et des Sociétés de VIENNE.',
+      ),
+    ).toBe('SSCI BREIZHSTOCK');
+  });
+
   it('accepte une SCI saisie sans mention légale', () => {
     expect(nomBailleur('SCI BZHRO')).toBe('SCI BZHRO');
   });

@@ -38,6 +38,8 @@ export class QuittanceModalComponent implements OnInit {
   @Input() locataire: LocataireDto | null = null;
   /** Une génération en cours verrouille les boutons sans fermer la modale. */
   @Input() traitementEnCours = false;
+  /** Durée annoncée pendant le traitement ; `null` = rien à afficher. */
+  @Input() messageAttente: string | null = null;
   @Output() telecharger = new EventEmitter<QuittanceOptions>();
   @Output() envoyer = new EventEmitter<QuittanceOptions>();
   @Output() cancel = new EventEmitter<void>();

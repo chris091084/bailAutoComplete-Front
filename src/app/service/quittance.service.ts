@@ -4,6 +4,7 @@ import { Observable, firstValueFrom, from, switchMap } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
+import { AppartementNameEnum } from '../model/enum.model';
 import {
   codePostalVilleDepuisAdresse,
   nomBailleur,
@@ -14,6 +15,17 @@ import { remplirModeleDocx } from './docx.util';
 import { RequestService } from './requestService';
 
 const TEMPLATE_URL = 'assets/docx/Quittance_de_loyer.docx';
+
+/**
+ * Logements dont le bailleur est représenté par Sylvain BODIN : la quittance
+ * porte alors la ligne « représentée par Sylvain BODIN ». Le logement se
+ * reconnaît à son nom, pas à son adresse : le 4D et le 3G de la Filature
+ * partagent la même.
+ */
+const LOGEMENTS_REPRESENTES_PAR_BODIN: string[] = [
+  AppartementNameEnum.FILATURE_3G,
+  AppartementNameEnum.CHATEAU_GAILLARD_53A,
+];
 
 const MOIS = [
   'janvier',
@@ -43,6 +55,22 @@ export interface QuittanceOptions {
   moisFin: string;
   /** Date à laquelle le loyer a été réglé, au format « AAAA-MM-JJ ». */
   datePaiement: string;
+}
+
+/**
+ * Durée d'une conversion en PDF sur l'API, arrondie au-dessus : 13 s mesurées
+ * sur Scaleway le 14/09/2026. Ne sert qu'à annoncer l'attente à l'écran.
+ */
+const SECONDES_PAR_QUITTANCE = 15;
+
+/** Une quittance remplie, encore au format Word. */
+export interface QuittanceRemplie {
+  /** Mois couvert, « AAAA-MM ». */
+  mois: string;
+  /** « janvier 2026 », pour les messages à l'écran et le corps du mail. */
+  libelle: string;
+  nomFichier: string;
+  docx: Blob;
 }
 
 /** Une quittance produite, prête à être téléchargée ou mise en pièce jointe. */
@@ -84,24 +112,51 @@ export class QuittanceService {
     appartement: AppartementDto,
     options: QuittanceOptions,
   ): Observable<QuittanceGeneree[]> {
-    return this.http.get(TEMPLATE_URL, { responseType: 'arraybuffer' }).pipe(
-      switchMap((data) => {
-        const quittances = this.moisDeLaPeriode(options).map((mois) => ({
-          mois,
-          libelle: this.libelleMois(mois),
-          nomFichier: this.nomFichier(locataire, mois),
-          // Chaque document ne couvre que son propre mois : la période du
-          // formulaire n'est qu'un raccourci de saisie.
-          docx: this.remplirModele(data, locataire, appartement, {
-            ...options,
-            moisDebut: mois,
-            moisFin: mois,
-          }),
-        }));
-
-        return from(this.convertirEnPdf(quittances));
-      }),
+    return this.remplirQuittances(locataire, appartement, options).pipe(
+      switchMap((quittances) => from(this.convertirEnPdf(quittances))),
     );
+  }
+
+  /**
+   * Remplit le modèle Word pour chaque mois de la période, sans rien convertir.
+   * L'envoi par mail s'arrête là : les `.docx` partent en une seule requête à
+   * l'API, qui les convertit et envoie le mail sans dépendre de l'onglet.
+   */
+  remplirQuittances(
+    locataire: LocataireDto,
+    appartement: AppartementDto,
+    options: QuittanceOptions,
+  ): Observable<QuittanceRemplie[]> {
+    return this.http.get(TEMPLATE_URL, { responseType: 'arraybuffer' }).pipe(
+      switchMap((data) =>
+        Promise.all(
+          this.moisDeLaPeriode(options).map(async (mois) => ({
+            mois,
+            libelle: this.libelleMois(mois),
+            nomFichier: this.nomFichier(locataire, mois),
+            // Chaque document ne couvre que son propre mois : la période du
+            // formulaire n'est qu'un raccourci de saisie.
+            docx: await this.remplirModele(data, locataire, appartement, {
+              ...options,
+              moisDebut: mois,
+              moisFin: mois,
+            }),
+          })),
+        ),
+      ),
+    );
+  }
+
+  /**
+   * « environ 3 min » pour douze quittances : l'ordre de grandeur de l'attente,
+   * que l'écran annonce pour qu'elle ne passe pas pour un blocage.
+   */
+  dureeEstimee(nombreQuittances: number): string {
+    const secondes = nombreQuittances * SECONDES_PAR_QUITTANCE;
+
+    return secondes < 60
+      ? `environ ${secondes} s`
+      : `environ ${Math.ceil(secondes / 60)} min`;
   }
 
   /**
@@ -110,12 +165,7 @@ export class QuittanceService {
    * mémoire. Quatre conversions simultanées la satureraient.
    */
   private async convertirEnPdf(
-    quittances: {
-      mois: string;
-      libelle: string;
-      nomFichier: string;
-      docx: Promise<Blob>;
-    }[],
+    quittances: QuittanceRemplie[],
   ): Promise<QuittanceGeneree[]> {
     const converties: QuittanceGeneree[] = [];
 
@@ -125,7 +175,7 @@ export class QuittanceService {
         libelle,
         nomFichier,
         fichier: await firstValueFrom(
-          this.requestService.convertirEnPdf(await docx, nomFichier),
+          this.requestService.convertirEnPdf(docx, nomFichier),
         ),
       });
     }
@@ -210,6 +260,9 @@ export class QuittanceService {
       // le prénom du modèle reste vide plutôt que d'être découpé au hasard.
       nom_bailleur: nomBailleur(appartement.bailleur?.name),
       prenom_bailleur: '',
+      represente_par_bodin: LOGEMENTS_REPRESENTES_PAR_BODIN.includes(
+        appartement.name,
+      ),
       adresse_bailleur: rueDepuisAdresse(adresseBailleur),
       cp_ville_bailleur: codePostalVilleDepuisAdresse(adresseBailleur),
       nom_locataire: locataire.nom,

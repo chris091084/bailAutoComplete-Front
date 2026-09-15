@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AppartementDto } from '../model/AppartementDto.model';
 import { LocataireDto } from '../model/LocataireDto.model';
+import { AppartementNameEnum } from '../model/enum.model';
 import { QuittanceService } from './quittance.service';
 
 describe('QuittanceService', () => {
@@ -60,6 +61,11 @@ describe('QuittanceService', () => {
 
   it('rend une liste vide sur une période inversée', () => {
     expect(service.moisDeLaPeriode(options('2026-04', '2026-01'))).toEqual([]);
+  });
+
+  it('annonce la durée d’attente en secondes, puis en minutes', () => {
+    expect(service.dureeEstimee(1)).toBe('environ 15 s');
+    expect(service.dureeEstimee(12)).toBe('environ 3 min');
   });
 
   it('remplit le modèle Word par mois et fait convertir chacun en PDF', async () => {
@@ -129,6 +135,64 @@ describe('QuittanceService', () => {
     ]);
     quittances.forEach((quittance) => {
       expect(quittance.fichier.type).toBe('application/pdf');
+    });
+  });
+
+  describe('ligne « représentée par Sylvain BODIN »', () => {
+    /** Génère une quittance d'un mois et rend le texte du document Word envoyé
+     * à la conversion. */
+    const texteQuittance = async (nomAppartement: string) => {
+      const octets = await readFile('src/assets/docx/Quittance_de_loyer.docx');
+      const modele = new ArrayBuffer(octets.byteLength);
+      new Uint8Array(modele).set(octets);
+      const [, { default: PizZip }] = await Promise.all([
+        import('docxtemplater'),
+        import('pizzip'),
+      ]);
+
+      const promesse = firstValueFrom(
+        service.genererQuittances(
+          { nom: 'DUPONT', prenom: 'Marie' } as LocataireDto,
+          {
+            name: nomAppartement,
+            adress: '56 rue de la Filature - 69100 VILLEURBANNE',
+            bailleur: { name: 'SCI', adress: '3 place du Marché, 44100 Nantes' },
+          } as AppartementDto,
+          options('2026-01', '2026-01'),
+        ),
+      );
+
+      http.expectOne('assets/docx/Quittance_de_loyer.docx').flush(modele);
+      await tick();
+
+      const requete = http.expectOne((r) => r.url.endsWith('documents/pdf'));
+      const docx = (requete.request.body as FormData).get('document') as File;
+      const xml = new PizZip(await docx.arrayBuffer())
+        .file('word/document.xml')!
+        .asText();
+      requete.flush(new Blob(['%PDF-1.7 …'], { type: 'application/pdf' }));
+      await promesse;
+
+      return xml.replace(/<[^>]+>/g, '');
+    };
+
+    it.each([
+      AppartementNameEnum.FILATURE_3G,
+      AppartementNameEnum.CHATEAU_GAILLARD_53A,
+    ])('figure sur la quittance de %s', async (nom) => {
+      expect(await texteQuittance(nom)).toContain(
+        'représentée par Sylvain BODIN',
+      );
+    });
+
+    it.each([
+      AppartementNameEnum.FILATURE_4D,
+      AppartementNameEnum.CHATEAU_GAILLARD_17B,
+      AppartementNameEnum.RUE_RENE,
+    ])('est absente de la quittance de %s', async (nom) => {
+      const texte = await texteQuittance(nom);
+      expect(texte).not.toContain('Sylvain BODIN');
+      expect(texte).not.toContain('represente_par_bodin');
     });
   });
 

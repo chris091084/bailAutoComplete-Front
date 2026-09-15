@@ -311,6 +311,7 @@
   <app-quittance-modal
     [locataire]="locataireAQuittancer"
     [traitementEnCours]="quittanceEnCours !== null"
+    [messageAttente]="messageAttenteQuittance"
     (telecharger)="telechargerQuittance($event)"
     (envoyer)="demanderEnvoiQuittance($event)"
     (cancel)="annulerQuittance()"
@@ -327,6 +328,7 @@ renoncement rend le formulaire tel qu'il a été rempli. -->
     libelleConfirmer="Envoyer la quittance"
     classeConfirmer="btn-primary"
     [envoiEnCours]="quittanceEnCours !== null"
+    [messageAttente]="messageAttenteQuittance"
     (confirm)="confirmerEnvoiQuittance()"
     (cancel)="annulerEnvoiQuittance()"
   >

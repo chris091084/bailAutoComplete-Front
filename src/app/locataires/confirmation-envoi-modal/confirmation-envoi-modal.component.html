@@ -43,6 +43,11 @@
             {{ envoiPrecedent | date: 'HH:mm' }}.
           </div>
         }
+        @if (messageAttente) {
+          <div class="alert alert-info mt-3 mb-0" role="status">
+            {{ messageAttente }}
+          </div>
+        }
       </div>
       <div class="modal-footer">
         <button

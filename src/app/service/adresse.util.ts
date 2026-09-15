@@ -24,11 +24,12 @@ export function villeDepuisAdresse(adresse?: string | null): string {
  * « SCI BZHRO, Société civile immobilière au capital de 1000 €, dont le siège
  * est à … » -> « SCI BZHRO ». Les bailleurs personnes morales sont saisis avec
  * toute leur mention légale, celle qui figure sur le bail ; une quittance n'en
- * veut que la dénomination. Hors SCI, le nom est repris tel quel : rien
- * n'indiquerait alors où s'arrête le nom et où commence le reste.
+ * veut que la dénomination. Le préfixe « SSCI » est reconnu au même titre :
+ * c'est ainsi qu'est saisie SSCI BREIZHSTOCK. Hors SCI, le nom est repris tel
+ * quel : rien n'indiquerait alors où s'arrête le nom et où commence le reste.
  */
 export function nomBailleur(nom?: string | null): string {
-  const sci = nom?.match(/^\s*(SCI)\s+([^\s,;]+)/i);
+  const sci = nom?.match(/^\s*(S?SCI)\s+([^\s,;]+)/i);
 
   return sci ? `${sci[1]} ${sci[2]}` : (nom?.trim() ?? '');
 }
