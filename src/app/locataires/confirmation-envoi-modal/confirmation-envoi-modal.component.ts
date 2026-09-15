@@ -31,6 +31,8 @@ export class ConfirmationEnvoiModalComponent {
   @Input() rappelerEnvoiPrecedent = false;
   /** Un envoi déjà en cours verrouille les boutons sans fermer la modale. */
   @Input() envoiEnCours = false;
+  /** Durée annoncée pendant l'envoi ; `null` = rien à afficher. */
+  @Input() messageAttente: string | null = null;
   @Output() confirm = new EventEmitter<LocataireDto>();
   @Output() cancel = new EventEmitter<void>();
 

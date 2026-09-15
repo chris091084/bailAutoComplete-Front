@@ -99,6 +99,9 @@ export class LocatairesTableComponent {
   /** Id du locataire dont la quittance se génère ou s'envoie. */
   quittanceEnCours: number | null = null;
 
+  /** Durée annoncée et consigne, affichées dans la modale pendant le traitement. */
+  messageAttenteQuittance: string | null = null;
+
   /**
    * Quittance en attente de confirmation d'envoi ; `null` = pas de confirmation
    * à l'écran. La modale de quittance reste montée dessous : un renoncement
@@ -545,6 +548,14 @@ export class LocatairesTableComponent {
     this.messageErreur = null;
     this.quittanceEnCours = locataire.id;
 
+    // Le téléchargement, lui, dépend encore de l'onglet : chaque conversion est
+    // une requête du navigateur.
+    this.messageAttenteQuittance = this.messageAttente(
+      'Génération',
+      options,
+      "Gardez cette page ouverte et l'écran allumé jusqu'au téléchargement.",
+    );
+
     this.quittanceService
       .genererQuittances(locataire, appartement, options)
       .subscribe({
@@ -553,6 +564,7 @@ export class LocatairesTableComponent {
             telechargerFichier(quittance.fichier, quittance.nomFichier),
           );
           this.quittanceEnCours = null;
+          this.messageAttenteQuittance = null;
           this.locataireAQuittancer = null;
           this.afficherSucces(this.succesQuittances(quittances, 'téléchargée'));
         },
@@ -586,36 +598,38 @@ export class LocatairesTableComponent {
 
     const periode = this.quittanceService.libellePeriode(options);
 
+    this.messageAttenteQuittance = this.messageAttente(
+      'Envoi',
+      options,
+      "L'envoi se poursuit sur le serveur même si cette page se ferme.",
+    );
+
+    // Seul le remplissage des modèles se fait ici. Conversion et mail partent
+    // en une requête : l'onglet peut se recharger ou le téléphone se verrouiller
+    // pendant les minutes de conversion sans que l'envoi soit perdu.
     this.quittanceService
-      .genererQuittances(locataire, appartement, options)
+      .remplirQuittances(locataire, appartement, options)
       .pipe(
         switchMap((quittances) =>
-          Promise.all(
-            quittances.map((quittance) =>
-              this.toBase64(quittance.fichier).then((contentBase64) => ({
-                filename: quittance.nomFichier,
-                contentBase64,
-              })),
-            ),
-          ).then((attachments) => ({ quittances, attachments })),
-        ),
-        switchMap(({ quittances, attachments }) =>
           this.requestService
-            .sendMail({
-              to: locataire.email!,
-              subject:
-                quittances.length > 1
-                  ? `Quittances de loyer - ${periode}`
-                  : `Quittance de loyer - ${periode}`,
-              text: this.corpsDuMailQuittance(locataire, quittances),
-              attachments,
-            })
+            .envoyerEnPdf(
+              {
+                to: locataire.email!,
+                subject:
+                  quittances.length > 1
+                    ? `Quittances de loyer - ${periode}`
+                    : `Quittance de loyer - ${periode}`,
+                text: this.corpsDuMailQuittance(locataire, quittances),
+              },
+              quittances,
+            )
             .pipe(map(() => quittances)),
         ),
       )
       .subscribe({
         next: (quittances) => {
           this.quittanceEnCours = null;
+          this.messageAttenteQuittance = null;
           this.locataireAQuittancer = null;
           this.quittanceAConfirmer = null;
           this.afficherSucces(
@@ -627,8 +641,31 @@ export class LocatairesTableComponent {
           );
         },
         error: (err) =>
-          this.echecQuittance(err, "L'envoi des quittances a échoué."),
+          this.echecQuittance(
+            err,
+            // Réponse perdue (délai de la passerelle, réseau coupé) : le serveur
+            // a pu aller au bout. Renvoyer à l'aveugle doublerait le mail.
+            err?.status === 0 || err?.status === 504
+              ? "Le serveur n'a pas répondu à temps : les quittances ont pu partir quand même. Vérifiez la copie cachée avant de les renvoyer."
+              : "L'envoi des quittances a échoué.",
+          ),
       });
+  }
+
+  /**
+   * « Envoi de 12 quittances en cours (environ 3 min). » suivi d'une consigne :
+   * plusieurs minutes derrière un simple indicateur de chargement passent pour
+   * un blocage, et incitent à quitter la page.
+   */
+  private messageAttente(
+    action: string,
+    options: QuittanceOptions,
+    consigne: string,
+  ): string {
+    const nombre = this.quittanceService.moisDeLaPeriode(options).length;
+    const objet = nombre > 1 ? `${nombre} quittances` : 'la quittance';
+
+    return `${action} de ${objet} en cours (${this.quittanceService.dureeEstimee(nombre)}). ${consigne}`;
   }
 
   /**
@@ -636,7 +673,7 @@ export class LocatairesTableComponent {
    * (janvier 2026 à avril 2026) téléchargées. » au-delà.
    */
   private succesQuittances(
-    quittances: QuittanceGeneree[],
+    quittances: Pick<QuittanceGeneree, 'libelle'>[],
     action: string,
     actionPluriel = `${action}s`,
   ): string {
@@ -652,6 +689,7 @@ export class LocatairesTableComponent {
 
   private echecQuittance(err: any, message: string) {
     this.quittanceEnCours = null;
+    this.messageAttenteQuittance = null;
     this.locataireAQuittancer = null;
     this.quittanceAConfirmer = null;
     console.error('Erreur lors de la génération de la quittance', err);
@@ -688,7 +726,7 @@ export class LocatairesTableComponent {
    */
   private corpsDuMailQuittance(
     locataire: LocataireDto,
-    quittances: QuittanceGeneree[],
+    quittances: Pick<QuittanceGeneree, 'libelle'>[],
   ): string {
     const entete = `Bonjour ${locataire.prenom},`;
 

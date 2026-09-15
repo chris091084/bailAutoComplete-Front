@@ -185,4 +185,24 @@ export class RequestService {
       responseType: 'blob',
     });
   }
+
+  /**
+   * Fait convertir les documents en PDF et les envoie dans un seul mail, en une
+   * requête. Une fois la requête partie, l'API va au bout même si l'onglet se
+   * ferme ou se recharge pendant les conversions.
+   */
+  envoyerEnPdf(
+    mail: Omit<SendMailPayload, 'attachments'>,
+    documents: { docx: Blob; nomFichier: string }[],
+  ): Observable<void> {
+    const formulaire = new FormData();
+    formulaire.append('to', mail.to);
+    formulaire.append('subject', mail.subject);
+    formulaire.append('text', mail.text);
+    documents.forEach(({ docx, nomFichier }) =>
+      formulaire.append('documents', docx, nomFichier),
+    );
+
+    return this.http.post<void>(`${this.apiUrl}documents/envoyer`, formulaire);
+  }
 }
