@@ -41,20 +41,24 @@ export class AppartementModalComponent implements OnInit {
         ...this.appartement,
         bailleurName: this.appartement.bailleur?.name,
       });
+      // En modification, seuls les loyers restent éditables.
+      ['name', 'adress', 'bailleurName', 'surface'].forEach((champ) =>
+        this.form.get(champ)?.disable()
+      );
     }
   }
 
   onSubmit() {
     if (this.form.valid) {
+      // `value` exclut les champs désactivés : en modification, nom, adresse,
+      // propriétaire et surface restent ceux d'origine.
       const formValue = this.form.value;
       const result: AppartementDto = {
         ...this.appartement, // Keep original fields
         ...formValue,
-        // Reconstruct bailleur object simply for now
-        bailleur: {
-          ...this.appartement?.bailleur,
-          name: formValue.bailleurName,
-        },
+        bailleur: this.appartement
+          ? this.appartement.bailleur
+          : { name: formValue.bailleurName },
       };
       this.save.emit(result);
     }

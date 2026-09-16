@@ -30,7 +30,7 @@ export class RequestService {
 
   updateAppartement(appartement: AppartementDto): Observable<AppartementDto> {
     return this.http.put<AppartementDto>(
-      `${this.apiUrl}appartement`,
+      `${this.apiUrl}appartement/${appartement.id}`,
       appartement
     );
   }

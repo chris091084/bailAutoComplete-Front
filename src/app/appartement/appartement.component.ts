@@ -119,17 +119,19 @@ export class AppartementComponent implements OnInit {
   }
 
   onSave(app: AppartementDto) {
-    if (app.id) {
-      this.requestService.updateAppartement(app).subscribe(() => {
+    const requete = app.id
+      ? this.requestService.updateAppartement(app)
+      : this.requestService.addAppartement(app);
+    requete.subscribe({
+      next: () => {
         this.loadAppartements();
         this.closeModal();
-      });
-    } else {
-      this.requestService.addAppartement(app).subscribe(() => {
-        this.loadAppartements();
-        this.closeModal();
-      });
-    }
+      },
+      error: (err) => {
+        console.error('Error saving appartement', err);
+        alert("L'enregistrement de l'appartement a échoué.");
+      },
+    });
   }
 
   deleteAppartement(id: string) {
