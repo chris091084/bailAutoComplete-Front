@@ -18,6 +18,12 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'securite',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./securite/securite.component').then((m) => m.SecuriteComponent),
+  },
+  {
     path: 'history',
     canActivate: [authGuard],
     loadComponent: () =>
