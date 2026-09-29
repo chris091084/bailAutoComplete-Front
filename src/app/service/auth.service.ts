@@ -16,21 +16,10 @@ export interface AuthStatusResponse {
   authenticated: boolean;
 }
 
-/**
- * Réponse de `/auth/login` : soit la session est ouverte, soit le mot de passe
- * est bon mais un passkey doit encore être présenté (seconde étape).
- */
-export type LoginResult =
-  | { passkeyRequired: false }
-  | {
-      passkeyRequired: true;
-      options: PublicKeyCredentialRequestOptionsJSON;
-    };
-
-interface LoginResponse {
-  authenticated: boolean;
-  passkeyRequired?: boolean;
-  options?: PublicKeyCredentialRequestOptionsJSON;
+/** Moyens de connexion que l'API propose actuellement. */
+export interface LoginMethods {
+  passkey: boolean;
+  magicLink: boolean;
 }
 
 export interface PasskeySummary {
@@ -76,7 +65,7 @@ function defaultMessageFor(status: number): string {
     case 0:
       return "Le serveur est injoignable. Vérifiez votre connexion.";
     case 401:
-      return 'Mot de passe incorrect';
+      return 'Identifiants incorrects';
     case 429:
       return 'Trop de tentatives échouées, réessayez plus tard';
     default:
@@ -126,31 +115,50 @@ export class AuthService {
     this.authenticated.set(value);
   }
 
-  login(password: string): Observable<LoginResult> {
-    return this.http
-      .post<LoginResponse>(`${this.authUrl}/login`, { password })
-      .pipe(
-        tap((response) => this.authenticated.set(response.authenticated)),
-        map((response): LoginResult =>
-          response.passkeyRequired && response.options
-            ? { passkeyRequired: true, options: response.options }
-            : { passkeyRequired: false }
-        )
-      );
-  }
-
-  /**
-   * Seconde étape : le navigateur fait signer le défi par le passkey (biométrie,
-   * PIN ou clé physique), puis l'API ouvre la session.
-   */
-  loginWithPasskey(options: PublicKeyCredentialRequestOptionsJSON): Observable<void> {
-    return from(startAuthentication({ optionsJSON: options })).pipe(
-      switchMap((response) =>
-        this.http.post<AuthStatusResponse>(`${this.authUrl}/passkey/login`, { response })
-      ),
+  /** Connexion par mot de passe : n'existe que tant qu'aucun passkey n'est enregistré. */
+  login(password: string): Observable<void> {
+    return this.http.post<AuthStatusResponse>(`${this.authUrl}/login`, { password }).pipe(
       tap((response) => this.authenticated.set(response.authenticated)),
       map(() => undefined)
     );
+  }
+
+  methods(): Observable<LoginMethods> {
+    return this.http.get<LoginMethods>(`${this.authUrl}/methods`);
+  }
+
+  /**
+   * Connexion par passkey, sans mot de passe : l'API fournit un défi, le
+   * navigateur le fait signer (biométrie, PIN ou clé physique), puis l'API ouvre
+   * la session.
+   */
+  loginWithPasskey(): Observable<void> {
+    return this.http
+      .post<PublicKeyCredentialRequestOptionsJSON>(`${this.authUrl}/passkey/login/options`, null)
+      .pipe(
+        switchMap((optionsJSON) => from(startAuthentication({ optionsJSON }))),
+        switchMap((response) =>
+          this.http.post<AuthStatusResponse>(`${this.authUrl}/passkey/login`, { response })
+        ),
+        tap((response) => this.authenticated.set(response.authenticated)),
+        map(() => undefined)
+      );
+  }
+
+  /** La réponse est toujours `sent: true`, que l'adresse soit autorisée ou non. */
+  requestMagicLink(email: string): Observable<void> {
+    return this.http
+      .post<{ sent: boolean }>(`${this.authUrl}/magic-link`, { email })
+      .pipe(map(() => undefined));
+  }
+
+  verifyMagicLink(token: string): Observable<void> {
+    return this.http
+      .post<AuthStatusResponse>(`${this.authUrl}/magic-link/verify`, { token })
+      .pipe(
+        tap((response) => this.authenticated.set(response.authenticated)),
+        map(() => undefined)
+      );
   }
 
   listPasskeys(): Observable<PasskeySummary[]> {

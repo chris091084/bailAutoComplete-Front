@@ -2,11 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormDocComponent } from './form-doc/form-doc.component';
 import { LoginComponent } from './login/login.component';
+import { MagicLinkComponent } from './login/magic-link.component';
 import { authGuard } from './guard/auth.guard';
 import { AppartementComponent } from './appartement/appartement.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'login/magic', component: MagicLinkComponent },
   { path: '', component: FormDocComponent, canActivate: [authGuard] },
   { path: 'table', component: AppartementComponent, canActivate: [authGuard] },
   {

@@ -14,7 +14,13 @@ import { AuthService } from './auth.service';
  * Routes dont les 401 ne doivent jamais déclencher de refresh : sans cette
  * exclusion, un refresh en échec se rejouerait indéfiniment.
  */
-const NO_REFRESH_PATHS = ['/auth/login', '/auth/passkey/login', '/auth/refresh', '/auth/me'];
+const NO_REFRESH_PATHS = [
+  '/auth/login',
+  '/auth/passkey/login',
+  '/auth/magic-link',
+  '/auth/refresh',
+  '/auth/me',
+];
 
 /**
  * Refresh en vol partagé par toutes les requêtes tombées en 401 simultanément.
