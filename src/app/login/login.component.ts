@@ -4,6 +4,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService, toApiError } from '../service/auth.service';
@@ -52,7 +54,11 @@ export class LoginComponent {
     this.retryAfter.set(null);
 
     this.auth.login(this.form.getRawValue().password).subscribe({
-      next: () => {
+      next: (result) => {
+        if (result.passkeyRequired) {
+          this.confirmWithPasskey(result.options);
+          return;
+        }
         this.isSubmitting.set(false);
         void this.router.navigateByUrl(this.redirectTarget());
       },
@@ -61,6 +67,25 @@ export class LoginComponent {
         this.isSubmitting.set(false);
         this.errorMessage.set(apiError.message);
         this.retryAfter.set(apiError.retryAfter ?? null);
+        this.passwordControl.reset();
+      },
+    });
+  }
+
+  /** Seconde étape, le mot de passe ayant été accepté. */
+  private confirmWithPasskey(options: PublicKeyCredentialRequestOptionsJSON): void {
+    this.auth.loginWithPasskey(options).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        void this.router.navigateByUrl(this.redirectTarget());
+      },
+      error: (error: unknown) => {
+        this.isSubmitting.set(false);
+        this.errorMessage.set(
+          error instanceof HttpErrorResponse
+            ? toApiError(error).message
+            : 'Validation du passkey annulée ou impossible. Recommencez la connexion.'
+        );
         this.passwordControl.reset();
       },
     });

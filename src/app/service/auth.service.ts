@@ -1,13 +1,43 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
+import {
+  startAuthentication,
+  startRegistration,
+  type PublicKeyCredentialCreationOptionsJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/browser';
+import { Observable, catchError, from, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { environment } from 'environments/environment';
 
 /** Toutes les routes d'authentification renvoient uniquement ce booléen. */
 export interface AuthStatusResponse {
   authenticated: boolean;
+}
+
+/**
+ * Réponse de `/auth/login` : soit la session est ouverte, soit le mot de passe
+ * est bon mais un passkey doit encore être présenté (seconde étape).
+ */
+export type LoginResult =
+  | { passkeyRequired: false }
+  | {
+      passkeyRequired: true;
+      options: PublicKeyCredentialRequestOptionsJSON;
+    };
+
+interface LoginResponse {
+  authenticated: boolean;
+  passkeyRequired?: boolean;
+  options?: PublicKeyCredentialRequestOptionsJSON;
+}
+
+export interface PasskeySummary {
+  id: number;
+  label: string;
+  createdAt: string;
+  lastUsedAt: string | null;
 }
 
 /** Corps d'erreur renvoyé par l'API NestJS. `message` peut être une chaîne ou un tableau. */
@@ -96,13 +126,56 @@ export class AuthService {
     this.authenticated.set(value);
   }
 
-  login(password: string): Observable<void> {
+  login(password: string): Observable<LoginResult> {
     return this.http
-      .post<AuthStatusResponse>(`${this.authUrl}/login`, { password })
+      .post<LoginResponse>(`${this.authUrl}/login`, { password })
       .pipe(
         tap((response) => this.authenticated.set(response.authenticated)),
-        map(() => undefined)
+        map((response): LoginResult =>
+          response.passkeyRequired && response.options
+            ? { passkeyRequired: true, options: response.options }
+            : { passkeyRequired: false }
+        )
       );
+  }
+
+  /**
+   * Seconde étape : le navigateur fait signer le défi par le passkey (biométrie,
+   * PIN ou clé physique), puis l'API ouvre la session.
+   */
+  loginWithPasskey(options: PublicKeyCredentialRequestOptionsJSON): Observable<void> {
+    return from(startAuthentication({ optionsJSON: options })).pipe(
+      switchMap((response) =>
+        this.http.post<AuthStatusResponse>(`${this.authUrl}/passkey/login`, { response })
+      ),
+      tap((response) => this.authenticated.set(response.authenticated)),
+      map(() => undefined)
+    );
+  }
+
+  listPasskeys(): Observable<PasskeySummary[]> {
+    return this.http.get<PasskeySummary[]>(`${this.authUrl}/passkey`);
+  }
+
+  registerPasskey(label: string): Observable<PasskeySummary> {
+    return this.http
+      .post<PublicKeyCredentialCreationOptionsJSON>(
+        `${this.authUrl}/passkey/register/options`,
+        null
+      )
+      .pipe(
+        switchMap((optionsJSON) => from(startRegistration({ optionsJSON }))),
+        switchMap((response) =>
+          this.http.post<PasskeySummary>(`${this.authUrl}/passkey/register/verify`, {
+            response,
+            label,
+          })
+        )
+      );
+  }
+
+  deletePasskey(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.authUrl}/passkey/${id}`);
   }
 
   logout(): Observable<void> {

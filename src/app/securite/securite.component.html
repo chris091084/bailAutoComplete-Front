@@ -1,0 +1,56 @@
+<div class="container" style="max-width: 640px">
+  <h1 class="h4 mb-1">Sécurité</h1>
+  <p class="text-muted small mb-4">
+    Les passkeys sont demandés après le mot de passe à chaque connexion. Enregistrez-en
+    au moins deux (téléphone, ordinateur, clé physique) : si vous en perdez un, l'autre
+    donne toujours accès.
+  </p>
+
+  @if (errorMessage(); as message) {
+    <div class="alert alert-danger py-2" role="alert">{{ message }}</div>
+  }
+
+  <ul class="list-group mb-4">
+    @for (passkey of passkeys(); track passkey.id) {
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold">{{ passkey.label }}</div>
+          <div class="small text-muted">
+            Ajouté le {{ passkey.createdAt | date: 'dd/MM/yyyy' }} ·
+            @if (passkey.lastUsedAt) {
+              utilisé le {{ passkey.lastUsedAt | date: 'dd/MM/yyyy HH:mm' }}
+            } @else {
+              jamais utilisé
+            }
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline-danger btn-sm"
+          [disabled]="isBusy()"
+          (click)="remove(passkey)"
+        >
+          Supprimer
+        </button>
+      </li>
+    } @empty {
+      <li class="list-group-item text-muted">
+        Aucun passkey : la connexion se fait par mot de passe seul.
+      </li>
+    }
+  </ul>
+
+  <div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Nom (ex. iPhone, Portable)"
+      maxlength="100"
+      [(ngModel)]="label"
+      [disabled]="isBusy()"
+    />
+    <button type="button" class="btn btn-primary" [disabled]="isBusy()" (click)="add()">
+      Ajouter un passkey
+    </button>
+  </div>
+</div>
