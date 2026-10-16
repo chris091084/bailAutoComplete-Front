@@ -24,6 +24,7 @@ export class ResultForm {
   typeResidence?: string | null;
   rentRef?: number | null;
   rentRefMaj?: number | null;
+  garantieType?: string | null;
 
   formatDate(date: Date): string {
     const day = this.addLeadingZero(date.getDate());

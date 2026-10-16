@@ -47,6 +47,25 @@
           }}</label>
         </div>
       }
+
+      <h2 class="mt-3">Type de garantie</h2>
+      @for (typeGarantie of typesGarantie; track typeGarantie; let i = $index) {
+        <div
+          class="form-check form-check-inline"
+          >
+          <input
+            class="form-check-input"
+            type="radio"
+            name="garantieType"
+            [id]="'garantieType' + i"
+            [value]="typeGarantie"
+            formControlName="garantieType"
+            />
+          <label class="form-check-label" [for]="'garantieType' + i">{{
+            typeGarantie
+          }}</label>
+        </div>
+      }
       <h2 class="mt-3">Type de bail</h2>
       @for (typeBail of typeBails; track typeBail; let i = $index) {
         <div
@@ -274,3 +293,25 @@
         </form>
       </div>
     </div>
+
+<!-- Le bail est produit mais rien n'est encore parti : la relecture décide de
+son sort. Elle s'ouvre dès la génération terminée, aperçu ou non — l'aperçu
+manque quand la conversion en PDF a échoué, ce qui n'empêche pas de télécharger
+le document pour le relire dans Word. -->
+@if (resultatGeneration) {
+  <app-apercu-bail-modal
+    [pdf]="apercuBail"
+    [nomFichier]="resultatGeneration.bail.nomFichier"
+    [anomalies]="resultatGeneration.anomalies"
+    [avertissementAnnexe]="resultatGeneration.avertissementAnnexe"
+    [destinataireNom]="nomLocataireSaisi"
+    [destinataireEmail]="emailLocataireSaisi"
+    [traitementEnCours]="envoiEnCours"
+    [messageErreur]="messageErreur"
+    [corpsMail]="corpsMailPourEnvoi"
+    (envoyer)="envoyerBail($event)"
+    (telechargerSeulement)="telechargerBail()"
+    (annuler)="abandonnerRelecture()"
+  >
+  </app-apercu-bail-modal>
+}

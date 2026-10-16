@@ -34,6 +34,16 @@ function chargerDocx(): Promise<ModuleDocx> {
   return moduleDocx;
 }
 
+/** Un document rempli, avec ce que le remplissage a révélé du modèle. */
+export interface DocumentRempli {
+  fichier: Blob;
+  /**
+   * Balises présentes dans le modèle Word mais absentes des champs fournis.
+   * Une seule y suffit à trahir un modèle retouché sans que le code suive.
+   */
+  balisesVides: string[];
+}
+
 /**
  * Remplit un modèle Word et renvoie le document produit.
  *
@@ -45,13 +55,43 @@ export async function remplirModeleDocx(
   modele: ArrayBuffer,
   champs: Record<string, unknown>,
 ): Promise<Blob> {
+  const { fichier } = await remplirModeleDocxControle(modele, champs);
+  return fichier;
+}
+
+/**
+ * Même remplissage, mais en relevant au passage les balises que les champs
+ * n'ont pas su nourrir.
+ *
+ * Sans `nullGetter`, docxtemplater écrit « undefined » dans le document pour
+ * une balise sans champ : le bail part avec le mot en toutes lettres au milieu
+ * d'un paragraphe. On renvoie une chaîne vide à la place et on note la balise,
+ * pour la signaler à la relecture.
+ */
+export async function remplirModeleDocxControle(
+  modele: ArrayBuffer,
+  champs: Record<string, unknown>,
+): Promise<DocumentRempli> {
   const { Docxtemplater, PizZip } = await chargerDocx();
+  const balisesVides = new Set<string>();
 
   const doc = new Docxtemplater(new PizZip(new Uint8Array(modele)), {
     paragraphLoop: true,
     linebreaks: true,
+    nullGetter: (part: { value?: string; module?: string }) => {
+      // Les sections et boucles non satisfaites sont le fonctionnement normal
+      // d'un modèle à variantes (bail mobilité, étudiant, indéterminé) : seules
+      // les balises simples manquantes sont des anomalies.
+      if (!part?.module && part?.value) {
+        balisesVides.add(part.value);
+      }
+      return '';
+    },
   });
   doc.render(champs);
 
-  return doc.getZip().generate({ type: 'blob', mimeType: DOCX_MIME });
+  return {
+    fichier: doc.getZip().generate({ type: 'blob', mimeType: DOCX_MIME }),
+    balisesVides: [...balisesVides],
+  };
 }
