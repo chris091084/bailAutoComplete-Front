@@ -1,0 +1,88 @@
+// Colonne centrée : plein écran sur mobile, 880 px de large sur ordinateur.
+.edl-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1rem 1rem 6rem; // le bas laisse la place du pied collant
+}
+
+.edl-infos {
+  display: grid;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--edl-fond-doux);
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  dt {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--edl-texte-doux);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.edl-rgpd {
+  margin-bottom: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--edl-texte-doux);
+}
+
+// Pied collant : reste visible pendant le défilement.
+.edl-pied {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  // Déborde du padding de la page ET de celui du conteneur de l'application
+  // (gutter Bootstrap) pour occuper toute la largeur de l'écran.
+  margin: 0 calc(-1rem - var(--bs-gutter-x, 1.5rem) / 2);
+  padding-inline: calc(1rem + var(--bs-gutter-x, 1.5rem) / 2);
+  padding-block: 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--edl-bordure);
+  background: var(--edl-fond);
+  box-shadow: 0 -2px 8px rgb(0 0 0 / 8%);
+}
+
+.edl-pied__compteur {
+  font-weight: 600;
+}
+
+// Feuille de signature : en bas de l'écran sur mobile, centrée sur ordinateur.
+.edl-feuille {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(0 0 0 / 55%);
+
+  @media (min-width: 576px) {
+    align-items: center;
+  }
+}
+
+.edl-feuille__contenu {
+  width: 100%;
+  max-width: 560px;
+  max-height: 100dvh;
+  padding: 1.25rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--edl-fond);
+
+  @media (min-width: 576px) {
+    border-radius: 1rem;
+  }
+}

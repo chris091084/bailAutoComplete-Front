@@ -81,3 +81,11 @@ the back-end sends a reminder with the addresses to search for.
 Templating: bootstrap@5.2.3
 Form building: ReactiveFormsModule
 DocxTemplate: docxtemplater@3.5
+
+## États des lieux numériques
+
+Le front contient la page publique du locataire (`/edl/:token`), la page bailleur « États des lieux » et la page
+« OneDrive ». Architecture, lancement en local, variables et RGPD : voir la documentation du back,
+`back-bailAutoComplet/docs/etat-des-lieux/`. Particularités du front : **Node ≥ 22.22** requis, tests avec
+`npx ng test --watch=false` (Vitest), stockage hors ligne dans IndexedDB (bibliothèque `idb`), signature avec
+`signature_pad`.

@@ -1,0 +1,73 @@
+// Variables de thème du module « état des lieux ». Les composants n'écrivent
+// aucune couleur en dur : tout passe par ces variables.
+:root {
+  // Bleu : référence du bailleur (lecture seule)
+  --edl-ref-fond: #e7f1ff;
+  --edl-ref-texte: #0a3d91;
+  --edl-ref-bordure: #9ec5fe;
+  // Jaune : appréciation du locataire après modification
+  --edl-vous-fond: #fff3cd;
+  --edl-vous-texte: #664d03;
+  --edl-vous-bordure: #ffda6a;
+  // Vert : validé / synchronisé
+  --edl-ok-fond: #d1e7dd;
+  --edl-ok-texte: #0f5132;
+  --edl-ok: #198754;
+  // Orange : en attente de synchronisation
+  --edl-attente-fond: #ffe5d0;
+  --edl-attente-texte: #7a3e00;
+  --edl-attente: #fd7e14;
+  // Rouge : erreur
+  --edl-erreur-fond: #f8d7da;
+  --edl-erreur-texte: #842029;
+  // Neutres et interactions
+  --edl-fond: #fff;
+  --edl-fond-doux: #f8f9fa;
+  --edl-bordure: #ced4da;
+  --edl-texte-doux: #6c757d;
+  --edl-choix: #0d6efd;
+  --edl-choix-texte: #fff;
+  --edl-focus: #86b7fe;
+}
+
+// Pastilles d'appréciation, partagées par la barre de l'élément.
+.edl-badge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.5rem;
+  max-width: 100%;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.edl-badge__qui {
+  font-weight: 700;
+}
+
+.edl-badge--ref {
+  background: var(--edl-ref-fond);
+  color: var(--edl-ref-texte);
+  border-color: var(--edl-ref-bordure);
+}
+
+.edl-badge--vous {
+  background: var(--edl-vous-fond);
+  color: var(--edl-vous-texte);
+  border-color: var(--edl-vous-bordure);
+}
+
+.edl-badge--neutre {
+  background: var(--edl-fond-doux);
+  color: var(--edl-texte-doux);
+  border-color: var(--edl-bordure);
+}
+
+.edl-tag-ok {
+  background: var(--edl-ok-fond);
+  color: var(--edl-ok-texte);
+}

@@ -1,0 +1,14 @@
+<div class="edl-signature">
+  <canvas
+    #canvas
+    class="edl-signature__zone"
+    aria-label="Zone de signature : dessinez votre signature avec le doigt ou la souris"
+    role="img"
+  ></canvas>
+  @if (vide()) {
+    <span class="edl-signature__indice" aria-hidden="true">Signez ici</span>
+  }
+</div>
+<button type="button" class="btn btn-link btn-sm px-0" [disabled]="vide()" (click)="effacer()">
+  Effacer et recommencer
+</button>

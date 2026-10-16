@@ -1,0 +1,31 @@
+.edl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.edl-chip {
+  flex: 1 1 8rem;
+  min-height: 44px; // zone tactile minimale recommandée
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--edl-bordure);
+  border-radius: 0.5rem;
+  background: var(--edl-fond);
+  color: inherit;
+  font-weight: 500;
+
+  &:focus-visible {
+    outline: 3px solid var(--edl-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+.edl-chip--actif {
+  border-color: var(--edl-choix);
+  background: var(--edl-choix);
+  color: var(--edl-choix-texte);
+}

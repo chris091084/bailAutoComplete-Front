@@ -1,0 +1,24 @@
+.edl-signature {
+  position: relative;
+}
+
+.edl-signature__zone {
+  display: block;
+  width: 100%;
+  height: 200px;
+  border: 2px dashed var(--edl-bordure);
+  border-radius: 0.75rem;
+  background: var(--edl-fond);
+  // Sans cela, le navigateur mobile fait défiler la page au lieu de tracer.
+  touch-action: none;
+}
+
+.edl-signature__indice {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--edl-texte-doux);
+  font-size: 1.1rem;
+  pointer-events: none;
+}

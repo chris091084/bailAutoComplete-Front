@@ -1,0 +1,23 @@
+<div class="edl-sync" [class]="'edl-sync edl-sync--' + niveau()" role="status" aria-live="polite">
+  @if (niveau() === 'attente') {
+    <svg class="edl-sync__icone edl-sync__icone--tourne" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path d="M8 2a6 6 0 1 0 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  } @else if (niveau() === 'ok') {
+    <svg class="edl-sync__icone" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  }
+  <span class="edl-sync__texte">{{ message() }}</span>
+  @if (peutReessayer()) {
+    <button type="button" class="btn btn-sm edl-sync__bouton" (click)="store.reessayerMaintenant()">
+      Réessayer
+    </button>
+  }
+</div>
+@if (!store.stockagePersistant()) {
+  <p class="edl-sync__alerte">
+    Attention : cet appareil ne peut pas garder vos saisies si vous fermez la page (navigation privée ?).
+    Restez sur cette page jusqu’à la synchronisation.
+  </p>
+}

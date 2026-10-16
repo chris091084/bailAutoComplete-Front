@@ -1,0 +1,75 @@
+<div class="edl-photos">
+  <div class="form-label fw-semibold mb-1">Photos</div>
+  <p class="edl-photos__consigne">Photographiez uniquement l’élément concerné.</p>
+
+  <ul class="edl-photos__liste">
+    @for (photo of photos(); track photo.id; let i = $index) {
+      <li class="edl-vignette">
+        <button
+          type="button"
+          class="edl-vignette__image"
+          [attr.aria-label]="'Agrandir la photo ' + (i + 1)"
+          (click)="ouverte.set(i)"
+        >
+          <img [src]="photo.src" [alt]="'Photo ' + (i + 1)" loading="lazy" />
+        </button>
+
+        @if (photo.statut === 'attente') {
+          <span class="edl-vignette__etat edl-vignette__etat--attente" role="img" aria-label="En attente d’envoi" title="En attente d’envoi">
+            <svg class="edl-vignette__tourne" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M8 2a6 6 0 1 0 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </span>
+        } @else {
+          <span class="edl-vignette__etat edl-vignette__etat--ok" role="img" aria-label="Envoyée" title="Envoyée">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        }
+
+        <button
+          type="button"
+          class="edl-vignette__suppr"
+          [attr.aria-label]="'Supprimer la photo ' + (i + 1)"
+          (click)="supprimer(photo)"
+        >
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <label class="btn btn-outline-primary edl-photos__ajout" [class.disabled]="complet() || traitement()">
+    @if (traitement()) {
+      Traitement…
+    } @else if (complet()) {
+      {{ max }} photos au maximum
+    } @else {
+      Ajouter une photo
+    }
+    <input
+      type="file"
+      class="visually-hidden"
+      accept="image/*"
+      capture="environment"
+      [disabled]="complet() || traitement()"
+      (change)="choisir($event)"
+    />
+  </label>
+
+  @if (erreur()) {
+    <div class="alert alert-danger py-2 mt-2 mb-0" role="alert">{{ erreur() }}</div>
+  }
+</div>
+
+@if (ouverte() !== null) {
+  <app-photo-viewer
+    [photos]="photos()"
+    [index]="ouverte()!"
+    (changer)="ouverte.set($event)"
+    (fermer)="ouverte.set(null)"
+  />
+}

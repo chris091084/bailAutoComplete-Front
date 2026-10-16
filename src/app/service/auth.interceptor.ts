@@ -9,6 +9,7 @@ import { Observable, catchError, finalize, shareReplay, switchMap, throwError } 
 
 import { environment } from 'environments/environment';
 import { AuthService } from './auth.service';
+import { PUBLIC_REQUEST } from './public-request';
 
 /**
  * Routes dont les 401 ne doivent jamais déclencher de refresh : sans cette
@@ -51,6 +52,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Les fichiers statiques locaux (assets/docx/bail.docx) ne doivent recevoir
   // ni withCredentials ni logique de refresh.
   if (!req.url.startsWith(environment.apiUrl)) {
+    return next(req);
+  }
+
+  // Routes publiques (lien locataire) : le jeton de l'URL fait foi, la session
+  // du bailleur n'entre pas en jeu.
+  if (req.context.get(PUBLIC_REQUEST)) {
     return next(req);
   }
 
