@@ -1,0 +1,60 @@
+<div class="container py-3" style="max-width: 720px">
+  <h1 class="h3 mb-1">Stockage des photos (OneDrive)</h1>
+  <p class="text-secondary">
+    Les photos des états des lieux sont rangées dans un dossier dédié de votre OneDrive personnel
+    (<em>Applications</em>). Les locataires ne voient jamais OneDrive.
+  </p>
+
+  @if (retour() === 'ok') {
+    <div class="alert alert-success" role="status">OneDrive est connecté.</div>
+  } @else if (retour() === 'erreur') {
+    <div class="alert alert-danger" role="alert">
+      La connexion n’a pas abouti (accord refusé ou demande expirée). Réessayez.
+    </div>
+  }
+
+  @if (erreur()) {
+    <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+  }
+
+  @if (statut(); as s) {
+    <div class="card">
+      <div class="card-body">
+        @if (!s.configure) {
+          <p class="mb-0">
+            <strong>Non configuré sur le serveur.</strong> Les variables
+            <code>ONEDRIVE_CLIENT_ID</code>, <code>ONEDRIVE_CLIENT_SECRET</code>,
+            <code>ONEDRIVE_REDIRECT_URI</code> et <code>EDL_ENCRYPTION_KEY</code> doivent être posées
+            chez l’hébergeur (voir la documentation OneDrive).
+          </p>
+        } @else if (s.connecte) {
+          <p>
+            <span class="badge text-bg-success">Connecté</span>
+            depuis le {{ s.connecteLe | date: 'dd/MM/yyyy HH:mm' }}.
+          </p>
+          <button type="button" class="btn btn-outline-danger" [disabled]="enCours()" (click)="deconnecter()">
+            Déconnecter OneDrive
+          </button>
+        } @else {
+          @if (s.revoque) {
+            <p>
+              <span class="badge text-bg-warning">Accès retiré</span>
+              Microsoft a retiré l’accès : reconnectez OneDrive. Les photos des locataires restent
+              gardées sur leur téléphone en attendant.
+            </p>
+          } @else {
+            <p>
+              <span class="badge text-bg-secondary">Non connecté</span>
+              Les photos des locataires restent sur leur téléphone tant que OneDrive n’est pas connecté.
+            </p>
+          }
+          <button type="button" class="btn btn-primary" [disabled]="enCours()" (click)="connecter()">
+            Connecter OneDrive
+          </button>
+        }
+      </div>
+    </div>
+  } @else if (!erreur()) {
+    <div class="text-center py-4" role="status"><div class="spinner-border" aria-hidden="true"></div></div>
+  }
+</div>

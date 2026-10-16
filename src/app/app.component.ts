@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -28,10 +29,19 @@ export class AppComponent implements OnInit {
   private readonly readiness = inject(BackendReadinessService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly location = inject(Location);
 
   title = 'bailAutoComplet';
 
   readonly isAuthenticated = this.auth.isAuthenticated;
+
+  /**
+   * Page ouverte par un LOCATAIRE depuis son lien (`/edl/<jeton>`) : ni barre de
+   * navigation du bailleur, ni attente du réveil du backend ou de la session.
+   * La page gère elle-même le serveur endormi, et doit rester ouvrable hors
+   * ligne : bloquer le démarrage sur la sonde la laisserait sur le splash.
+   */
+  readonly isPublicPage = this.location.path().startsWith('/edl/');
 
   /** Vrai tant que le backend n'a pas répondu et que la session n'a pas été relue. */
   readonly isBooting = signal(true);
@@ -43,6 +53,11 @@ export class AppComponent implements OnInit {
   readonly isSplashLeaving = signal(false);
 
   ngOnInit(): void {
+    if (this.isPublicPage) {
+      this.revealApp();
+      return;
+    }
+
     timer(SPLASH_DELAY_MS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {

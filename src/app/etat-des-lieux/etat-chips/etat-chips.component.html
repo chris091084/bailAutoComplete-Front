@@ -1,0 +1,17 @@
+<div class="edl-chips" role="radiogroup" aria-label="État de l'élément">
+  @for (etat of etats; track etat.valeur; let i = $index) {
+    <button
+      type="button"
+      role="radio"
+      class="edl-chip"
+      [class.edl-chip--actif]="valeur() === etat.valeur"
+      [attr.aria-checked]="valeur() === etat.valeur"
+      [attr.tabindex]="tabindex(i)"
+      [disabled]="desactive()"
+      (click)="choisir(etat.valeur)"
+      (keydown)="naviguer($event, i)"
+    >
+      {{ etat.libelle }}
+    </button>
+  }
+</div>

@@ -20,6 +20,31 @@ const routes: Routes = [
       ),
   },
   {
+    // Page PUBLIQUE du locataire : le jeton du lien fait office d'authentification,
+    // d'où l'absence d'authGuard.
+    path: 'edl/:token',
+    loadComponent: () =>
+      import('./etat-des-lieux/etat-des-lieux-page/etat-des-lieux-page.component').then(
+        (m) => m.EtatDesLieuxPageComponent
+      ),
+  },
+  {
+    path: 'etats-des-lieux',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./etats-des-lieux-admin/etats-des-lieux-admin.component').then(
+        (m) => m.EtatsDesLieuxAdminComponent
+      ),
+  },
+  {
+    path: 'onedrive',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./onedrive/onedrive-admin.component').then(
+        (m) => m.OnedriveAdminComponent
+      ),
+  },
+  {
     path: 'securite',
     canActivate: [authGuard],
     loadComponent: () =>

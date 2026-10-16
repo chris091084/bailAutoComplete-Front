@@ -1,0 +1,141 @@
+<div class="edl-element" [class.edl-element--valide]="valide()" role="listitem">
+  <div class="edl-element__barre">
+    <div class="edl-element__infos">
+      <div class="edl-element__titre">
+        <strong>{{ element().nom }}</strong>
+        @if (valide()) {
+          <span class="badge edl-tag-ok">validé</span>
+        }
+        @if (nbPhotos() > 0) {
+          <span class="edl-photos-nb" [attr.aria-label]="nbPhotos() + ' photo(s)'" [title]="nbPhotos() + ' photo(s)'">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M2 5h2.5l1-1.5h5L11.5 5H14v7.5H2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+              <circle cx="8" cy="8.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.4" />
+            </svg>
+            {{ nbPhotos() }}
+          </span>
+        }
+        @if (etatSync() === 'attente') {
+          <span class="edl-sync-ligne edl-sync-ligne--attente" role="img" aria-label="En attente de synchronisation" title="En attente de synchronisation">
+            <svg class="edl-sync-ligne__tourne" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M8 2a6 6 0 1 0 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </span>
+        } @else if (valide()) {
+          <span class="edl-sync-ligne edl-sync-ligne--ok" role="img" aria-label="Synchronisé" title="Synchronisé">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        }
+      </div>
+
+      @if (aReference()) {
+        <div class="edl-badge edl-badge--ref">
+          <span class="edl-badge__qui">Bailleur</span>
+          @if (element().etatBailleur) {
+            <span>{{ libelle(element().etatBailleur) }}</span>
+          }
+          @if (element().commentaireBailleur) {
+            <span>— {{ element().commentaireBailleur }}</span>
+          }
+        </div>
+      } @else if (sansReference()) {
+        <div class="edl-badge edl-badge--neutre">Aucune référence disponible</div>
+      }
+
+      @if (aSaisie()) {
+        <div class="edl-badge edl-badge--vous">
+          <span class="edl-badge__qui">Vous</span>
+          @if (element().etatLocataire) {
+            <span>{{ libelle(element().etatLocataire) }}</span>
+          }
+          @if (element().commentaireLocataire) {
+            <span>— {{ element().commentaireLocataire }}</span>
+          }
+          @if (element().dateModifLocataire) {
+            <time class="edl-badge__date" [attr.datetime]="element().dateModifLocataire">
+              {{ element().dateModifLocataire | date: 'dd/MM/yyyy HH:mm' }}
+            </time>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="edl-element__actions">
+      <button
+        type="button"
+        class="edl-valider"
+        [class.edl-valider--fait]="valide()"
+        [disabled]="!peutValiderRapidement()"
+        [attr.aria-label]="
+          valide() ? element().nom + ' : validé' : 'Valider ' + element().nom + ' tel quel'
+        "
+        [title]="valide() ? 'Validé' : 'Valider tel quel'"
+        (click)="validerRapidement()"
+      >
+        <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true">
+          <path
+            d="M3 8.5l3.2 3.2L13 4.8"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-primary edl-modifier"
+        [disabled]="!store.modifiable()"
+        [attr.aria-expanded]="ouvert()"
+        [attr.aria-controls]="'edition-' + element().id"
+        (click)="basculer()"
+      >
+        {{ ouvert() ? 'Fermer' : 'Modifier' }}
+      </button>
+    </div>
+  </div>
+
+  @if (erreur() && !ouvert()) {
+    <div class="alert alert-danger py-2 mt-2 mb-0" role="alert">{{ erreur() }}</div>
+  }
+
+  @if (ouvert()) {
+    <div class="edl-element__edition" [id]="'edition-' + element().id">
+      <div class="form-label fw-semibold" [id]="'etat-' + element().id">État</div>
+      <app-etat-chips [formControl]="etat" />
+
+      <label class="form-label fw-semibold mt-3" [for]="'commentaire-' + element().id">
+        Commentaire
+      </label>
+      <textarea
+        class="form-control"
+        rows="3"
+        maxlength="2000"
+        [id]="'commentaire-' + element().id"
+        [formControl]="commentaire"
+      ></textarea>
+
+      <div class="mt-3">
+        <app-photo-picker [elementId]="element().id" />
+      </div>
+
+      @if (erreur()) {
+        <div class="alert alert-danger py-2 mt-3 mb-0" role="alert">{{ erreur() }}</div>
+      }
+
+      <div class="d-grid d-sm-flex justify-content-sm-end mt-3">
+        <button
+          type="button"
+          class="btn btn-primary btn-lg"
+          [disabled]="etat.value === null || enregistrement()"
+          (click)="confirmer()"
+        >
+          Confirmer la modification
+        </button>
+      </div>
+    </div>
+  }
+</div>

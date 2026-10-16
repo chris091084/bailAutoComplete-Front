@@ -1,0 +1,119 @@
+<div class="container py-3">
+  <h1 class="h3 mb-3">États des lieux</h1>
+
+  @if (erreur()) {
+    <div class="alert alert-danger" role="alert">{{ erreur() }}</div>
+  }
+  @if (info()) {
+    <div class="alert alert-success" role="status">{{ info() }}</div>
+  }
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h6 card-title">Nouvel état des lieux</h2>
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-5">
+          <label class="form-label" for="edl-locataire">Locataire</label>
+          <select
+            id="edl-locataire"
+            class="form-select"
+            [ngModel]="nouveauLocataireId()"
+            (ngModelChange)="nouveauLocataireId.set($event)"
+          >
+            <option [ngValue]="null">Choisir…</option>
+            @for (l of locataires(); track l.id) {
+              <option [ngValue]="l.id">{{ l.prenom }} {{ l.nom }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label" for="edl-type">Type</label>
+          <select id="edl-type" class="form-select" [ngModel]="nouveauType()" (ngModelChange)="nouveauType.set($event)">
+            <option value="entree">Entrée</option>
+            <option value="sortie">Sortie</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 d-grid">
+          <button type="button" class="btn btn-primary" [disabled]="nouveauLocataireId() === null || enCours()" (click)="creer()">
+            Créer et obtenir le lien
+          </button>
+        </div>
+      </div>
+      <p class="form-text mb-0 mt-2">
+        Une sortie reprend automatiquement l’état d’entrée signé du locataire comme référence.
+      </p>
+    </div>
+  </div>
+
+  @if (lienAffiche(); as lien) {
+    <div class="alert alert-primary" role="status">
+      <p class="mb-2">
+        <strong>Lien pour {{ lien.nom }}</strong> — valable jusqu’au {{ lien.expireLe | date: 'dd/MM/yyyy' }}.
+        Transmettez-le par e-mail ou SMS : il suffit de l’ouvrir, sans compte.
+      </p>
+      <div class="input-group">
+        <input class="form-control" readonly [value]="lien.lien" aria-label="Lien à transmettre" (focus)="$any($event.target).select()" />
+        <button type="button" class="btn btn-outline-primary" (click)="copier(lien.lien)">Copier</button>
+      </div>
+    </div>
+  }
+
+  @if (chargement()) {
+    <div class="text-center py-4" role="status"><div class="spinner-border" aria-hidden="true"></div></div>
+  } @else if (liste().length === 0) {
+    <p class="text-secondary">Aucun état des lieux pour l’instant.</p>
+  } @else {
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Locataire</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Avancement</th>
+            <th>Créé le</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ligne of liste(); track ligne.id) {
+            <tr>
+              <td>{{ nomLocataire(ligne.locataireId) }}</td>
+              <td>{{ ligne.type === 'entree' ? 'Entrée' : 'Sortie' }}</td>
+              <td>
+                <span class="badge" [class]="'badge ' + libellesStatut[ligne.statut].classe">
+                  {{ libellesStatut[ligne.statut].texte }}
+                </span>
+              </td>
+              <td>{{ ligne.elementsValides }}/{{ ligne.elementsTotal }}</td>
+              <td>{{ ligne.dateCreation | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-end text-nowrap">
+                @if (ligne.statut !== 'signed') {
+                  <button type="button" class="btn btn-sm btn-outline-primary me-1" [disabled]="enCours()" (click)="envoyerLien(ligne)">
+                    Envoyer le lien
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary me-1" [disabled]="enCours()" (click)="nouveauLien(ligne)">
+                    Nouveau lien
+                  </button>
+                }
+                @if (ligne.statut === 'validated') {
+                  <button type="button" class="btn btn-sm btn-outline-warning me-1" [disabled]="enCours()" (click)="rouvrir(ligne)">
+                    Rouvrir
+                  </button>
+                }
+                @if (ligne.statut === 'signed') {
+                  <button type="button" class="btn btn-sm btn-outline-secondary me-1" [disabled]="enCours()" (click)="renvoyer(ligne)">
+                    Renvoyer le PDF
+                  </button>
+                }
+                <button type="button" class="btn btn-sm btn-outline-dark" [disabled]="enCours()" (click)="telechargerPdf(ligne)">
+                  PDF
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
