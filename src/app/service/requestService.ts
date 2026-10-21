@@ -100,11 +100,35 @@ export class RequestService {
     );
   }
 
+  /**
+   * Exclut un locataire sorti de la purge RGPD des 3 ans (`true`) ou lève
+   * l'exception (`false`) : litige en cours, obligation de conservation plus
+   * longue.
+   */
+  definirConservationProlongee(
+    id: number,
+    prolongee: boolean
+  ): Observable<LocataireDto> {
+    return this.http.put<LocataireDto>(
+      `${this.apiUrl}locataire/${id}/conservation`,
+      { prolongee }
+    );
+  }
+
   /** Annule la sortie : le locataire revient dans la liste principale. */
   reintegrerLocataire(id: number): Observable<LocataireDto> {
     return this.http.delete<LocataireDto>(
       `${this.apiUrl}locataire/${id}/sortie`
     );
+  }
+
+  /**
+   * Supprime un candidat avec son bail et son historique de génération. Le seul
+   * cas où une fiche locataire se supprime : celle d'un bail jamais signé, un
+   * locataire signé sort et sa fiche est purgée au bout de 3 ans.
+   */
+  supprimerCandidat(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}locataire/${id}`);
   }
 
   /**

@@ -103,6 +103,12 @@ export class LocatairesTableComponent {
   /** Id du locataire dont la sortie ou la réintégration s'enregistre. */
   sortieEnCours: number | null = null;
 
+  /** Id du locataire dont l'exception de conservation s'enregistre. */
+  conservationEnCours: number | null = null;
+
+  /** Id du candidat en cours de suppression, pour n'occuper qu'un bouton. */
+  suppressionEnCours: number | null = null;
+
   /** Locataire soumis à la confirmation d'envoi ; `null` = modale fermée. */
   locataireAResilier: LocataireDto | null = null;
 
@@ -450,7 +456,89 @@ export class LocatairesTableComponent {
     });
   }
 
-  /** Seule action offerte sur un locataire sorti : le remettre en place. */
+  /**
+   * Efface un candidat qui n'a pas donné suite : sa fiche, son bail et son
+   * historique de génération. Définitif, d'où la confirmation qui nomme la
+   * personne. Réservé aux candidats, un locataire signé sort au lieu d'être
+   * supprimé.
+   */
+  supprimerCandidat(locataire: LocataireDto) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    if (
+      !confirm(
+        `Supprimer définitivement ${locataire.prenom} ${locataire.nom} ?\n\n` +
+          'La fiche, le bail généré et ses données seront effacés. ' +
+          'Cette action est irréversible.',
+      )
+    ) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.suppressionEnCours = locataire.id;
+
+    this.requestService.supprimerCandidat(locataire.id).subscribe({
+      next: () => {
+        this.suppressionEnCours = null;
+        this.rafraichir.emit();
+        this.afficherSucces(
+          `${locataire.prenom} ${locataire.nom} a été supprimé.`,
+        );
+      },
+      error: (err) => {
+        this.suppressionEnCours = null;
+        console.error('Erreur lors de la suppression du candidat', err);
+        this.afficherErreur(
+          err?.error?.message ?? 'La suppression du candidat a échoué.',
+        );
+      },
+    });
+  }
+
+  /**
+   * Bascule l'exception à la purge RGPD d'un locataire sorti. Après l'appel
+   * (succès ou échec) la liste est rechargée : l'interrupteur se redessine à
+   * partir de la fiche, jamais à partir du clic, pour ne pas afficher une
+   * protection qui n'a pas été enregistrée.
+   */
+  basculerConservation(locataire: LocataireDto, prolongee: boolean) {
+    if (locataire.id == null) {
+      return;
+    }
+
+    this.messageSucces = null;
+    this.messageErreur = null;
+    this.conservationEnCours = locataire.id;
+
+    this.requestService
+      .definirConservationProlongee(locataire.id, prolongee)
+      .subscribe({
+        next: () => {
+          this.conservationEnCours = null;
+          this.rafraichir.emit();
+          this.afficherSucces(
+            prolongee
+              ? `${locataire.prenom} ${locataire.nom} ne sera pas supprimé automatiquement.`
+              : `${locataire.prenom} ${locataire.nom} sera supprimé 3 ans après sa sortie.`,
+          );
+        },
+        error: (err) => {
+          this.conservationEnCours = null;
+          this.rafraichir.emit();
+          console.error('Erreur lors du changement de conservation', err);
+          this.afficherErreur(
+            err?.error?.message ??
+              "L'exception de conservation n'a pas pu être enregistrée.",
+          );
+        },
+      });
+  }
+
+  /** Remet un locataire sorti en place (l'autre action de la ligne : la conservation). */
   reintegrerLocataire(locataire: LocataireDto) {
     if (locataire.id == null) {
       return;
