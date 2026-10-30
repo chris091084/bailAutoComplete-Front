@@ -61,6 +61,21 @@ Rent receipts (*quittances*) are delivered as PDF. The browser fills
 One receipt per month is produced, and the conversions run one at a time — see
 `quittance.service.ts` and the backend's `documents` module.
 
+## Deleting personal data (GDPR)
+
+The *Locataires* screen is where personal data is removed. The back-end does the
+actual deletion; see its README (section *RGPD*) and `doc-registre-traitements.md`.
+
+- **Candidats tab** — *Supprimer* deletes a candidate (a lease was generated but
+  never signed), together with the lease and its generation history. Only
+  candidates can be deleted; a signed tenant leaves the flat instead.
+- **Locataires sortis tab** — each former tenant is deleted automatically 3 years
+  after leaving (once the back-end purge is enabled). The *Ne pas supprimer* switch exempts a tenant (ongoing dispute,
+  longer retention duty). It calls `PUT /locataire/:id/conservation`.
+
+After a deletion, remember to remove the tenant's e-mails and messages by hand:
+the back-end sends a reminder with the addresses to search for.
+
 ## Library
 
 Templating: bootstrap@5.2.3
