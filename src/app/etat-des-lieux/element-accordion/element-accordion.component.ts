@@ -16,6 +16,7 @@ import {
   ElementDto,
   EtatElement,
   aSaisieLocataire,
+  ecartEntree,
   etatEffectif,
   libelleEtat,
 } from '../etat-des-lieux.model';
@@ -27,6 +28,10 @@ import {
  *   ┌ Murs  [validé] ─────────────────────────────┐
  *   │ [Bailleur] Bon état — peinture récente      │   ← référence (bleu)
  *   │ [Vous] État moyen — tache · 15/10 10:02     │   ← saisie du locataire (jaune)
+ *
+ * Pour une SORTIE, les mêmes badges deviennent « Entrée » (l'état signé à
+ * l'entrée) et « Sortie », avec un repère « dégradé » / « amélioré » si l'état
+ * a changé entre les deux.
  *   │                          (✓)  [Modifier]    │
  *   └──────────────────────────────────────────────┘
  *
@@ -79,6 +84,13 @@ export class ElementAccordionComponent {
       etatEffectif(this.element()) !== null &&
       !this.enregistrement(),
   );
+
+  /** Sortie : la « référence » est l'état d'entrée, pas un avis du bailleur. */
+  readonly estSortie = computed(() => this.store.document()?.type === 'sortie');
+  readonly libelleReference = computed(() => (this.estSortie() ? 'Entrée' : 'Bailleur'));
+  readonly libelleSaisie = computed(() => (this.estSortie() ? 'Sortie' : 'Vous'));
+  /** Écart entrée → sortie, affiché pour comparer d'un coup d'œil avant de valider. */
+  readonly ecart = computed(() => (this.estSortie() ? ecartEntree(this.element()) : null));
 
   readonly libelle = libelleEtat;
 

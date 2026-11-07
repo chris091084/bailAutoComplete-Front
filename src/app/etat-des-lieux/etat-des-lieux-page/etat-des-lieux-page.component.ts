@@ -120,6 +120,15 @@ export class EtatDesLieuxPageComponent implements OnInit {
       : 'Votre signature est enregistrée, mais le PDF n’a pas pu vous être envoyé pour le moment : le bailleur vous le transmettra.';
   });
 
+  /** « Tout valider » (sortie) : en cours, pour éviter un double clic. */
+  readonly validationEnMasse = signal(false);
+
+  async toutValider(): Promise<void> {
+    this.validationEnMasse.set(true);
+    await this.store.toutValider();
+    this.validationEnMasse.set(false);
+  }
+
   ouvrirSignature(): void {
     this.erreurSignature.set(null);
     this.manquants.set([]);

@@ -133,3 +133,22 @@
   font-size: 0.8rem;
   color: var(--edl-texte-doux);
 }
+
+// Sortie : repère de comparaison avec l'état d'entrée. La couleur ne porte
+// jamais seule l'information (flèche + texte).
+.edl-ecart {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.edl-ecart--degrade {
+  color: #b02a37;
+}
+
+.edl-ecart--ameliore {
+  color: var(--edl-ok-texte);
+}
+
+.edl-ecart--identique {
+  color: var(--edl-texte-doux);
+}

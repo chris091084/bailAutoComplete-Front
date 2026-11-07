@@ -98,6 +98,19 @@
         </div>
       }
 
+      @if (doc.type === 'sortie' && store.validablesEnMasse().length > 0) {
+        <div class="edl-tout-valider">
+          <p class="mb-2">
+            Rien n’a changé depuis l’entrée ? Validez d’un coup les
+            {{ store.validablesEnMasse().length }} élément(s) restant(s) avec leur état d’entrée.
+            Ceux que vous avez déjà modifiés gardent votre modification.
+          </p>
+          <button type="button" class="btn btn-outline-success" [disabled]="validationEnMasse()" (click)="toutValider()">
+            Tout valider comme à l’entrée
+          </button>
+        </div>
+      }
+
       @for (piece of store.pieces(); track piece.id) {
         <app-piece-section [piece]="piece" />
       }

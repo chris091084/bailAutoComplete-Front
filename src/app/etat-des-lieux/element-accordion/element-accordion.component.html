@@ -32,7 +32,7 @@
 
       @if (aReference()) {
         <div class="edl-badge edl-badge--ref">
-          <span class="edl-badge__qui">Bailleur</span>
+          <span class="edl-badge__qui">{{ libelleReference() }}</span>
           @if (element().etatBailleur) {
             <span>{{ libelle(element().etatBailleur) }}</span>
           }
@@ -46,7 +46,7 @@
 
       @if (aSaisie()) {
         <div class="edl-badge edl-badge--vous">
-          <span class="edl-badge__qui">Vous</span>
+          <span class="edl-badge__qui">{{ libelleSaisie() }}</span>
           @if (element().etatLocataire) {
             <span>{{ libelle(element().etatLocataire) }}</span>
           }
@@ -57,6 +57,22 @@
             <time class="edl-badge__date" [attr.datetime]="element().dateModifLocataire">
               {{ element().dateModifLocataire | date: 'dd/MM/yyyy HH:mm' }}
             </time>
+          }
+        </div>
+      }
+
+      @if (ecart(); as ecartConstate) {
+        <div class="edl-ecart" [class]="'edl-ecart edl-ecart--' + ecartConstate" role="status">
+          @switch (ecartConstate) {
+            @case ('degrade') {
+              ▼ Plus dégradé qu’à l’entrée
+            }
+            @case ('ameliore') {
+              ▲ Meilleur qu’à l’entrée
+            }
+            @default {
+              = Identique à l’entrée
+            }
           }
         </div>
       }

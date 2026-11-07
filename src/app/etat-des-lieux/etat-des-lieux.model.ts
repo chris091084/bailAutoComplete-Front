@@ -116,3 +116,23 @@ export const aSaisieLocataire = (e: ElementDto): boolean =>
 /** État effectif d'un élément : le dernier mot du locataire, sinon la référence. */
 export const etatEffectif = (e: ElementDto): EtatElement | null =>
   e.etatLocataire ?? e.etatBailleur;
+
+/**
+ * Sortie : comment l'état actuel se situe par rapport à celui de l'entrée.
+ * `null` quand la comparaison n'a pas de sens (pas de référence, pas d'état).
+ */
+export type EcartEntree = 'identique' | 'degrade' | 'ameliore';
+
+export function ecartEntree(e: ElementDto): EcartEntree | null {
+  const entree = e.etatBailleur;
+  const actuel = etatEffectif(e);
+  if (entree === null || actuel === null) {
+    return null;
+  }
+
+  // ETATS va du meilleur (index 0) au pire : un index plus grand = plus dégradé.
+  const rang = (etat: EtatElement): number => ETATS.findIndex((x) => x.valeur === etat);
+  const diff = rang(actuel) - rang(entree);
+
+  return diff === 0 ? 'identique' : diff > 0 ? 'degrade' : 'ameliore';
+}

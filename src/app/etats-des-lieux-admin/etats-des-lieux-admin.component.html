@@ -101,6 +101,11 @@
                     Rouvrir
                   </button>
                 }
+                @if (actionSortie(ligne); as sortie) {
+                  <button type="button" class="btn btn-sm btn-primary me-1" [disabled]="enCours()" (click)="faireSortie(ligne)">
+                    {{ sortie.reprendre ? 'Reprendre l’état des lieux de sortie' : 'Faire l’état des lieux de sortie' }}
+                  </button>
+                }
                 @if (ligne.statut === 'signed') {
                   <button type="button" class="btn btn-sm btn-outline-secondary me-1" [disabled]="enCours()" (click)="renvoyer(ligne)">
                     Renvoyer le PDF

@@ -18,6 +18,7 @@ import {
   PhotoDto,
   PieceDto,
   SuitesSignature,
+  etatEffectif,
 } from './etat-des-lieux.model';
 import {
   EcritureLocale,
@@ -210,6 +211,33 @@ export class EtatDesLieuxStore {
    */
   validerRapidement(elementId: string): Promise<ResultatEcriture> {
     return this.ecrire(elementId, { statutValidation: 'valide' });
+  }
+
+  /**
+   * Éléments qu'un « tout valider » peut accepter tels quels : pas encore
+   * traités ET avec un état connu (celui de l'entrée). Un élément sans aucun
+   * état reste à saisir à la main.
+   */
+  readonly validablesEnMasse = computed(() =>
+    this.modifiable()
+      ? this.elements().filter(
+          (e) => e.statutValidation !== 'valide' && etatEffectif(e) !== null,
+        )
+      : [],
+  );
+
+  /**
+   * « Tout valider » : accepte d'un coup tous les éléments restants tels quels
+   * (= la valeur d'entrée pour une sortie). Les éléments déjà modifiés ou
+   * validés ne sont PAS touchés : leur changement est donc bien pris en compte.
+   * Renvoie le nombre d'éléments validés.
+   */
+  async toutValider(): Promise<number> {
+    const cibles = this.validablesEnMasse();
+    for (const element of cibles) {
+      await this.validerRapidement(element.id);
+    }
+    return cibles.length;
   }
 
   /** « Confirmer la modification » : saisie du locataire, et élément traité. */
