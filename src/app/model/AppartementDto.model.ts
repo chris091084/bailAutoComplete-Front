@@ -21,6 +21,8 @@ export interface AppartementDto {
   petRule: string;
   rentRef: number;
   rentRefMaj: number;
+  /** `true` : loyers saisis à la main ; sinon remplis par l'encadrement des loyers. */
+  rentRefManual?: boolean;
   valIrl: string;
   tIrl: string;
   energieWater: string;
