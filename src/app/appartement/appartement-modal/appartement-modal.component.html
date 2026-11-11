@@ -57,6 +57,32 @@
                 formControlName="surface"
               />
             </div>
+            <div class="col-12 mb-2">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="rentRefAuto"
+                  formControlName="rentRefAuto"
+                />
+                <label class="form-check-label" for="rentRefAuto">
+                  Loyers automatiques
+                  {{ loyersAutomatiques ? "(activé)" : "(désactivé : saisie manuelle)" }}
+                </label>
+              </div>
+              <div class="form-text">
+                @if (loyersAutomatiques) {
+                  Remplis depuis l'encadrement des loyers de la Métropole de
+                  Lyon (€/m²), mis à jour à chaque nouvel arrêté. Désactivez
+                  pour saisir vos propres valeurs.
+                } @else {
+                  Saisie manuelle : ces valeurs ne suivront pas les nouveaux
+                  arrêtés. Activez l'interrupteur pour revenir au remplissage
+                  automatique.
+                }
+              </div>
+            </div>
             <div class="col-md-4 mb-3">
               <label for="rentRef" class="form-label">Loyer Ref</label>
               <input
